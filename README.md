@@ -1,9 +1,10 @@
 # Cage Finder
 
-Look up a suburb from a parcel sticker and get the cage it goes to. Type it, or scan the sticker with the camera. Works offline once installed.
+Type the suburb from a parcel sticker and get the cage it goes to. Works offline once installed.
 
-- **Search**: type a few letters. Case, spaces and punctuation don't matter, small typos are forgiven, and `Pt`/`Mt` match `Port`/`Mount`.
-- **Scan sticker**: point the camera at the sticker, fit the suburb name in the box, tap **Read**. A confident match goes straight to the result. If unsure, it shows up to 3 options to tap. If it can't read anything, type instead.
+Live at <https://lyric28-bit.github.io/cage-finder/>
+
+- **Search**: type a few letters. Case, spaces and punctuation don't matter, small typos are forgiven, and `Pt`/`Mt` match `Port`/`Mount`. Cage towns (Berri, Renmark...) find their own cage.
 - **Result**: the cage name, huge, on the cage colour. If a suburb is on more than one list (e.g. Pinkerton Plains: Barossa and Kadina) you get a yellow warning and every cage.
 - **LOCAL**: Adelaide metro suburbs that aren't on any cage sheet show as **LOCAL** with their postcode. Tap **Move to cage** once you know the real cage (you can create a new cage right there).
 - **Not found**: tap **Add to a cage**.
@@ -26,7 +27,7 @@ These files are only the starting point. Each device saves its own copy (in the 
 
 ## Deploy (free, HTTPS) with GitHub Pages
 
-The camera only works over HTTPS, so the app has to be hosted. GitHub Pages is free for public repositories.
+Installing and offline mode need HTTPS, so the app has to be hosted. GitHub Pages is free for public repositories.
 
 **Note:** a public repo means anyone can see the files, including the suburb lists and (if you leave them in) the sheet photos. The site URL is public too, though nobody will find it unless you share it.
 
@@ -55,11 +56,9 @@ Open the site address once with internet, then:
 
 - **Android phone or tablet (Chrome)**: menu **⋮ → Install app** (or **Add to Home screen**). It gets its own icon and opens full screen.
 - **iPhone / iPad (Safari)**: tap **Share** (square with arrow) **→ Add to Home Screen → Add**. Use Safari for this.
-- **Work tablet**: same as above for its browser. If install or the camera is blocked, the device is probably managed by work IT; typing search still works in the normal browser.
+- **Work tablet**: same as above for its browser. If install is blocked, the device is probably managed by work IT; the app still works in the normal browser.
 
-Then, **before relying on it offline**: open the installed app once with internet and tap **Scan sticker → Read** once. That makes sure the OCR files are downloaded. After that, test with flight mode on.
-
-The first time you scan, the phone asks for camera permission: allow it. If you said no by accident, re-enable it in the browser's site settings (Android) or **Settings → Safari → Camera** (iPhone).
+Then, **before relying on it offline**: open the installed app once with internet, then test with flight mode on.
 
 ## Developing on this PC
 
@@ -69,7 +68,7 @@ No installs needed:
 powershell -ExecutionPolicy Bypass -File serve.ps1
 ```
 
-Then open <http://localhost:8080>. Matcher tests: <http://localhost:8080/tests.html> (should end with `RESULT: 21/21 passed`).
+Then open <http://localhost:8080>. Matcher tests: <http://localhost:8080/tests.html> (should end with `RESULT: 17/17 passed`).
 
 The app caches itself, so after editing files: F12 → **Application → Storage → Clear site data**, then reload.
 
@@ -78,11 +77,9 @@ The app caches itself, so after editing files: F12 → **Application → Storage
 | Path | What |
 |---|---|
 | `index.html`, `styles.css`, `app.js` | Screens: search, result, add/move dialog |
-| `js/match.js` | Normalising, fuzzy search, OCR text matching |
+| `js/match.js` | Normalising and fuzzy search |
 | `js/store.js` | Saved data on the device |
 | `js/manage.js` | Manage screen |
-| `js/scan.js` | Camera + OCR |
 | `sw.js`, `manifest.webmanifest`, `icons/` | Offline + install |
-| `vendor/tesseract/` | Tesseract.js 5.1.1 + English model, so OCR works offline |
 | `tests.html`, `serve.ps1` | Tests and local server |
 | `sheets/` | Original sheet photos |

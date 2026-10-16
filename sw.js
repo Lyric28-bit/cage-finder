@@ -1,6 +1,6 @@
-// Offline support: everything (including the OCR model) is cached on first load.
+// Offline support: everything is cached on first load.
 // Bump VERSION whenever you deploy changes, so phones pick up the new files.
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = 'cage-finder-' + VERSION;
 
 const FILES = [
@@ -12,16 +12,10 @@ const FILES = [
   'js/match.js',
   'js/store.js',
   'js/manage.js',
-  'js/scan.js',
   'data/cages.json',
   'data/adelaide-suburbs.json',
   'icons/icon-192.png',
   'icons/icon-512.png',
-  'vendor/tesseract/tesseract.min.js',
-  'vendor/tesseract/worker.min.js',
-  'vendor/tesseract/tesseract-core-lstm.wasm.js',
-  'vendor/tesseract/tesseract-core-simd-lstm.wasm.js',
-  'vendor/tesseract/eng.traineddata.gz',
 ];
 
 // No skipWaiting: a new version takes over only once the app is fully closed,
@@ -30,6 +24,11 @@ const FILES = [
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache =>
     cache.addAll(FILES.map(f => new Request(f, { cache: 'reload' })))));
+});
+
+// The app's "Tap to update" button sends this.
+self.addEventListener('message', event => {
+  if (event.data === 'skipWaiting') self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {

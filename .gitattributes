@@ -1,2 +1,0 @@
-# Leave third-party bundles and data byte-for-byte as downloaded.
-vendor/** -text

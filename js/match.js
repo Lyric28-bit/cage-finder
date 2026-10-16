@@ -7,7 +7,7 @@ export function normalise(text) {
   const words = String(text)
     .toLowerCase()
     .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
+    .replace(/[\u0300-\u036f]/g, '') // strip accents left by NFKD
     .replace(/[^a-z\s]/g, ' ')
     .split(/\s+/)
     .filter(Boolean)
@@ -73,7 +73,7 @@ export function buildIndex(data) {
   // Only add them where nothing else already claims the name.
   for (const cage of data.cages || []) {
     const key = normalise(cage.name);
-    if (!byKey.has(key)) add(cage.name, { type: 'cage', cage: cage.name, color: cage.color, cageTown: true });
+    if (!byKey.has(key)) add(cage.name, { type: 'cage', cage: cage.name, color: cage.color });
   }
   return [...byKey.values()];
 }
@@ -107,52 +107,4 @@ export function search(index, query, limit = 8) {
   }
   hits.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
   return hits.slice(0, limit);
-}
-
-// Pull likely place names out of messy OCR text: each line, and every
-// run of 1-4 words within a line, with digits and state codes stripped.
-export function ocrCandidates(text) {
-  const out = new Set();
-  const lines = String(text).split(/\r?\n/);
-  for (const line of lines) {
-    const words = line
-      .replace(/\b(SA|VIC|NSW|QLD|WA|NT|TAS|ACT|AUSTRALIA)\b/gi, ' ')
-      .replace(/[^A-Za-z'\-\s]/g, ' ')
-      .split(/\s+/)
-      .filter(w => w.length > 1);
-    for (let n = 1; n <= 4; n++) {
-      for (let i = 0; i + n <= words.length; i++) {
-        out.add(words.slice(i, i + n).join(' '));
-      }
-    }
-  }
-  return [...out];
-}
-
-// Match OCR'd sticker text. Only exact or close-whole-word matches count here;
-// prefix/substring hits would make every short OCR fragment look like a suburb.
-// Returns { confident, candidates: [place...] } with up to 3 candidates.
-export function matchOcr(index, text) {
-  const best = new Map();
-  for (const candidate of ocrCandidates(text)) {
-    const q = normalise(candidate);
-    if (q.length < 3) continue;
-    const typos = allowedTypos(q.length);
-    for (const place of index) {
-      let score = 0;
-      if (place.key === q) score = 1;
-      else if (typos > 0 && Math.abs(place.key.length - q.length) <= typos) {
-        const d = editDistance(q, place.key);
-        if (d <= typos) score = 0.9 - 0.25 * (d / Math.max(1, typos));
-      }
-      // Longer matches are more trustworthy than short ones.
-      if (score > 0) score += Math.min(q.length, 15) * 0.002;
-      if (score > (best.get(place.key)?.score || 0)) best.set(place.key, { ...place, score });
-    }
-  }
-  const candidates = [...best.values()].sort((a, b) => b.score - a.score).slice(0, 3);
-  const [top, second] = candidates;
-  // Exact hits score ~1; one typo in a 7+ letter name scores ~0.78.
-  const confident = !!top && top.score >= 0.75 && (!second || top.score - second.score >= 0.15);
-  return { confident, candidates };
 }

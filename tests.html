@@ -8,7 +8,7 @@
 <body>
 <pre id="out">running...</pre>
 <script type="module">
-import { buildIndex, search, matchOcr } from './js/match.js';
+import { buildIndex, search } from './js/match.js';
 
 const out = [];
 let passed = 0, total = 0;
@@ -56,16 +56,6 @@ try {
 
   // Type-ahead
   r = search(index, 'jame');  check('type-ahead "jame" includes Jamestown', r.some(p => p.name === 'Jamestown'), r.map(p => p.name).join(', '));
-
-  // OCR
-  let o = matchOcr(index, 'TO: J SMITH\n12 MAIN ST\nNAPPERBY SA 5540');
-  check('OCR clean label -> confident Napperby', o.confident && o.candidates[0]?.name === 'Napperby', `${o.confident ? 'confident' : 'unsure'}: ${o.candidates.map(describe).join(', ')}`);
-  o = matchOcr(index, 'JAMESTOVVN SA 5491');
-  check('OCR misread "JAMESTOVVN" -> Jamestown offered', o.candidates.some(p => p.name === 'Jamestown'), `${o.confident ? 'confident' : 'unsure'}: ${o.candidates.map(describe).join(', ')}`);
-  o = matchOcr(index, 'PINKERTON PLAINS 5400');
-  check('OCR "PINKERTON PLAINS" -> 2 cages', o.candidates[0]?.destinations.length === 2, `${o.confident ? 'confident' : 'unsure'}: ${o.candidates.map(describe).join(', ')}`);
-  o = matchOcr(index, '%% qz 0000 ##');
-  check('OCR garbage -> nothing', o.candidates.length === 0, o.candidates.map(describe).join(', ') || '(none)');
 } catch (e) {
   out.push('ERROR ' + e.stack);
 }

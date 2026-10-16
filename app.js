@@ -3,7 +3,7 @@ import { loadData, saveData, addCage, addSuburbToCage, sheetUpdateAvailable, LOC
 
 const $ = id => document.getElementById(id);
 
-// Shared app state. Other modules (manage, scan) get this via `app`.
+// Shared app state. manage.js gets this via `app`.
 export const app = {
   data: null,
   index: [],
@@ -16,7 +16,6 @@ export const app = {
   },
   showView,
   showResult,
-  showPicker,
   showMessage,
   openAddDialog,
 };
@@ -70,7 +69,7 @@ function showView(name, { focus = true, fromHistory = false } = {}) {
   if (name === 'search' && focus) $('search').focus();
 }
 
-// Short note above the suggestions (scan fallbacks, "not sure" picker).
+// Short note above the suggestions (e.g. new sheet data available).
 function showMessage(text) {
   $('message').textContent = text || '';
   $('message').hidden = !text;
@@ -107,15 +106,6 @@ function onSearchInput() {
   renderSuggestions(search(app.index, q), q);
 }
 
-// Shows a short list of candidates to tap (used by Scan when unsure).
-// No focus, so the phone keyboard doesn't cover the candidates.
-function showPicker(places, heading) {
-  $('search').value = '';
-  renderSuggestions(places);
-  showMessage(heading);
-  showView('search', { focus: false });
-}
-
 // ---------- result ----------
 
 function showResult(place) {
@@ -130,8 +120,6 @@ function showResult(place) {
       el('div', { className: 'cage', textContent: d.type === 'local' ? 'LOCAL' : d.cage }));
     if (d.type === 'local') {
       band.append(el('div', { className: 'note', textContent: `Adelaide metro ${d.postcode} · cage not set yet` }));
-    } else if (d.cageTown) {
-      band.append(el('div', { className: 'note', textContent: 'Cage town' }));
     }
     band.style.background = bg;
     band.style.color = textColorFor(bg);
@@ -224,12 +212,6 @@ async function start() {
   });
   $('btn-manage-back').addEventListener('click', nextBox);
 
-  $('btn-scan').addEventListener('click', async () => {
-    const { startScan } = await import('./js/scan.js').catch(() => ({}));
-    if (startScan) startScan(app);
-    else alert('Scanning is not set up yet.');
-  });
-
   window.addEventListener('popstate', e => {
     showView(e.state?.view || 'search', { fromHistory: true, focus: false });
   });
@@ -241,11 +223,37 @@ async function start() {
   }
 
   // Ask the browser not to clear saved cages when the device is low on space.
-  navigator.storage?.persist?.().catch(() => {});
+  Promise.resolve(navigator.storage?.persist?.()).catch(() => {});
 
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(err => console.warn('Offline mode unavailable:', err));
+  if ('serviceWorker' in navigator) watchForUpdates();
+}
+
+// A new deploy installs in the background and waits. Offer a button rather
+// than relying on people fully closing the app.
+async function watchForUpdates() {
+  let reg;
+  try {
+    reg = await navigator.serviceWorker.register('sw.js');
+  } catch (err) {
+    console.warn('Offline mode unavailable:', err);
+    return;
   }
+  const offer = worker => {
+    const btn = $('btn-update');
+    btn.hidden = false;
+    btn.onclick = () => {
+      btn.disabled = true;
+      navigator.serviceWorker.addEventListener('controllerchange', () => location.reload(), { once: true });
+      worker.postMessage('skipWaiting');
+    };
+  };
+  if (reg.waiting && navigator.serviceWorker.controller) offer(reg.waiting);
+  reg.addEventListener('updatefound', () => {
+    const worker = reg.installing;
+    worker?.addEventListener('statechange', () => {
+      if (worker.state === 'installed' && navigator.serviceWorker.controller) offer(worker);
+    });
+  });
 }
 
 start();
