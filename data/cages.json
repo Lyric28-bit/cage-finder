@@ -1,0 +1,99 @@
+{
+  "cages": [
+    {
+      "name": "Adelaide Hills",
+      "color": "#3F4744",
+      "suburbs": ["Aldgate", "Ashbourne", "Ashton", "Balhannah", "Birdwood", "Blakiston", "Bridgewater", "Brukunga", "Charleston", "Crafers", "Cromer", "Echunga", "Eden Valley", "Forreston", "Gemmells", "Gumeracha", "Hahndorf", "Hay Valley", "Kersbrook", "Kuitpo", "Lenswood", "Littlehampton", "Lobethal", "Macclesfield", "McHarg Creek", "Meadows", "Montacute", "Mount Barker", "Mount Pleasant", "Mylor", "Nairne", "Norton Summit", "Oakbank", "Paechtown", "Petwood", "Piccadilly", "Stirling", "Summertown", "Totness", "Upper Sturt", "Uraidla", "Verdun", "Wistow", "Woodside"]
+    },
+    {
+      "name": "Barossa",
+      "color": "#8E1B2E",
+      "suburbs": ["Angaston", "Bibaringa", "Cockatoo Valley", "Concordia", "Dutton", "Ebenezer", "Eudunda", "Evanston", "Freeling", "Gawler", "Kalbeeba", "Kapunda", "Keyneton", "Kingsford", "Lewiston", "Light Pass", "Lyndoch", "Marananga", "Moculta", "Nuriootpa", "Penrice", "Pinkerton Plains", "Port Gawler", "Rosedale", "Roseworthy", "Rowland Flat", "Sandy Creek", "Seppeltsfield", "Shea-Oak Log", "Stockwell", "Stone Well", "Tanunda", "Truro", "Two Wells", "Willaston", "Williamstown"]
+    },
+    {
+      "name": "Berri",
+      "color": "#D81B60",
+      "suburbs": ["Barmera", "Cobdogla", "Glossop", "Gurra Gurra", "Kingston On Murray", "Loveday", "Lyrup", "Monash", "Moorook", "Winkie"]
+    },
+    {
+      "name": "Bordertown",
+      "color": "#A68A14",
+      "suburbs": ["Dimboola", "Horsham", "Kaniva", "Mundulla", "Nhill", "Serviceton", "Western Flat", "Wolseley"]
+    },
+    {
+      "name": "Ceduna",
+      "color": "#F7B8CB",
+      "suburbs": ["Minnipa", "Penong", "Poochera", "Smoky Bay", "Streaky Bay", "Thevenard", "Wudinna", "Yalata"]
+    },
+    {
+      "name": "Kadina",
+      "color": "#5A2A1C",
+      "suburbs": ["Ardrossan", "Arthurton", "Auburn", "Avon", "Balaklava", "Balgowan", "Bowmans", "Burra", "Bute", "Calomba", "Clare", "Clinton", "Coobowie", "Cunliffe", "Dublin", "Edithburgh", "Fisherman Bay", "Hamley Bridge", "Hardwicke Bay", "Kadina", "Kulpara", "Lochiel", "Lower Light", "Maitland", "Mallala", "Manoora", "Marion Bay", "Minlaton", "Mintaro", "Moonta", "New Town", "North Beach", "Owen", "Pine Point", "Pinkerton Plains", "Point Turton", "Port Broughton", "Port Hughes", "Port Victoria", "Port Vincent", "Port Wakefield", "Price", "Reeves Plains", "Riverton", "Saddleworth", "Sevenhill", "Snowtown", "Spring Gully", "Stanley Flat", "Stansbury", "Stockport", "Tarlee", "Tickera", "Wallaroo", "Warooka", "Wasleys", "Watervale", "Wauraltee", "Windsor", "Wool Bay", "Yorketown"]
+    },
+    {
+      "name": "Keith",
+      "color": "#A82BB5",
+      "suburbs": ["Coomandook", "Coombe", "Coonalpyn", "Culburra", "Field", "Ki Ki", "Laffer", "Mount Charles", "Shaugh", "Tintinara", "Yumali"]
+    },
+    {
+      "name": "Loxton",
+      "color": "#D6195A",
+      "suburbs": ["Bookpurnong", "Loxton North", "New Residence", "Pyap"]
+    },
+    {
+      "name": "Mildura",
+      "color": "#F7D917",
+      "suburbs": ["Bannerton", "Birdwoodton", "Buronga", "Cabarita", "Cardross", "Carwarp", "Colignan", "Coomealla", "Curlwaa", "Dareton", "Euston", "Gol Gol", "Happy Valley", "Hattah", "Iraak", "Irymple", "Koorlong", "Lake Powell", "Merbein", "Mourquong", "Nangiloc", "Nichols Point", "Ouyen", "Paringi", "Piangil", "Red Cliffs", "Robinvale", "Swan Hill", "Trentham Cliffs", "Wemen", "Wentworth", "Yelta"]
+    },
+    {
+      "name": "Mount Gambier",
+      "color": "#FF4B1F",
+      "suburbs": ["Allendale", "Beachport", "Cape Jaffa", "Casterton", "Coleraine", "Compton", "Coonawarra", "Glenburnie", "Glencoe", "Hamilton", "Kalangadoo", "Kingston SE", "Mil-lel", "Millicent", "Moorak", "Mount Benson", "Mount Burr", "Nangwarry", "OB Flat", "Penola", "Port Fairy", "Port MacDonnell", "Portland", "Racecourse Bay", "Rendelsham", "Robe", "Sandy Grove", "Southend", "Suttontown", "Tantanoola", "Tarpeena", "Wandilo", "Warrnambool", "Worrolong", "Yahl"]
+    },
+    {
+      "name": "Murray Bridge",
+      "color": "#A4E030",
+      "suburbs": ["Angas Plains", "Bowhill", "Brinkley", "Burdett", "Callington", "Elwomple", "Jervois", "Karoonda", "Kepa", "Langhorne Creek", "Mannum", "Meningie", "Milang", "Mobilong", "Monarto", "Monteith", "Mypolonga", "Palmer", "Strathalbyn", "Swan Reach", "Tailem Bend", "Walker Flat", "Wall Flat", "Wellington", "White Sands", "Woodchester", "Woods Point", "Wongulla", "Young Husband"]
+    },
+    {
+      "name": "Naracoorte",
+      "color": "#F8CDB0",
+      "suburbs": ["Binnum", "Cadgee", "Edenhope", "Frances", "Hynam", "Joanna", "Keppoch", "Lucindale", "Mount Light", "Moyhall", "Padthaway", "Stewart Range", "Struan", "Wild Dog Valley", "Woolumbool"]
+    },
+    {
+      "name": "Port Augusta",
+      "color": "#0F7B3E",
+      "suburbs": ["Carapateena Mine", "Cliff Transport", "Lincoln Gap", "Port Paterson", "Quorn", "Stirling North", "Sundrop", "Wilmington", "Winninowie"]
+    },
+    {
+      "name": "Port Lincoln",
+      "color": "#E3202A",
+      "suburbs": ["Arno Bay", "Boston", "Cleve", "Coffin Bay", "Coomunga", "Cowell", "Cummins", "Darke Peak", "Duck Ponds", "Edillilie", "Elliston", "Hawson", "Kielpa", "Kimba", "Lipson", "Lock", "Louth Bay", "North Shields", "Port Neill", "Tiatukia", "Tumby Bay", "Wangary"]
+    },
+    {
+      "name": "Port Pirie",
+      "color": "#1FA9D6",
+      "suburbs": ["Bangor", "Booleroo Centre", "Bungama", "Crystal Brook", "Germein Bay", "Gladstone", "Hornsdale", "Jamestown", "Koolunga", "Laura", "Melrose", "Murray Town", "Napperby", "Narridy", "Orroroo", "Peterborough", "Port Germein", "Redhill", "Risdon Park", "Solomontown", "Spalding", "Warnertown"]
+    },
+    {
+      "name": "Renmark",
+      "color": "#D41A5C",
+      "suburbs": ["Chowilla", "Cooltong", "Crescent", "Lindsay Point", "Murtho", "Old Calperum", "Paringa", "Pike River", "Wonuarra"]
+    },
+    {
+      "name": "Victor Harbor",
+      "color": "#17A39A",
+      "suburbs": ["Aldinga", "Aldinga Beach", "Back Valley", "Blewitt Springs", "Currency Creek", "Delamere", "Encounter Bay", "Goolwa", "Hayborough", "Hindmarsh Valley", "Lower Inman Valley", "Maslin Beach", "McCracken", "McLaren Vale", "Middleton", "Moana", "Mount Compass", "Myponga", "Nangkita", "Normanville", "Port Elliot", "Seaford", "Sellicks Beach", "Waitpinga", "Whites Valley", "Willunga", "Yankalilla", "Yundi"]
+    },
+    {
+      "name": "Waikerie",
+      "color": "#1A3FA8",
+      "suburbs": ["Blanchetown", "Brenda Park", "Cadell", "Devlins Pound", "Golden Heights", "Holder", "Kanni", "Lowbank", "Maude", "Morgan", "Murbko", "Overland Corner", "Paisley", "Qualco", "Ramco", "Sunlands", "Taylorville", "Woolpunda"]
+    },
+    {
+      "name": "Whyalla",
+      "color": "#F2203F",
+      "suburbs": ["Mullaquana", "Port Bonython", "Whyalla Jenkins", "Whyalla Norrie", "Whyalla Playford", "Whyalla Stuart"]
+    }
+  ]
+}
