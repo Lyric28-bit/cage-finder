@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Matcher tests</title>
+<style>body{font:14px/1.5 monospace;padding:16px}.fail{color:#c00}.pass{color:#080}</style>
+</head>
+<body>
+<pre id="out">running...</pre>
+<script type="module">
+import { buildIndex, search, matchOcr } from './js/match.js';
+
+const out = [];
+let passed = 0, total = 0;
+const check = (label, ok, detail) => {
+  total++;
+  if (ok) passed++;
+  out.push(`${ok ? 'PASS' : 'FAIL'}  ${label}${detail ? '  -> ' + detail : ''}`);
+};
+const describe = p => p
+  ? `${p.name} [${p.destinations.map(d => d.type === 'local' ? 'LOCAL ' + d.postcode : d.cage).join(' + ')}]`
+  : '(no match)';
+
+try {
+  const cages = await (await fetch('data/cages.json')).json();
+  const adelaide = await (await fetch('data/adelaide-suburbs.json')).json();
+  const index = buildIndex({ cages: cages.cages, local: adelaide.suburbs });
+  out.push(`Index: ${index.length} places\n`);
+
+  const top = q => search(index, q)[0];
+  const cagesOf = p => p ? p.destinations.map(d => d.type === 'local' ? 'LOCAL' : d.cage).sort().join('+') : '';
+
+  // Required examples
+  let r = top('Jamestown');  check('"Jamestown" -> Port Pirie', r?.name === 'Jamestown' && cagesOf(r) === 'Port Pirie', describe(r));
+  r = top('Napperby');       check('"Napperby" -> Port Pirie', r?.name === 'Napperby' && cagesOf(r) === 'Port Pirie', describe(r));
+  r = top('Jamstown');       check('typo "Jamstown" -> Jamestown', r?.name === 'Jamestown', describe(r));
+  r = search(index, 'Sydney'); check('"Sydney" (not in list) -> no results', r.length === 0, r.map(describe).join(', ') || '(none)');
+
+  // Normalising
+  r = top('JAMES TOWN');     check('"JAMES TOWN" (caps + space) -> Jamestown', r?.name === 'Jamestown', describe(r));
+  r = top('shea oak log');   check('"shea oak log" (no hyphen) -> Shea-Oak Log', r?.name === 'Shea-Oak Log', describe(r));
+  r = top('Pt Macdonnell');  check('"Pt Macdonnell" -> Port MacDonnell / Mount Gambier', r?.name === 'Port MacDonnell' && cagesOf(r) === 'Mount Gambier', describe(r));
+  r = top('mil lel');        check('"mil lel" -> Mil-lel', r?.name === 'Mil-lel', describe(r));
+
+  // Multi-destination and local
+  r = top('Pinkerton Plains'); check('"Pinkerton Plains" -> Barossa + Kadina (flagged)', cagesOf(r) === 'Barossa+Kadina', describe(r));
+  r = top('Happy Valley');   check('"Happy Valley" -> Mildura + LOCAL', cagesOf(r) === 'LOCAL+Mildura', describe(r));
+  r = top('Glenelg');        check('"Glenelg" -> LOCAL', r?.name === 'Glenelg' && cagesOf(r) === 'LOCAL', describe(r));
+  r = top('Gawler');         check('"Gawler" -> Barossa only (not LOCAL)', cagesOf(r) === 'Barossa', describe(r));
+  r = top('Berri');          check('"Berri" (cage town) -> Berri', cagesOf(r) === 'Berri', describe(r));
+  r = top('Mt Gambier');     check('"Mt Gambier" (cage town) -> Mount Gambier', cagesOf(r) === 'Mount Gambier', describe(r));
+
+  // Look-alikes
+  r = top('Paringa');        check('"Paringa" -> Renmark, not Paringi', r?.name === 'Paringa' && cagesOf(r) === 'Renmark', describe(r));
+  r = top('Stirling');       check('"Stirling" -> Adelaide Hills first', r?.name === 'Stirling', describe(r));
+
+  // Type-ahead
+  r = search(index, 'jame');  check('type-ahead "jame" includes Jamestown', r.some(p => p.name === 'Jamestown'), r.map(p => p.name).join(', '));
+
+  // OCR
+  let o = matchOcr(index, 'TO: J SMITH\n12 MAIN ST\nNAPPERBY SA 5540');
+  check('OCR clean label -> confident Napperby', o.confident && o.candidates[0]?.name === 'Napperby', `${o.confident ? 'confident' : 'unsure'}: ${o.candidates.map(describe).join(', ')}`);
+  o = matchOcr(index, 'JAMESTOVVN SA 5491');
+  check('OCR misread "JAMESTOVVN" -> Jamestown offered', o.candidates.some(p => p.name === 'Jamestown'), `${o.confident ? 'confident' : 'unsure'}: ${o.candidates.map(describe).join(', ')}`);
+  o = matchOcr(index, 'PINKERTON PLAINS 5400');
+  check('OCR "PINKERTON PLAINS" -> 2 cages', o.candidates[0]?.destinations.length === 2, `${o.confident ? 'confident' : 'unsure'}: ${o.candidates.map(describe).join(', ')}`);
+  o = matchOcr(index, '%% qz 0000 ##');
+  check('OCR garbage -> nothing', o.candidates.length === 0, o.candidates.map(describe).join(', ') || '(none)');
+} catch (e) {
+  out.push('ERROR ' + e.stack);
+}
+
+out.push(`\nRESULT: ${passed}/${total} passed`);
+document.getElementById('out').textContent = out.join('\n');
+</script>
+</body>
+</html>
