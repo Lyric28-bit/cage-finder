@@ -1,5 +1,5 @@
 import { buildIndex, search, normalise } from './js/match.js';
-import { loadData, saveData, addCage, addSuburbToCage, LOCAL_COLOR } from './js/store.js';
+import { loadData, saveData, addCage, addSuburbToCage, sheetUpdateAvailable, LOCAL_COLOR } from './js/store.js';
 
 const $ = id => document.getElementById(id);
 
@@ -33,7 +33,8 @@ export function textColorFor(hex) {
     return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
   });
   const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  return lum > 0.4 ? '#111418' : '#FFFFFF';
+  // 0.179 is where black and white text have equal contrast.
+  return lum > 0.179 ? '#111418' : '#FFFFFF';
 }
 
 function el(tag, props = {}, ...children) {
@@ -54,7 +55,17 @@ function chipFor(dest) {
 
 // ---------- views ----------
 
-function showView(name, { focus = true } = {}) {
+// Result and Manage get a history entry so the phone's Back button returns
+// to search instead of closing the app.
+function showView(name, { focus = true, fromHistory = false } = {}) {
+  if (!fromHistory) {
+    const current = history.state?.view;
+    if (name === 'search' && current) history.back(); // popstate re-runs showView
+    else if (name !== 'search' && current !== name) {
+      if (current) history.replaceState({ view: name }, '');
+      else history.pushState({ view: name }, '');
+    }
+  }
   for (const v of ['search', 'result', 'manage']) $('view-' + v).hidden = v !== name;
   if (name === 'search' && focus) $('search').focus();
 }
@@ -219,7 +230,18 @@ async function start() {
     else alert('Scanning is not set up yet.');
   });
 
+  window.addEventListener('popstate', e => {
+    showView(e.state?.view || 'search', { fromHistory: true, focus: false });
+  });
+
   showView('search');
+
+  if (await sheetUpdateAvailable(app.data)) {
+    showMessage('New sheet data is available. Manage → Reset to sheet data to use it (this clears your edits, so Export first).');
+  }
+
+  // Ask the browser not to clear saved cages when the device is low on space.
+  navigator.storage?.persist?.().catch(() => {});
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(err => console.warn('Offline mode unavailable:', err));

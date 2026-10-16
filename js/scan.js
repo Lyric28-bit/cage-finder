@@ -101,36 +101,46 @@ export async function startScan(app) {
     return;
   }
 
-  overlay = buildOverlay();
-  document.body.append(overlay.root);
-  overlay.cancel.addEventListener('click', () => fallbackToTyping(app, ''));
+  // Each scan is its own session; anything finishing after the user has
+  // cancelled (or started another scan) checks `live()` and backs off.
+  const session = buildOverlay();
+  overlay = session;
+  const live = () => overlay === session;
+  document.body.append(session.root);
+  session.cancel.addEventListener('click', () => fallbackToTyping(app, ''));
 
   // Start loading OCR while the camera warms up.
   getWorker().catch(() => {});
 
+  let camera;
   try {
-    stream = await navigator.mediaDevices.getUserMedia({
+    camera = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
       audio: false,
     });
   } catch (err) {
-    fallbackToTyping(app, err.name === 'NotAllowedError'
-      ? 'Camera permission was blocked. Type the suburb instead.'
-      : 'Could not open the camera. Type the suburb instead.');
+    if (live()) {
+      fallbackToTyping(app, err.name === 'NotAllowedError'
+        ? 'Camera permission was blocked. Type the suburb instead.'
+        : 'Could not open the camera. Type the suburb instead.');
+    }
     return;
   }
-  if (!overlay) { close(); return; } // cancelled while waiting for permission
-  overlay.video.srcObject = stream;
+  if (!live()) { camera.getTracks().forEach(t => t.stop()); return; }
+  stream = camera;
+  session.video.srcObject = camera;
+  session.video.play().catch(() => {}); // iOS sometimes ignores autoplay
 
-  overlay.capture.addEventListener('click', async () => {
-    const { video, guide, status, capture } = overlay;
-    if (!video.videoWidth) return;
+  session.capture.addEventListener('click', async () => {
+    const { video, guide, status, capture } = session;
+    if (!video.videoWidth || capture.disabled) return;
     capture.disabled = true;
     status.textContent = 'Reading…';
     try {
       const canvas = grabGuideArea(video, guide);
       const worker = await getWorker();
       const { data } = await worker.recognize(canvas);
+      if (!live()) return;
       const { confident, candidates } = matchOcr(app.index, data.text);
       if (confident) {
         close();
@@ -138,13 +148,13 @@ export async function startScan(app) {
       } else if (candidates.length) {
         close();
         app.showPicker(candidates, 'Not sure. Tap the right one:');
-      } else if (overlay) {
+      } else {
         status.textContent = 'Couldn\'t read a suburb. Try again, or tap Type instead.';
         capture.disabled = false;
       }
     } catch (err) {
-      fallbackToTyping(app, 'Scanning failed. Type the suburb instead.');
       console.error(err);
+      if (live()) fallbackToTyping(app, 'Scanning failed. Type the suburb instead.');
     }
   });
 }

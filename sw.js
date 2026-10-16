@@ -24,8 +24,12 @@ const FILES = [
   'vendor/tesseract/eng.traineddata.gz',
 ];
 
+// No skipWaiting: a new version takes over only once the app is fully closed,
+// so an open app never mixes old and new files. cache: 'reload' bypasses the
+// browser's HTTP cache so a new VERSION really downloads fresh files.
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES)).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(CACHE).then(cache =>
+    cache.addAll(FILES.map(f => new Request(f, { cache: 'reload' })))));
 });
 
 self.addEventListener('activate', event => {

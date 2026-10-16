@@ -1,17 +1,30 @@
 // On-device data: cages + Adelaide "local" list, saved in localStorage.
-// Shape: { version: 1, cages: [{ name, color, suburbs: [] }], local: [{ name, postcode }] }
+// Shape: { version: 1, sheetVersion, cages: [{ name, color, suburbs: [] }], local: [{ name, postcode }] }
+// sheetVersion records which data/cages.json the device started from, so the
+// app can tell when a newer sheet has been deployed.
 
 import { normalise } from './match.js';
 
 const KEY = 'cage-finder-data-v1';
 export const LOCAL_COLOR = '#E6E6E6';
+const HEX = /^#[0-9a-f]{6}$/i;
 
 export async function loadDefaults() {
   const [cages, adelaide] = await Promise.all([
     fetch('data/cages.json').then(r => r.json()),
     fetch('data/adelaide-suburbs.json').then(r => r.json()),
   ]);
-  return { version: 1, cages: cages.cages, local: adelaide.suburbs };
+  return { version: 1, sheetVersion: cages.sheetVersion || 1, cages: cages.cages, local: adelaide.suburbs };
+}
+
+// True when the deployed cages.json is newer than what this device started from.
+export async function sheetUpdateAvailable(data) {
+  try {
+    const shipped = (await fetch('data/cages.json').then(r => r.json())).sheetVersion || 1;
+    return shipped > (data.sheetVersion || 1);
+  } catch {
+    return false;
+  }
 }
 
 export async function loadData() {
@@ -38,7 +51,7 @@ export function saveData(data) {
 
 export function isValid(data) {
   return !!data && Array.isArray(data.cages) && data.cages.every(c =>
-    typeof c.name === 'string' && typeof c.color === 'string' && Array.isArray(c.suburbs))
+    typeof c.name === 'string' && HEX.test(c.color) && Array.isArray(c.suburbs))
     && (data.local === undefined || Array.isArray(data.local));
 }
 
@@ -96,6 +109,7 @@ export function deleteCage(data, cage) {
 // Swap the contents of `data` in place so anything holding a reference still sees the new data.
 export function replaceData(data, source) {
   data.version = 1;
+  data.sheetVersion = source.sheetVersion || 1;
   data.cages = source.cages;
   data.local = source.local || [];
 }

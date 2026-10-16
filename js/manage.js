@@ -224,10 +224,24 @@ export function openManage(app) {
     dataMsg.hidden = !msg;
   }
 
-  function exportData() {
+  async function exportData() {
+    const name = `cage-finder-${new Date().toISOString().slice(0, 10)}.json`;
     const blob = new Blob([JSON.stringify(app.data, null, 2)], { type: 'application/json' });
+    // iPhone/iPad home-screen apps often ignore downloads; the share sheet
+    // offers Save to Files, AirDrop, email etc. instead.
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const file = new File([blob], name, { type: 'application/json' });
+    if (isIOS && navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: 'Cage Finder data' });
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') return; // user closed the share sheet
+      }
+    }
     const url = URL.createObjectURL(blob);
-    const a = el('a', { href: url, download: `cage-finder-${new Date().toISOString().slice(0, 10)}.json` });
+    const a = el('a', { href: url, download: name });
     document.body.append(a);
     a.click();
     a.remove();

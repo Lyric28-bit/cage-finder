@@ -47,7 +47,7 @@ The camera only works over HTTPS, so the app has to be hosted. GitHub Pages is f
 2. `git commit -am "Describe the change"` then `git push`.
 3. On each device, open the app, close it fully, and open it again to pick up the new version.
 
-Changing `data/cages.json` and redeploying does **not** change devices that already have saved data (that would wipe their edits). To push new sheet data to a device, use **Manage → Reset to sheet data** on it, or Export/Import.
+Changing `data/cages.json` and redeploying does **not** overwrite devices that already have saved data (that would wipe their edits). If you change it, also bump `"sheetVersion"` at the top of `data/cages.json` (e.g. `1` → `2`). Devices then show a yellow note saying new sheet data is available, and **Manage → Reset to sheet data** applies it (Export first if you want to keep your own edits).
 
 ## Install on a device
 
