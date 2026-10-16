@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111418">
+<title>Cage Finder</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Search -->
+<section id="view-search" class="view">
+  <header class="topbar">
+    <h1>Cage Finder</h1>
+    <button id="btn-manage" class="btn-ghost" type="button">Manage</button>
+  </header>
+
+  <div class="search-box">
+    <input id="search" type="search" placeholder="Type suburb…" autocomplete="off"
+           autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="go"
+           aria-label="Suburb">
+  </div>
+
+  <ul id="suggestions" class="suggestions" aria-live="polite"></ul>
+
+  <div id="not-found" class="not-found" hidden>
+    <p>No match for "<span id="not-found-text"></span>"</p>
+    <button id="btn-add-unknown" class="btn-secondary" type="button">Add to a cage</button>
+  </div>
+
+  <div class="scan-bar">
+    <button id="btn-scan" class="btn-scan" type="button">Scan sticker</button>
+  </div>
+</section>
+
+<!-- Result -->
+<section id="view-result" class="view" hidden>
+  <div id="result-warning" class="result-warning" hidden></div>
+  <div id="result-bands" class="result-bands"></div>
+  <div class="result-actions">
+    <button id="btn-result-move" class="btn-secondary" type="button" hidden>Move to cage</button>
+    <button id="btn-next" class="btn-next" type="button">Next box</button>
+  </div>
+</section>
+
+<!-- Manage (built in step 4) -->
+<section id="view-manage" class="view" hidden>
+  <header class="topbar">
+    <button id="btn-manage-back" class="btn-ghost" type="button">‹ Back</button>
+    <h1>Manage</h1>
+  </header>
+  <div id="manage-root"></div>
+</section>
+
+<!-- Add / move a suburb to a cage -->
+<dialog id="dlg-add">
+  <form id="form-add" method="dialog">
+    <h2 id="dlg-add-title">Add to a cage</h2>
+    <label>Suburb
+      <input id="add-suburb" type="text" required autocomplete="off" autocapitalize="words">
+    </label>
+    <label>Cage
+      <select id="add-cage"></select>
+    </label>
+    <div id="add-new-cage" hidden>
+      <label>New cage name
+        <input id="add-new-name" type="text" autocomplete="off" autocapitalize="words">
+      </label>
+      <label>Colour
+        <input id="add-new-color" type="color" value="#2E7D32">
+      </label>
+    </div>
+    <p id="add-error" class="error" hidden></p>
+    <div class="dlg-actions">
+      <button type="button" id="btn-add-cancel" class="btn-ghost">Cancel</button>
+      <button type="submit" id="btn-add-save" class="btn-primary">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

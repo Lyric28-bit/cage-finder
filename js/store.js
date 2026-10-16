@@ -1,0 +1,72 @@
+// On-device data: cages + Adelaide "local" list, saved in localStorage.
+// Shape: { version: 1, cages: [{ name, color, suburbs: [] }], local: [{ name, postcode }] }
+
+import { normalise } from './match.js';
+
+const KEY = 'cage-finder-data-v1';
+export const LOCAL_COLOR = '#E6E6E6';
+
+export async function loadDefaults() {
+  const [cages, adelaide] = await Promise.all([
+    fetch('data/cages.json').then(r => r.json()),
+    fetch('data/adelaide-suburbs.json').then(r => r.json()),
+  ]);
+  return { version: 1, cages: cages.cages, local: adelaide.suburbs };
+}
+
+export async function loadData() {
+  try {
+    const saved = localStorage.getItem(KEY);
+    if (saved) {
+      const data = JSON.parse(saved);
+      if (isValid(data)) return data;
+    }
+  } catch { /* storage blocked or corrupt: fall back to defaults */ }
+  const data = await loadDefaults();
+  saveData(data);
+  return data;
+}
+
+export function saveData(data) {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(data));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function isValid(data) {
+  return !!data && Array.isArray(data.cages) && data.cages.every(c =>
+    typeof c.name === 'string' && typeof c.color === 'string' && Array.isArray(c.suburbs))
+    && (data.local === undefined || Array.isArray(data.local));
+}
+
+export function findCage(data, name) {
+  return data.cages.find(c => normalise(c.name) === normalise(name));
+}
+
+export function addCage(data, name, color) {
+  name = name.trim();
+  if (!name) throw new Error('Cage name is empty');
+  if (findCage(data, name)) throw new Error(`A cage called "${name}" already exists`);
+  const cage = { name, color, suburbs: [] };
+  data.cages.push(cage);
+  data.cages.sort((a, b) => a.name.localeCompare(b.name));
+  return cage;
+}
+
+// Add a suburb to a cage. Taking it out of the Local list is what "move" means:
+// once a local suburb has a real cage it should stop showing as LOCAL.
+export function addSuburbToCage(data, suburb, cageName) {
+  suburb = suburb.trim();
+  if (!suburb) throw new Error('Suburb name is empty');
+  const cage = findCage(data, cageName);
+  if (!cage) throw new Error(`No cage called "${cageName}"`);
+  const key = normalise(suburb);
+  if (!cage.suburbs.some(s => normalise(s) === key)) {
+    cage.suburbs.push(suburb);
+    cage.suburbs.sort((a, b) => a.localeCompare(b));
+  }
+  if (data.local) data.local = data.local.filter(p => normalise(p.name) !== key);
+}
