@@ -1,0 +1,26 @@
+# Cage Finder: notes for Claude
+
+Read README.md first (features, data, deploy, install). This file is the extra context.
+
+## What it is
+Installable offline PWA for a warehouse sorter: type a suburb from a parcel sticker, get the cage (big text on the cage colour). Plain HTML/CSS/JS, no build step, no backend.
+
+- Live: https://lyric28-bit.github.io/cage-finder/ (GitHub Pages, public repo Lyric28-bit/cage-finder, branch main).
+- Status (2026-10-16): working and installed on Lyric's phone, offline confirmed. sw.js VERSION is v2.
+
+## Data
+- data/cages.json: 19 cages, 407 suburbs transcribed from the sheet photos. `sheetVersion` at the top.
+- data/adelaide-suburbs.json: 429 Adelaide metro suburbs (SA Gov list, postcodes 5000-5199, minus ones on a cage sheet). These show as LOCAL. Happy Valley is in both on purpose (Mildura's is a different place).
+- Each device keeps its own copy in localStorage; edits don't sync. Export/Import in Manage moves them.
+- Still to verify with Lyric: Renmark spellings (blurry photo), possible hidden row in the Adelaide Hills fold, which cage really owns Pinkerton Plains (on Barossa and Kadina sheets).
+- Local cage names are unknown; Lyric adds them in-app (LOCAL result → Move to cage → + New cage).
+
+## Rules and quirks
+- **Never commit or push sheets/** (workplace photos). It's gitignored and was stripped from main's history. Local branch `backup-with-photos` still has them: never push it, never push --all.
+- Lyric runs `git push` himself in a normal PowerShell window: `!` commands can't show the GitHub login.
+- Deploying a change: bump VERSION in sw.js. If cage data changes, also bump sheetVersion in data/cages.json. Installed apps show a "New version ready. Tap to update." button.
+- Testing: `powershell -ExecutionPolicy Bypass -File serve.ps1`, then Lyric opens http://localhost:8080 and /tests.html (17/17 should pass) in Firefox and reports back. Headless Edge commands were denied, so don't try.
+- Lyric shares screenshots by saving with ShareX: read the newest file in C:\Users\Lyric\Documents\ShareX\Screenshots\<yyyy-mm>.
+- Camera/OCR scanning was built and then removed at Lyric's request. Don't re-add unless asked.
+- The file tools turn typed backslash-u escapes into real characters. If a file needs a literal `\u0300`-style escape, build the backslash with `[char]92` in PowerShell.
+- Git for Windows was installed mid-session; if `git` isn't found, use `C:\Program Files\Git\cmd\git.exe` or open a new terminal.
