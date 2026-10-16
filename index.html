@@ -6,6 +6,11 @@
 <meta name="theme-color" content="#111418">
 <title>Cage Finder</title>
 <link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cages">
 </head>
 <body>
 
@@ -21,6 +26,8 @@
            autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="go"
            aria-label="Suburb">
   </div>
+
+  <p id="message" class="message" hidden></p>
 
   <ul id="suggestions" class="suggestions" aria-live="polite"></ul>
 

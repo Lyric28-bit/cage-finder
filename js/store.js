@@ -70,3 +70,43 @@ export function addSuburbToCage(data, suburb, cageName) {
   }
   if (data.local) data.local = data.local.filter(p => normalise(p.name) !== key);
 }
+
+// Rename a cage. Throws on empty or if another cage already uses the name.
+export function renameCage(data, cage, newName) {
+  newName = newName.trim();
+  if (!newName) throw new Error('Cage name is empty');
+  const clash = findCage(data, newName);
+  if (clash && clash !== cage) throw new Error(`A cage called "${clash.name}" already exists`);
+  cage.name = newName;
+  data.cages.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function setCageColor(cage, color) {
+  cage.color = color;
+}
+
+export function removeSuburbFromCage(cage, suburb) {
+  cage.suburbs = cage.suburbs.filter(s => s !== suburb);
+}
+
+export function deleteCage(data, cage) {
+  data.cages = data.cages.filter(c => c !== cage);
+}
+
+// Swap the contents of `data` in place so anything holding a reference still sees the new data.
+export function replaceData(data, source) {
+  data.version = 1;
+  data.cages = source.cages;
+  data.local = source.local || [];
+}
+
+// For imports: valid shape, plus every cage suburb and local entry is well formed.
+export function isImportable(data) {
+  try {
+    return isValid(data)
+      && data.cages.every(c => c.suburbs.every(s => typeof s === 'string'))
+      && (data.local || []).every(p => p && typeof p.name === 'string');
+  } catch {
+    return false;
+  }
+}

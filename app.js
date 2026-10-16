@@ -17,6 +17,7 @@ export const app = {
   showView,
   showResult,
   showPicker,
+  showMessage,
   openAddDialog,
 };
 
@@ -53,13 +54,20 @@ function chipFor(dest) {
 
 // ---------- views ----------
 
-function showView(name) {
+function showView(name, { focus = true } = {}) {
   for (const v of ['search', 'result', 'manage']) $('view-' + v).hidden = v !== name;
-  if (name === 'search') $('search').focus();
+  if (name === 'search' && focus) $('search').focus();
+}
+
+// Short note above the suggestions (scan fallbacks, "not sure" picker).
+function showMessage(text) {
+  $('message').textContent = text || '';
+  $('message').hidden = !text;
 }
 
 function nextBox() {
   $('search').value = '';
+  showMessage('');
   renderSuggestions([]);
   showView('search');
 }
@@ -84,14 +92,17 @@ function renderSuggestions(places, query = '') {
 
 function onSearchInput() {
   const q = $('search').value;
+  showMessage('');
   renderSuggestions(search(app.index, q), q);
 }
 
 // Shows a short list of candidates to tap (used by Scan when unsure).
+// No focus, so the phone keyboard doesn't cover the candidates.
 function showPicker(places, heading) {
-  showView('search');
+  $('search').value = '';
   renderSuggestions(places);
-  if (heading) $('search').value = heading;
+  showMessage(heading);
+  showView('search', { focus: false });
 }
 
 // ---------- result ----------
@@ -209,6 +220,10 @@ async function start() {
   });
 
   showView('search');
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(err => console.warn('Offline mode unavailable:', err));
+  }
 }
 
 start();
