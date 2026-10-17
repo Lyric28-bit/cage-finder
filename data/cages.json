@@ -27,7 +27,7 @@
       "suburbs": ["Minnipa", "Penong", "Poochera", "Smoky Bay", "Streaky Bay", "Thevenard", "Wudinna", "Yalata"]
     },
     {
-      "name": "City",
+      "name": "City Cartons",
       "color": "#FF8F00",
       "suburbs": ["Adelaide", "Ashford", "Auldana", "Beaumont", "Bedford Park", "Bellevue Heights", "Beulah Park", "Black Forest", "Blackwood", "Bowden", "Brompton", "Brown Hill Creek", "Burnside", "Clapham", "Clarence Gardens", "Clarence Park", "Clovelly Park", "College Park", "Colonel Light Gardens", "Cumberland Park", "Daw Park", "Dulwich", "Eastwood", "Eden Hills", "Edwardstown", "Erindale", "Evandale", "Everard Park", "Firle", "Fitzroy", "Forestville", "Frewville", "Fullarton", "Gilberton", "Glen Osmond", "Glenalta", "Glenside", "Glenunga", "Goodwood", "Hackney", "Hawthorn", "Hawthorndene", "Hazelwood Park", "Heathpool", "Highgate", "Hindmarsh", "Hyde Park", "Joslin", "Kensington", "Kensington Gardens", "Kensington Park", "Kent Town", "Keswick", "Keswick Terminal", "Kings Park", "Kingswood", "Leabrook", "Leawood Gardens", "Linden Park", "Lower Mitcham", "Lynton", "Magill", "Malvern", "Marden", "Marryatville", "Maylands", "Medindie", "Melrose Park", "Mile End", "Millswood", "Mitcham", "Mount Osmond", "Myrtle Bank", "Netherby", "North Adelaide", "Norwood", "Ovingham", "Panorama", "Parkside", "Pasadena", "Payneham South", "Rose Park", "Rosslyn Park", "Royston Park", "Skye", "Springfield", "St Georges", "St Marys", "St Morris", "St Peters", "Stepney", "Stonyfell", "Teringie", "Thebarton", "Thorngate", "Tonsley", "Toorak Gardens", "Torrens Park", "Trinity Gardens", "Tusmore", "Unley", "Unley Park", "Urrbrae", "Walkerville", "Waterfall Gully", "Wattle Park", "Wayville", "Westbourne Park", "Woodforde"]
     },
@@ -67,24 +67,24 @@
       "suburbs": ["Binnum", "Cadgee", "Edenhope", "Frances", "Hynam", "Joanna", "Keppoch", "Lucindale", "Mount Light", "Moyhall", "Padthaway", "Stewart Range", "Struan", "Wild Dog Valley", "Woolumbool"]
     },
     {
-      "name": "North",
+      "name": "North Cartons",
       "color": "#B71C1C",
       "suburbs": ["Andrews Farm", "Angle Vale", "Blakeview", "Bolivar", "Brahma Lodge", "Buckland Park", "Burton", "Craigmore", "Davoren Park", "Direk", "Edinburgh", "Edinburgh North", "Elizabeth", "Elizabeth Downs", "Elizabeth East", "Elizabeth Grove", "Elizabeth North", "Elizabeth Park", "Elizabeth South", "Elizabeth Vale", "Eyre", "Globe Derby Park", "Green Fields", "Hillbank", "MacDonald Park", "Munno Para", "Munno Para Downs", "Munno Para West", "Parafield Gardens", "Paralowie", "Penfield", "Penfield Gardens", "Riverlea Park", "Salisbury", "Salisbury Downs", "Salisbury East", "Salisbury Heights", "Salisbury North", "Salisbury Park", "Salisbury Plain", "Smithfield", "Smithfield Plains", "St Kilda", "Virginia", "Waterloo Corner"]
     },
     {
-      "name": "North East",
+      "name": "North East Cartons",
       "color": "#283593",
       "suburbs": ["Athelstone", "Banksia Park", "Campbelltown", "Dernancourt", "Fairview Park", "Felixstow", "Gilles Plains", "Glynde", "Golden Grove", "Greenacres", "Greenwith", "Gulfview Heights", "Hampstead Gardens", "Hectorville", "Highbury", "Hillcrest", "Holden Hill", "Hope Valley", "Ingle Farm", "Klemzig", "Manningham", "Modbury", "Modbury Heights", "Modbury North", "Newton", "Oakden", "Para Hills", "Para Hills West", "Para Vista", "Paradise", "Payneham", "Redwood Park", "Ridgehaven", "Rostrevor", "St Agnes", "Surrey Downs", "Tea Tree Gully", "Tranmere", "Valley View", "Vista", "Walkley Heights", "Windsor Gardens", "Wynn Vale", "Yatala Vale"]
-    },
-    {
-      "name": "Port",
-      "color": "#7E57C2",
-      "suburbs": ["Albert Park", "Alberton", "Birkenhead", "Cheltenham", "Ethelton", "Exeter", "Findon", "Glanville", "Grange", "Hendon", "Largs Bay", "Largs North", "New Port", "North Haven", "Osborne", "Ottoway", "Outer Harbor", "Pennington", "Peterhead", "Port Adelaide", "Queenstown", "Rosewater", "Royal Park", "Seaton", "Semaphore", "Semaphore Park", "Semaphore South", "St Clair", "Taperoo", "Tennyson", "West Lakes", "West Lakes Shore", "Woodville", "Woodville North", "Woodville Park", "Woodville South", "Woodville West"]
     },
     {
       "name": "Port Augusta",
       "color": "#0F7B3E",
       "suburbs": ["Carapateena Mine", "Cliff Transport", "Lincoln Gap", "Port Paterson", "Quorn", "Stirling North", "Sundrop", "Wilmington", "Winninowie"]
+    },
+    {
+      "name": "Port Cartons",
+      "color": "#7E57C2",
+      "suburbs": ["Albert Park", "Alberton", "Birkenhead", "Cheltenham", "Ethelton", "Exeter", "Findon", "Glanville", "Grange", "Hendon", "Largs Bay", "Largs North", "New Port", "North Haven", "Osborne", "Ottoway", "Outer Harbor", "Pennington", "Peterhead", "Port Adelaide", "Queenstown", "Rosewater", "Royal Park", "Seaton", "Semaphore", "Semaphore Park", "Semaphore South", "St Clair", "Taperoo", "Tennyson", "West Lakes", "West Lakes Shore", "Woodville", "Woodville North", "Woodville Park", "Woodville South", "Woodville West"]
     },
     {
       "name": "Port Lincoln",
@@ -97,7 +97,7 @@
       "suburbs": ["Bangor", "Booleroo Centre", "Bungama", "Crystal Brook", "Germein Bay", "Gladstone", "Hornsdale", "Jamestown", "Koolunga", "Laura", "Melrose", "Murray Town", "Napperby", "Narridy", "Orroroo", "Peterborough", "Port Germein", "Redhill", "Risdon Park", "Solomontown", "Spalding", "Warnertown"]
     },
     {
-      "name": "Regency",
+      "name": "Regency Cartons",
       "color": "#4E342E",
       "suburbs": ["Angle Park", "Athol Park", "Blair Athol", "Ferryden Park", "Kilburn", "Mansfield Park", "Regency Park", "Wingfield", "Woodville Gardens"]
     },
@@ -107,7 +107,7 @@
       "suburbs": ["Chowilla", "Cooltong", "Crescent", "Lindsay Point", "Murtho", "Old Calperum", "Paringa", "Pike River", "Wonuarra"]
     },
     {
-      "name": "South",
+      "name": "South Cartons",
       "color": "#00695C",
       "suburbs": ["Christie Downs", "Christies Beach", "Hackham", "Hackham West", "Huntfield Heights", "Lonsdale", "McLaren Flat", "Morphett Vale", "Noarlunga Centre", "Noarlunga Downs", "Old Noarlunga", "Old Reynella", "Onkaparinga Hills", "O'Sullivan Beach", "Port Noarlunga", "Port Noarlunga South", "Port Willunga", "Reynella", "Reynella East", "Seaford Heights", "Seaford Meadows", "Seaford Rise", "Sellicks Hill", "Tatachilla", "Willunga Hill", "Willunga South", "Woodcroft"]
     },

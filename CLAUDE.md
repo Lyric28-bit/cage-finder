@@ -6,14 +6,14 @@ Read README.md first (features, data, deploy, install). This file is the extra c
 Installable offline PWA for a warehouse sorter: type a suburb from a parcel sticker, get the cage (big text on the cage colour). Plain HTML/CSS/JS, no build step, no backend.
 
 - Live: https://lyric28-bit.github.io/cage-finder/ (GitHub Pages, public repo Lyric28-bit/cage-finder, branch main).
-- Status (2026-10-16): working and installed on Lyric's phone, offline confirmed. sw.js VERSION is v2.
+- Status (2026-10-16): working and installed on Lyric's phone, offline confirmed. sw.js VERSION is v3 (2026-10-17, local-region cages added).
 
 ## Data
-- data/cages.json: 19 cages, 407 suburbs transcribed from the sheet photos, plus 6 local-region cages (City, North, North East, Port, Regency, South; 271 suburbs) estimated from the region map photos, edges unverified. `sheetVersion` at the top.
+- data/cages.json: 19 cages, 407 suburbs transcribed from the sheet photos, plus 6 local-region cages (City, North, North East, Port, Regency and South Cartons; 271 suburbs) estimated from the region map photos, edges unverified. `sheetVersion` at the top.
 - data/adelaide-suburbs.json: 158 Adelaide metro suburbs (SA Gov list, postcodes 5000-5199, minus ones on a cage sheet). These show as LOCAL. Happy Valley is in both on purpose (Mildura's is a different place).
 - Each device keeps its own copy in localStorage; edits don't sync. Export/Import in Manage moves them.
 - Still to verify with Lyric: Renmark spellings (blurry photo), possible hidden row in the Adelaide Hills fold, which cage really owns Pinkerton Plains (on Barossa and Kadina sheets).
-- Local cage names are unknown; Lyric adds them in-app (LOCAL result → Move to cage → + New cage).
+- Suburbs still LOCAL weren't inside any region map; Lyric moves them in-app (LOCAL result → Move to cage). Suburbs on the original sheets always stay on their sheet cage, even where a region map overlaps (e.g. Aldinga/Seaford/Willunga stay Victor Harbor). Wingfield is in Regency Cartons.
 
 ## Rules and quirks
 - **Never commit or push sheets/** (workplace photos). It's gitignored and was stripped from main's history. Local branch `backup-with-photos` still has them: never push it, never push --all.
