@@ -14,7 +14,7 @@ Live at <https://lyric28-bit.github.io/cage-finder/>
 
 | File | What |
 |---|---|
-| `data/cages.json` | Transcribed from the photos in `sheets/` (19 cages, 407 suburbs). |
+| `data/cages.json` | Transcribed from the sheet photos (19 cages, 407 suburbs). The photos stay on this PC only. |
 | `data/adelaide-suburbs.json` | SA Government suburb list ([data.sa.gov.au](https://data.sa.gov.au/data/dataset/suburb-boundaries), CC-BY 4.0), postcodes 5000-5199, minus suburbs already on a cage sheet. Happy Valley 5159 is kept on purpose: the Mildura sheet's Happy Valley is a different place. |
 
 These files are only the starting point. Each device saves its own copy (in the browser's storage) the first time it runs, and every edit you make goes there. **Edits on your phone don't appear on the tablet by themselves**: use Export on one, then Import on the other.
@@ -29,7 +29,7 @@ These files are only the starting point. Each device saves its own copy (in the 
 
 Installing and offline mode need HTTPS, so the app has to be hosted. GitHub Pages is free for public repositories.
 
-**Note:** a public repo means anyone can see the files, including the suburb lists and (if you leave them in) the sheet photos. The site URL is public too, though nobody will find it unless you share it.
+**Note:** a public repo means anyone can see the files, including the suburb lists. The sheet photos are never pushed (`sheets/` is gitignored). The site URL is public too, though nobody will find it unless you share it.
 
 1. Create a free account at <https://github.com> if you don't have one.
 2. Click **+ → New repository**. Name it `cage-finder`, set it to **Public**, don't add a README. Click **Create repository**.
@@ -82,4 +82,4 @@ The app caches itself, so after editing files: F12 → **Application → Storage
 | `js/manage.js` | Manage screen |
 | `sw.js`, `manifest.webmanifest`, `icons/` | Offline + install |
 | `tests.html`, `serve.ps1` | Tests and local server |
-| `sheets/` | Original sheet photos |
+| `sheets/` | Original sheet photos (local only, gitignored, never push) |
