@@ -14,7 +14,7 @@ Live at <https://lyric28-bit.github.io/cage-finder/>
 
 | File | What |
 |---|---|
-| `data/cages.json` | Transcribed from the sheet photos (19 cages, 407 suburbs). The photos stay on this PC only. |
+| `data/cages.json` | Transcribed from the sheet photos (19 cages, 407 suburbs), plus 6 Adelaide local-region cages (City, North, North East, Port, Regency, South: 271 suburbs) estimated from the warehouse region maps. The photos stay on this PC only. |
 | `data/adelaide-suburbs.json` | SA Government suburb list ([data.sa.gov.au](https://data.sa.gov.au/data/dataset/suburb-boundaries), CC-BY 4.0), postcodes 5000-5199, minus suburbs already on a cage sheet. Happy Valley 5159 is kept on purpose: the Mildura sheet's Happy Valley is a different place. |
 
 These files are only the starting point. Each device saves its own copy (in the browser's storage) the first time it runs, and every edit you make goes there. **Edits on your phone don't appear on the tablet by themselves**: use Export on one, then Import on the other.

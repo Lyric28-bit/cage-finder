@@ -9,8 +9,8 @@ Installable offline PWA for a warehouse sorter: type a suburb from a parcel stic
 - Status (2026-10-16): working and installed on Lyric's phone, offline confirmed. sw.js VERSION is v2.
 
 ## Data
-- data/cages.json: 19 cages, 407 suburbs transcribed from the sheet photos. `sheetVersion` at the top.
-- data/adelaide-suburbs.json: 429 Adelaide metro suburbs (SA Gov list, postcodes 5000-5199, minus ones on a cage sheet). These show as LOCAL. Happy Valley is in both on purpose (Mildura's is a different place).
+- data/cages.json: 19 cages, 407 suburbs transcribed from the sheet photos, plus 6 local-region cages (City, North, North East, Port, Regency, South; 271 suburbs) estimated from the region map photos, edges unverified. `sheetVersion` at the top.
+- data/adelaide-suburbs.json: 158 Adelaide metro suburbs (SA Gov list, postcodes 5000-5199, minus ones on a cage sheet). These show as LOCAL. Happy Valley is in both on purpose (Mildura's is a different place).
 - Each device keeps its own copy in localStorage; edits don't sync. Export/Import in Manage moves them.
 - Still to verify with Lyric: Renmark spellings (blurry photo), possible hidden row in the Adelaide Hills fold, which cage really owns Pinkerton Plains (on Barossa and Kadina sheets).
 - Local cage names are unknown; Lyric adds them in-app (LOCAL result → Move to cage → + New cage).
