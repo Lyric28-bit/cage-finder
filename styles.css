@@ -161,7 +161,19 @@ button { font: inherit; cursor: pointer; }
   font-weight: 600;
   vertical-align: middle;
 }
-.m-line .m-pc { flex: 0 0 84px; padding: 0 8px; }
+.note .m-line .m-pc { flex: 0 0 88px; padding: 0 6px; font-size: 16px; }
+.m-subs .grow { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.note .m-subs .m-pc {
+  flex: 0 0 72px;
+  min-height: 38px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--field);
+  color: var(--text);
+  font-size: 17px;
+  text-align: center;
+}
 .optional { color: var(--muted); font-weight: 400; }
 .note-meta { color: var(--muted); font-size: 15px; margin: 2px 0 10px; }
 

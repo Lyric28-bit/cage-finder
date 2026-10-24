@@ -16,6 +16,7 @@ const FILES = [
   'data/cages.json',
   'data/adelaide-suburbs.json',
   'data/estimated.json',
+  'data/postcodes.json',
   'icons/icon-192.png',
   'icons/icon-512.png',
 ];

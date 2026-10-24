@@ -1,0 +1,1934 @@
+{
+    "source":  "SA Government suburb boundaries (data.sa.gov.au, CC-BY 4.0, updated 2022-03-17). Only sheet names matching exactly one SA locality. Left out on purpose: every Mildura-sheet name (interstate towns; Happy Valley and Yelta only match unrelated SA places) and Hamilton on the Mount Gambier sheet (Hamilton VIC, not SA 5373). Postcodes typed into the app override these.",
+    "postcodes":  {
+                      "adelaide":  [
+                                       "5000"
+                                   ],
+                      "alberton":  [
+                                       "5014"
+                                   ],
+                      "albertpark":  [
+                                         "5014"
+                                     ],
+                      "aldgate":  [
+                                      "5154"
+                                  ],
+                      "aldinga":  [
+                                      "5173"
+                                  ],
+                      "aldingabeach":  [
+                                           "5173"
+                                       ],
+                      "andrewsfarm":  [
+                                          "5114"
+                                      ],
+                      "angasplains":  [
+                                          "5255"
+                                      ],
+                      "angaston":  [
+                                       "5353"
+                                   ],
+                      "anglepark":  [
+                                        "5010"
+                                    ],
+                      "anglevale":  [
+                                        "5117"
+                                    ],
+                      "ardrossan":  [
+                                        "5571"
+                                    ],
+                      "arnobay":  [
+                                      "5603"
+                                  ],
+                      "arthurton":  [
+                                        "5572"
+                                    ],
+                      "ashbourne":  [
+                                        "5157"
+                                    ],
+                      "ashford":  [
+                                      "5035"
+                                  ],
+                      "ashton":  [
+                                     "5137"
+                                 ],
+                      "athelstone":  [
+                                         "5076"
+                                     ],
+                      "atholpark":  [
+                                        "5012"
+                                    ],
+                      "auburn":  [
+                                     "5451"
+                                 ],
+                      "auldana":  [
+                                      "5072"
+                                  ],
+                      "avon":  [
+                                   "5501"
+                               ],
+                      "backvalley":  [
+                                         "5211"
+                                     ],
+                      "balaklava":  [
+                                        "5461"
+                                    ],
+                      "balgowan":  [
+                                       "5573"
+                                   ],
+                      "balhannah":  [
+                                        "5242"
+                                    ],
+                      "bangor":  [
+                                     "5481"
+                                 ],
+                      "banksiapark":  [
+                                          "5091"
+                                      ],
+                      "barmera":  [
+                                      "5345"
+                                  ],
+                      "beachport":  [
+                                        "5280"
+                                    ],
+                      "beaumont":  [
+                                       "5066"
+                                   ],
+                      "bedfordpark":  [
+                                          "5042"
+                                      ],
+                      "bellevueheights":  [
+                                              "5050"
+                                          ],
+                      "berri":  [
+                                    "5343"
+                                ],
+                      "beulahpark":  [
+                                         "5067"
+                                     ],
+                      "bibaringa":  [
+                                        "5118"
+                                    ],
+                      "binnum":  [
+                                     "5262"
+                                 ],
+                      "birdwood":  [
+                                       "5234"
+                                   ],
+                      "birkenhead":  [
+                                         "5015"
+                                     ],
+                      "blackforest":  [
+                                          "5035"
+                                      ],
+                      "blackwood":  [
+                                        "5051"
+                                    ],
+                      "blairathol":  [
+                                         "5084"
+                                     ],
+                      "blakeview":  [
+                                        "5114"
+                                    ],
+                      "blakiston":  [
+                                        "5250"
+                                    ],
+                      "blanchetown":  [
+                                          "5357"
+                                      ],
+                      "blewittsprings":  [
+                                             "5171"
+                                         ],
+                      "bolivar":  [
+                                      "5110"
+                                  ],
+                      "bookpurnong":  [
+                                          "5333"
+                                      ],
+                      "booleroocentre":  [
+                                             "5482"
+                                         ],
+                      "bordertown":  [
+                                         "5268"
+                                     ],
+                      "boston":  [
+                                     "5607"
+                                 ],
+                      "bowden":  [
+                                     "5007"
+                                 ],
+                      "bowhill":  [
+                                      "5238"
+                                  ],
+                      "bowmans":  [
+                                      "5550"
+                                  ],
+                      "brahmalodge":  [
+                                          "5109"
+                                      ],
+                      "brendapark":  [
+                                         "5320"
+                                     ],
+                      "bridgewater":  [
+                                          "5155"
+                                      ],
+                      "brinkley":  [
+                                       "5253"
+                                   ],
+                      "brompton":  [
+                                       "5007"
+                                   ],
+                      "brownhillcreek":  [
+                                             "5062"
+                                         ],
+                      "brukunga":  [
+                                       "5252"
+                                   ],
+                      "bucklandpark":  [
+                                           "5120"
+                                       ],
+                      "bungama":  [
+                                      "5540"
+                                  ],
+                      "burdett":  [
+                                      "5253"
+                                  ],
+                      "burnside":  [
+                                       "5066"
+                                   ],
+                      "burra":  [
+                                    "5417"
+                                ],
+                      "burton":  [
+                                     "5110"
+                                 ],
+                      "bute":  [
+                                   "5560"
+                               ],
+                      "cadell":  [
+                                     "5321"
+                                 ],
+                      "cadgee":  [
+                                     "5271"
+                                 ],
+                      "callington":  [
+                                         "5254"
+                                     ],
+                      "calomba":  [
+                                      "5501"
+                                  ],
+                      "campbelltown":  [
+                                           "5074"
+                                       ],
+                      "capejaffa":  [
+                                        "5275"
+                                    ],
+                      "ceduna":  [
+                                     "5690"
+                                 ],
+                      "charleston":  [
+                                         "5244"
+                                     ],
+                      "cheltenham":  [
+                                         "5014"
+                                     ],
+                      "chowilla":  [
+                                       "5341"
+                                   ],
+                      "christiedowns":  [
+                                            "5164"
+                                        ],
+                      "christiesbeach":  [
+                                             "5165"
+                                         ],
+                      "clapham":  [
+                                      "5062"
+                                  ],
+                      "clare":  [
+                                    "5453"
+                                ],
+                      "clarencegardens":  [
+                                              "5039"
+                                          ],
+                      "clarencepark":  [
+                                           "5034"
+                                       ],
+                      "cleve":  [
+                                    "5640"
+                                ],
+                      "clinton":  [
+                                      "5570"
+                                  ],
+                      "clovellypark":  [
+                                           "5042"
+                                       ],
+                      "cobdogla":  [
+                                       "5346"
+                                   ],
+                      "cockatoovalley":  [
+                                             "5351"
+                                         ],
+                      "coffinbay":  [
+                                        "5607"
+                                    ],
+                      "collegepark":  [
+                                          "5069"
+                                      ],
+                      "colonellightgardens":  [
+                                                  "5041"
+                                              ],
+                      "compton":  [
+                                      "5291"
+                                  ],
+                      "concordia":  [
+                                        "5118"
+                                    ],
+                      "coobowie":  [
+                                       "5583"
+                                   ],
+                      "cooltong":  [
+                                       "5341"
+                                   ],
+                      "coomandook":  [
+                                         "5261"
+                                     ],
+                      "coombe":  [
+                                     "5267"
+                                 ],
+                      "coomunga":  [
+                                       "5607"
+                                   ],
+                      "coonalpyn":  [
+                                        "5265"
+                                    ],
+                      "coonawarra":  [
+                                         "5263"
+                                     ],
+                      "cowell":  [
+                                     "5602"
+                                 ],
+                      "crafers":  [
+                                      "5152"
+                                  ],
+                      "craigmore":  [
+                                        "5114"
+                                    ],
+                      "crescent":  [
+                                       "5341"
+                                   ],
+                      "cromer":  [
+                                     "5235"
+                                 ],
+                      "crystalbrook":  [
+                                           "5523"
+                                       ],
+                      "culburra":  [
+                                       "5261"
+                                   ],
+                      "cumberlandpark":  [
+                                             "5041"
+                                         ],
+                      "cummins":  [
+                                      "5631"
+                                  ],
+                      "cunliffe":  [
+                                       "5554"
+                                   ],
+                      "currencycreek":  [
+                                            "5214"
+                                        ],
+                      "darkepeak":  [
+                                        "5642"
+                                    ],
+                      "davorenpark":  [
+                                          "5113"
+                                      ],
+                      "dawpark":  [
+                                      "5041"
+                                  ],
+                      "delamere":  [
+                                       "5204"
+                                   ],
+                      "dernancourt":  [
+                                          "5075"
+                                      ],
+                      "devlinspound":  [
+                                           "5330"
+                                       ],
+                      "direk":  [
+                                    "5110"
+                                ],
+                      "dublin":  [
+                                     "5501"
+                                 ],
+                      "duckponds":  [
+                                        "5607"
+                                    ],
+                      "dulwich":  [
+                                      "5065"
+                                  ],
+                      "dutton":  [
+                                     "5356"
+                                 ],
+                      "eastwood":  [
+                                       "5063"
+                                   ],
+                      "ebenezer":  [
+                                       "5355"
+                                   ],
+                      "echunga":  [
+                                      "5153"
+                                  ],
+                      "edenhills":  [
+                                        "5050"
+                                    ],
+                      "edenvalley":  [
+                                         "5235"
+                                     ],
+                      "edillilie":  [
+                                        "5630"
+                                    ],
+                      "edinburgh":  [
+                                        "5111"
+                                    ],
+                      "edinburghnorth":  [
+                                             "5113"
+                                         ],
+                      "edithburgh":  [
+                                         "5583"
+                                     ],
+                      "edwardstown":  [
+                                          "5039"
+                                      ],
+                      "elizabeth":  [
+                                        "5112"
+                                    ],
+                      "elizabethdowns":  [
+                                             "5113"
+                                         ],
+                      "elizabetheast":  [
+                                            "5112"
+                                        ],
+                      "elizabethgrove":  [
+                                             "5112"
+                                         ],
+                      "elizabethnorth":  [
+                                             "5113"
+                                         ],
+                      "elizabethpark":  [
+                                            "5113"
+                                        ],
+                      "elizabethsouth":  [
+                                             "5112"
+                                         ],
+                      "elizabethvale":  [
+                                            "5112"
+                                        ],
+                      "elliston":  [
+                                       "5670"
+                                   ],
+                      "elwomple":  [
+                                       "5260"
+                                   ],
+                      "encounterbay":  [
+                                           "5211"
+                                       ],
+                      "erindale":  [
+                                       "5066"
+                                   ],
+                      "ethelton":  [
+                                       "5015"
+                                   ],
+                      "eudunda":  [
+                                      "5374"
+                                  ],
+                      "evandale":  [
+                                       "5069"
+                                   ],
+                      "evanston":  [
+                                       "5116"
+                                   ],
+                      "everardpark":  [
+                                          "5035"
+                                      ],
+                      "exeter":  [
+                                     "5019"
+                                 ],
+                      "eyre":  [
+                                   "5121"
+                               ],
+                      "fairviewpark":  [
+                                           "5126"
+                                       ],
+                      "felixstow":  [
+                                        "5070"
+                                    ],
+                      "ferrydenpark":  [
+                                           "5010"
+                                       ],
+                      "field":  [
+                                    "5265"
+                                ],
+                      "findon":  [
+                                     "5023"
+                                 ],
+                      "firle":  [
+                                    "5070"
+                                ],
+                      "fishermanbay":  [
+                                           "5522"
+                                       ],
+                      "fitzroy":  [
+                                      "5082"
+                                  ],
+                      "forestville":  [
+                                          "5035"
+                                      ],
+                      "forreston":  [
+                                        "5233"
+                                    ],
+                      "frances":  [
+                                      "5262"
+                                  ],
+                      "freeling":  [
+                                       "5372"
+                                   ],
+                      "frewville":  [
+                                        "5063"
+                                    ],
+                      "fullarton":  [
+                                        "5063"
+                                    ],
+                      "gawler":  [
+                                     "5118"
+                                 ],
+                      "gemmells":  [
+                                       "5255"
+                                   ],
+                      "germeinbay":  [
+                                         "5495"
+                                     ],
+                      "gilberton":  [
+                                        "5081"
+                                    ],
+                      "gillesplains":  [
+                                           "5086"
+                                       ],
+                      "gladstone":  [
+                                        "5473"
+                                    ],
+                      "glanville":  [
+                                        "5015"
+                                    ],
+                      "glenalta":  [
+                                       "5052"
+                                   ],
+                      "glenburnie":  [
+                                         "5291"
+                                     ],
+                      "glencoe":  [
+                                      "5291"
+                                  ],
+                      "glenosmond":  [
+                                         "5064"
+                                     ],
+                      "glenside":  [
+                                       "5065"
+                                   ],
+                      "glenunga":  [
+                                       "5064"
+                                   ],
+                      "globederbypark":  [
+                                             "5110"
+                                         ],
+                      "glossop":  [
+                                      "5344"
+                                  ],
+                      "glynde":  [
+                                     "5070"
+                                 ],
+                      "goldengrove":  [
+                                          "5125"
+                                      ],
+                      "goldenheights":  [
+                                            "5322"
+                                        ],
+                      "goodwood":  [
+                                       "5034"
+                                   ],
+                      "goolwa":  [
+                                     "5214"
+                                 ],
+                      "grange":  [
+                                     "5022"
+                                 ],
+                      "greenacres":  [
+                                         "5086"
+                                     ],
+                      "greenfields":  [
+                                          "5107"
+                                      ],
+                      "greenwith":  [
+                                        "5125"
+                                    ],
+                      "gulfviewheights":  [
+                                              "5096"
+                                          ],
+                      "gumeracha":  [
+                                        "5233"
+                                    ],
+                      "gurragurra":  [
+                                         "5343"
+                                     ],
+                      "hackham":  [
+                                      "5163"
+                                  ],
+                      "hackhamwest":  [
+                                          "5163"
+                                      ],
+                      "hackney":  [
+                                      "5069"
+                                  ],
+                      "hahndorf":  [
+                                       "5245"
+                                   ],
+                      "hamleybridge":  [
+                                           "5401"
+                                       ],
+                      "hampsteadgardens":  [
+                                               "5086"
+                                           ],
+                      "hardwickebay":  [
+                                           "5575"
+                                       ],
+                      "hawson":  [
+                                     "5607"
+                                 ],
+                      "hawthorn":  [
+                                       "5062"
+                                   ],
+                      "hawthorndene":  [
+                                           "5051"
+                                       ],
+                      "hayborough":  [
+                                         "5211"
+                                     ],
+                      "hayvalley":  [
+                                        "5252"
+                                    ],
+                      "hazelwoodpark":  [
+                                            "5066"
+                                        ],
+                      "heathpool":  [
+                                        "5068"
+                                    ],
+                      "hectorville":  [
+                                          "5073"
+                                      ],
+                      "hendon":  [
+                                     "5014"
+                                 ],
+                      "highbury":  [
+                                       "5089"
+                                   ],
+                      "highgate":  [
+                                       "5063"
+                                   ],
+                      "hillbank":  [
+                                       "5112"
+                                   ],
+                      "hillcrest":  [
+                                        "5086"
+                                    ],
+                      "hindmarsh":  [
+                                        "5007"
+                                    ],
+                      "hindmarshvalley":  [
+                                              "5211"
+                                          ],
+                      "holdenhill":  [
+                                         "5088"
+                                     ],
+                      "holder":  [
+                                     "5330"
+                                 ],
+                      "hopevalley":  [
+                                         "5090"
+                                     ],
+                      "hornsdale":  [
+                                        "5491"
+                                    ],
+                      "huntfieldheights":  [
+                                               "5163"
+                                           ],
+                      "hydepark":  [
+                                       "5061"
+                                   ],
+                      "hynam":  [
+                                    "5262"
+                                ],
+                      "inglefarm":  [
+                                        "5098"
+                                    ],
+                      "jamestown":  [
+                                        "5491"
+                                    ],
+                      "jervois":  [
+                                      "5259"
+                                  ],
+                      "joanna":  [
+                                     "5271"
+                                 ],
+                      "joslin":  [
+                                     "5070"
+                                 ],
+                      "kadina":  [
+                                     "5554"
+                                 ],
+                      "kalangadoo":  [
+                                         "5278"
+                                     ],
+                      "kalbeeba":  [
+                                       "5118"
+                                   ],
+                      "kanni":  [
+                                    "5330"
+                                ],
+                      "kapunda":  [
+                                      "5373"
+                                  ],
+                      "karoonda":  [
+                                       "5307"
+                                   ],
+                      "keith":  [
+                                    "5267"
+                                ],
+                      "kensington":  [
+                                         "5068"
+                                     ],
+                      "kensingtongardens":  [
+                                                "5068"
+                                            ],
+                      "kensingtonpark":  [
+                                             "5068"
+                                         ],
+                      "kenttown":  [
+                                       "5067"
+                                   ],
+                      "kepa":  [
+                                   "5259"
+                               ],
+                      "keppoch":  [
+                                      "5271"
+                                  ],
+                      "kersbrook":  [
+                                        "5231"
+                                    ],
+                      "keswick":  [
+                                      "5035"
+                                  ],
+                      "keswickterminal":  [
+                                              "5035"
+                                          ],
+                      "keyneton":  [
+                                       "5353"
+                                   ],
+                      "kielpa":  [
+                                     "5642"
+                                 ],
+                      "kiki":  [
+                                   "5261"
+                               ],
+                      "kilburn":  [
+                                      "5084"
+                                  ],
+                      "kimba":  [
+                                    "5641"
+                                ],
+                      "kingsford":  [
+                                        "5118"
+                                    ],
+                      "kingspark":  [
+                                        "5034"
+                                    ],
+                      "kingstononmurray":  [
+                                               "5331"
+                                           ],
+                      "kingstonse":  [
+                                         "5275"
+                                     ],
+                      "kingswood":  [
+                                        "5062"
+                                    ],
+                      "klemzig":  [
+                                      "5087"
+                                  ],
+                      "koolunga":  [
+                                       "5464"
+                                   ],
+                      "kuitpo":  [
+                                     "5201"
+                                 ],
+                      "kulpara":  [
+                                      "5552"
+                                  ],
+                      "laffer":  [
+                                     "5267"
+                                 ],
+                      "langhornecreek":  [
+                                             "5255"
+                                         ],
+                      "largsbay":  [
+                                       "5016"
+                                   ],
+                      "largsnorth":  [
+                                         "5016"
+                                     ],
+                      "laura":  [
+                                    "5480"
+                                ],
+                      "leabrook":  [
+                                       "5068"
+                                   ],
+                      "leawoodgardens":  [
+                                             "5150"
+                                         ],
+                      "lenswood":  [
+                                       "5240"
+                                   ],
+                      "lewiston":  [
+                                       "5501"
+                                   ],
+                      "lightpass":  [
+                                        "5355"
+                                    ],
+                      "lincolngap":  [
+                                         "5715"
+                                     ],
+                      "lindenpark":  [
+                                         "5065"
+                                     ],
+                      "lipson":  [
+                                     "5607"
+                                 ],
+                      "littlehampton":  [
+                                            "5250"
+                                        ],
+                      "lobethal":  [
+                                       "5241"
+                                   ],
+                      "lochiel":  [
+                                      "5510"
+                                  ],
+                      "lock":  [
+                                   "5633"
+                               ],
+                      "lonsdale":  [
+                                       "5160"
+                                   ],
+                      "louthbay":  [
+                                       "5607"
+                                   ],
+                      "loveday":  [
+                                      "5345"
+                                  ],
+                      "lowbank":  [
+                                      "5330"
+                                  ],
+                      "lowerinmanvalley":  [
+                                               "5211"
+                                           ],
+                      "lowerlight":  [
+                                         "5501"
+                                     ],
+                      "lowermitcham":  [
+                                           "5062"
+                                       ],
+                      "loxton":  [
+                                     "5333"
+                                 ],
+                      "loxtonnorth":  [
+                                          "5333"
+                                      ],
+                      "lucindale":  [
+                                        "5272"
+                                    ],
+                      "lyndoch":  [
+                                      "5351"
+                                  ],
+                      "lynton":  [
+                                     "5062"
+                                 ],
+                      "lyrup":  [
+                                    "5343"
+                                ],
+                      "macclesfield":  [
+                                           "5153"
+                                       ],
+                      "macdonaldpark":  [
+                                            "5121"
+                                        ],
+                      "magill":  [
+                                     "5072"
+                                 ],
+                      "maitland":  [
+                                       "5573"
+                                   ],
+                      "mallala":  [
+                                      "5502"
+                                  ],
+                      "malvern":  [
+                                      "5061"
+                                  ],
+                      "manningham":  [
+                                         "5086"
+                                     ],
+                      "mannum":  [
+                                     "5238"
+                                 ],
+                      "manoora":  [
+                                      "5414"
+                                  ],
+                      "mansfieldpark":  [
+                                            "5012"
+                                        ],
+                      "marananga":  [
+                                        "5355"
+                                    ],
+                      "marden":  [
+                                     "5070"
+                                 ],
+                      "marionbay":  [
+                                        "5575"
+                                    ],
+                      "marryatville":  [
+                                           "5068"
+                                       ],
+                      "maslinbeach":  [
+                                          "5170"
+                                      ],
+                      "maude":  [
+                                    "5320"
+                                ],
+                      "maylands":  [
+                                       "5069"
+                                   ],
+                      "mccracken":  [
+                                        "5211"
+                                    ],
+                      "mchargcreek":  [
+                                          "5157"
+                                      ],
+                      "mclarenflat":  [
+                                          "5171"
+                                      ],
+                      "mclarenvale":  [
+                                          "5171"
+                                      ],
+                      "meadows":  [
+                                      "5201"
+                                  ],
+                      "medindie":  [
+                                       "5081"
+                                   ],
+                      "melrose":  [
+                                      "5483"
+                                  ],
+                      "melrosepark":  [
+                                          "5039"
+                                      ],
+                      "meningie":  [
+                                       "5264"
+                                   ],
+                      "middleton":  [
+                                        "5213"
+                                    ],
+                      "milang":  [
+                                     "5256"
+                                 ],
+                      "mileend":  [
+                                      "5031"
+                                  ],
+                      "millel":  [
+                                     "5291"
+                                 ],
+                      "millicent":  [
+                                        "5280"
+                                    ],
+                      "millswood":  [
+                                        "5034"
+                                    ],
+                      "minlaton":  [
+                                       "5575"
+                                   ],
+                      "minnipa":  [
+                                      "5654"
+                                  ],
+                      "mintaro":  [
+                                      "5415"
+                                  ],
+                      "mitcham":  [
+                                      "5062"
+                                  ],
+                      "moana":  [
+                                    "5169"
+                                ],
+                      "mobilong":  [
+                                       "5253"
+                                   ],
+                      "moculta":  [
+                                      "5353"
+                                  ],
+                      "modbury":  [
+                                      "5092"
+                                  ],
+                      "modburyheights":  [
+                                             "5092"
+                                         ],
+                      "modburynorth":  [
+                                           "5092"
+                                       ],
+                      "monarto":  [
+                                      "5254"
+                                  ],
+                      "monash":  [
+                                     "5342"
+                                 ],
+                      "montacute":  [
+                                        "5134"
+                                    ],
+                      "monteith":  [
+                                       "5253"
+                                   ],
+                      "moonta":  [
+                                     "5558"
+                                 ],
+                      "moorak":  [
+                                     "5291"
+                                 ],
+                      "moorook":  [
+                                      "5332"
+                                  ],
+                      "morgan":  [
+                                     "5320"
+                                 ],
+                      "morphettvale":  [
+                                           "5162"
+                                       ],
+                      "mountbarker":  [
+                                          "5251"
+                                      ],
+                      "mountbenson":  [
+                                          "5275"
+                                      ],
+                      "mountburr":  [
+                                        "5279"
+                                    ],
+                      "mountcharles":  [
+                                           "5267"
+                                       ],
+                      "mountcompass":  [
+                                           "5210"
+                                       ],
+                      "mountgambier":  [
+                                           "5290"
+                                       ],
+                      "mountlight":  [
+                                         "5271"
+                                     ],
+                      "mountosmond":  [
+                                          "5064"
+                                      ],
+                      "mountpleasant":  [
+                                            "5235"
+                                        ],
+                      "moyhall":  [
+                                      "5271"
+                                  ],
+                      "mullaquana":  [
+                                         "5608"
+                                     ],
+                      "mundulla":  [
+                                       "5270"
+                                   ],
+                      "munnopara":  [
+                                        "5115"
+                                    ],
+                      "munnoparadowns":  [
+                                             "5115"
+                                         ],
+                      "munnoparawest":  [
+                                            "5115"
+                                        ],
+                      "murbko":  [
+                                     "5320"
+                                 ],
+                      "murraybridge":  [
+                                           "5253"
+                                       ],
+                      "murraytown":  [
+                                         "5481"
+                                     ],
+                      "murtho":  [
+                                     "5340"
+                                 ],
+                      "mylor":  [
+                                    "5153"
+                                ],
+                      "mypolonga":  [
+                                        "5254"
+                                    ],
+                      "myponga":  [
+                                      "5202"
+                                  ],
+                      "myrtlebank":  [
+                                         "5064"
+                                     ],
+                      "nairne":  [
+                                     "5252"
+                                 ],
+                      "nangkita":  [
+                                       "5210"
+                                   ],
+                      "nangwarry":  [
+                                        "5277"
+                                    ],
+                      "napperby":  [
+                                       "5540"
+                                   ],
+                      "naracoorte":  [
+                                         "5271"
+                                     ],
+                      "narridy":  [
+                                      "5523"
+                                  ],
+                      "netherby":  [
+                                       "5062"
+                                   ],
+                      "newport":  [
+                                      "5015"
+                                  ],
+                      "newresidence":  [
+                                           "5333"
+                                       ],
+                      "newton":  [
+                                     "5074"
+                                 ],
+                      "newtown":  [
+                                      "5554"
+                                  ],
+                      "noarlungacentre":  [
+                                              "5168"
+                                          ],
+                      "noarlungadowns":  [
+                                             "5168"
+                                         ],
+                      "normanville":  [
+                                          "5204"
+                                      ],
+                      "northadelaide":  [
+                                            "5006"
+                                        ],
+                      "northbeach":  [
+                                         "5556"
+                                     ],
+                      "northhaven":  [
+                                         "5018"
+                                     ],
+                      "northshields":  [
+                                           "5607"
+                                       ],
+                      "nortonsummit":  [
+                                           "5136"
+                                       ],
+                      "norwood":  [
+                                      "5067"
+                                  ],
+                      "nuriootpa":  [
+                                        "5355"
+                                    ],
+                      "oakbank":  [
+                                      "5243"
+                                  ],
+                      "oakden":  [
+                                     "5086"
+                                 ],
+                      "obflat":  [
+                                     "5291"
+                                 ],
+                      "oldcalperum":  [
+                                          "5341"
+                                      ],
+                      "oldnoarlunga":  [
+                                           "5168"
+                                       ],
+                      "oldreynella":  [
+                                          "5161"
+                                      ],
+                      "onkaparingahills":  [
+                                               "5163"
+                                           ],
+                      "orroroo":  [
+                                      "5431"
+                                  ],
+                      "osborne":  [
+                                      "5017"
+                                  ],
+                      "osullivanbeach":  [
+                                             "5166"
+                                         ],
+                      "ottoway":  [
+                                      "5013"
+                                  ],
+                      "outerharbor":  [
+                                          "5018"
+                                      ],
+                      "overlandcorner":  [
+                                             "5330"
+                                         ],
+                      "ovingham":  [
+                                       "5082"
+                                   ],
+                      "owen":  [
+                                   "5460"
+                               ],
+                      "padthaway":  [
+                                        "5271"
+                                    ],
+                      "paechtown":  [
+                                        "5245"
+                                    ],
+                      "paisley":  [
+                                      "5357"
+                                  ],
+                      "palmer":  [
+                                     "5237"
+                                 ],
+                      "panorama":  [
+                                       "5041"
+                                   ],
+                      "paradise":  [
+                                       "5075"
+                                   ],
+                      "parafieldgardens":  [
+                                               "5107"
+                                           ],
+                      "parahills":  [
+                                        "5096"
+                                    ],
+                      "parahillswest":  [
+                                            "5096"
+                                        ],
+                      "paralowie":  [
+                                        "5108"
+                                    ],
+                      "paravista":  [
+                                        "5093"
+                                    ],
+                      "paringa":  [
+                                      "5340"
+                                  ],
+                      "parkside":  [
+                                       "5063"
+                                   ],
+                      "pasadena":  [
+                                       "5042"
+                                   ],
+                      "payneham":  [
+                                       "5070"
+                                   ],
+                      "paynehamsouth":  [
+                                            "5070"
+                                        ],
+                      "penfield":  [
+                                       "5121"
+                                   ],
+                      "penfieldgardens":  [
+                                              "5121"
+                                          ],
+                      "pennington":  [
+                                         "5013"
+                                     ],
+                      "penola":  [
+                                     "5277"
+                                 ],
+                      "penong":  [
+                                     "5690"
+                                 ],
+                      "penrice":  [
+                                      "5353"
+                                  ],
+                      "peterborough":  [
+                                           "5422"
+                                       ],
+                      "peterhead":  [
+                                        "5016"
+                                    ],
+                      "petwood":  [
+                                      "5254"
+                                  ],
+                      "piccadilly":  [
+                                         "5151"
+                                     ],
+                      "pikeriver":  [
+                                        "5340"
+                                    ],
+                      "pinepoint":  [
+                                        "5571"
+                                    ],
+                      "pinkertonplains":  [
+                                              "5400"
+                                          ],
+                      "pointturton":  [
+                                          "5575"
+                                      ],
+                      "poochera":  [
+                                       "5655"
+                                   ],
+                      "portadelaide":  [
+                                           "5015"
+                                       ],
+                      "portaugusta":  [
+                                          "5700"
+                                      ],
+                      "portbonython":  [
+                                           "5601"
+                                       ],
+                      "portbroughton":  [
+                                            "5522"
+                                        ],
+                      "portelliot":  [
+                                         "5212"
+                                     ],
+                      "portgawler":  [
+                                         "5501"
+                                     ],
+                      "portgermein":  [
+                                          "5495"
+                                      ],
+                      "porthughes":  [
+                                         "5558"
+                                     ],
+                      "portlincoln":  [
+                                          "5606"
+                                      ],
+                      "portmacdonnell":  [
+                                             "5291"
+                                         ],
+                      "portneill":  [
+                                        "5604"
+                                    ],
+                      "portnoarlunga":  [
+                                            "5167"
+                                        ],
+                      "portnoarlungasouth":  [
+                                                 "5167"
+                                             ],
+                      "portpaterson":  [
+                                           "5700"
+                                       ],
+                      "portpirie":  [
+                                        "5540"
+                                    ],
+                      "portvictoria":  [
+                                           "5573"
+                                       ],
+                      "portvincent":  [
+                                          "5581"
+                                      ],
+                      "portwakefield":  [
+                                            "5550"
+                                        ],
+                      "portwillunga":  [
+                                           "5173"
+                                       ],
+                      "price":  [
+                                    "5570"
+                                ],
+                      "pyap":  [
+                                   "5333"
+                               ],
+                      "qualco":  [
+                                     "5322"
+                                 ],
+                      "queenstown":  [
+                                         "5014"
+                                     ],
+                      "quorn":  [
+                                    "5433"
+                                ],
+                      "racecoursebay":  [
+                                            "5291"
+                                        ],
+                      "ramco":  [
+                                    "5322"
+                                ],
+                      "redhill":  [
+                                      "5521"
+                                  ],
+                      "redwoodpark":  [
+                                          "5097"
+                                      ],
+                      "reevesplains":  [
+                                           "5502"
+                                       ],
+                      "regencypark":  [
+                                          "5010"
+                                      ],
+                      "rendelsham":  [
+                                         "5280"
+                                     ],
+                      "renmark":  [
+                                      "5341"
+                                  ],
+                      "reynella":  [
+                                       "5161"
+                                   ],
+                      "reynellaeast":  [
+                                           "5161"
+                                       ],
+                      "ridgehaven":  [
+                                         "5097"
+                                     ],
+                      "risdonpark":  [
+                                         "5540"
+                                     ],
+                      "riverleapark":  [
+                                           "5120"
+                                       ],
+                      "riverton":  [
+                                       "5412"
+                                   ],
+                      "robe":  [
+                                   "5276"
+                               ],
+                      "rosedale":  [
+                                       "5350"
+                                   ],
+                      "rosepark":  [
+                                       "5067"
+                                   ],
+                      "rosewater":  [
+                                        "5013"
+                                    ],
+                      "roseworthy":  [
+                                         "5371"
+                                     ],
+                      "rosslynpark":  [
+                                          "5072"
+                                      ],
+                      "rostrevor":  [
+                                        "5073"
+                                    ],
+                      "rowlandflat":  [
+                                          "5352"
+                                      ],
+                      "royalpark":  [
+                                        "5014"
+                                    ],
+                      "roystonpark":  [
+                                          "5070"
+                                      ],
+                      "saddleworth":  [
+                                          "5413"
+                                      ],
+                      "salisbury":  [
+                                        "5108"
+                                    ],
+                      "salisburydowns":  [
+                                             "5108"
+                                         ],
+                      "salisburyeast":  [
+                                            "5109"
+                                        ],
+                      "salisburyheights":  [
+                                               "5109"
+                                           ],
+                      "salisburynorth":  [
+                                             "5108"
+                                         ],
+                      "salisburypark":  [
+                                            "5109"
+                                        ],
+                      "salisburyplain":  [
+                                             "5109"
+                                         ],
+                      "sandycreek":  [
+                                         "5350"
+                                     ],
+                      "sandygrove":  [
+                                         "5275"
+                                     ],
+                      "seaford":  [
+                                      "5169"
+                                  ],
+                      "seafordheights":  [
+                                             "5169"
+                                         ],
+                      "seafordmeadows":  [
+                                             "5169"
+                                         ],
+                      "seafordrise":  [
+                                          "5169"
+                                      ],
+                      "seaton":  [
+                                     "5023"
+                                 ],
+                      "sellicksbeach":  [
+                                            "5174"
+                                        ],
+                      "sellickshill":  [
+                                           "5174"
+                                       ],
+                      "semaphore":  [
+                                        "5019"
+                                    ],
+                      "semaphorepark":  [
+                                            "5019"
+                                        ],
+                      "semaphoresouth":  [
+                                             "5019"
+                                         ],
+                      "seppeltsfield":  [
+                                            "5355"
+                                        ],
+                      "sevenhill":  [
+                                        "5453"
+                                    ],
+                      "shaugh":  [
+                                     "5267"
+                                 ],
+                      "sheaoaklog":  [
+                                         "5371"
+                                     ],
+                      "skye":  [
+                                   "5072"
+                               ],
+                      "smithfield":  [
+                                         "5114"
+                                     ],
+                      "smithfieldplains":  [
+                                               "5114"
+                                           ],
+                      "smokybay":  [
+                                       "5680"
+                                   ],
+                      "snowtown":  [
+                                       "5520"
+                                   ],
+                      "solomontown":  [
+                                          "5540"
+                                      ],
+                      "southend":  [
+                                       "5280"
+                                   ],
+                      "spalding":  [
+                                       "5454"
+                                   ],
+                      "springfield":  [
+                                          "5062"
+                                      ],
+                      "springgully":  [
+                                          "5453"
+                                      ],
+                      "stagnes":  [
+                                      "5097"
+                                  ],
+                      "stanleyflat":  [
+                                          "5453"
+                                      ],
+                      "stansbury":  [
+                                        "5582"
+                                    ],
+                      "stclair":  [
+                                      "5011"
+                                  ],
+                      "stepney":  [
+                                      "5069"
+                                  ],
+                      "stewartrange":  [
+                                           "5271"
+                                       ],
+                      "stgeorges":  [
+                                        "5064"
+                                    ],
+                      "stirling":  [
+                                       "5152"
+                                   ],
+                      "stirlingnorth":  [
+                                            "5710"
+                                        ],
+                      "stkilda":  [
+                                      "5110"
+                                  ],
+                      "stmarys":  [
+                                      "5042"
+                                  ],
+                      "stmorris":  [
+                                       "5068"
+                                   ],
+                      "stockport":  [
+                                        "5410"
+                                    ],
+                      "stockwell":  [
+                                        "5355"
+                                    ],
+                      "stonewell":  [
+                                        "5352"
+                                    ],
+                      "stonyfell":  [
+                                        "5066"
+                                    ],
+                      "stpeters":  [
+                                       "5069"
+                                   ],
+                      "strathalbyn":  [
+                                          "5255"
+                                      ],
+                      "streakybay":  [
+                                         "5680"
+                                     ],
+                      "struan":  [
+                                     "5271"
+                                 ],
+                      "summertown":  [
+                                         "5141"
+                                     ],
+                      "sunlands":  [
+                                       "5322"
+                                   ],
+                      "surreydowns":  [
+                                          "5126"
+                                      ],
+                      "suttontown":  [
+                                         "5291"
+                                     ],
+                      "swanreach":  [
+                                        "5354"
+                                    ],
+                      "tailembend":  [
+                                         "5260"
+                                     ],
+                      "tantanoola":  [
+                                         "5280"
+                                     ],
+                      "tanunda":  [
+                                      "5352"
+                                  ],
+                      "taperoo":  [
+                                      "5017"
+                                  ],
+                      "tarlee":  [
+                                     "5411"
+                                 ],
+                      "tarpeena":  [
+                                       "5277"
+                                   ],
+                      "tatachilla":  [
+                                         "5171"
+                                     ],
+                      "taylorville":  [
+                                          "5330"
+                                      ],
+                      "teatreegully":  [
+                                           "5091"
+                                       ],
+                      "tennyson":  [
+                                       "5022"
+                                   ],
+                      "teringie":  [
+                                       "5072"
+                                   ],
+                      "thebarton":  [
+                                        "5031"
+                                    ],
+                      "thevenard":  [
+                                        "5690"
+                                    ],
+                      "thorngate":  [
+                                        "5082"
+                                    ],
+                      "tiatukia":  [
+                                       "5607"
+                                   ],
+                      "tickera":  [
+                                      "5555"
+                                  ],
+                      "tintinara":  [
+                                        "5266"
+                                    ],
+                      "tonsley":  [
+                                      "5042"
+                                  ],
+                      "toorakgardens":  [
+                                            "5065"
+                                        ],
+                      "torrenspark":  [
+                                          "5062"
+                                      ],
+                      "totness":  [
+                                      "5250"
+                                  ],
+                      "tranmere":  [
+                                       "5073"
+                                   ],
+                      "trinitygardens":  [
+                                             "5068"
+                                         ],
+                      "truro":  [
+                                    "5356"
+                                ],
+                      "tumbybay":  [
+                                       "5605"
+                                   ],
+                      "tusmore":  [
+                                      "5065"
+                                  ],
+                      "twowells":  [
+                                       "5501"
+                                   ],
+                      "unley":  [
+                                    "5061"
+                                ],
+                      "unleypark":  [
+                                        "5061"
+                                    ],
+                      "uppersturt":  [
+                                         "5156"
+                                     ],
+                      "uraidla":  [
+                                      "5142"
+                                  ],
+                      "urrbrae":  [
+                                      "5064"
+                                  ],
+                      "valleyview":  [
+                                         "5093"
+                                     ],
+                      "verdun":  [
+                                     "5245"
+                                 ],
+                      "victorharbor":  [
+                                           "5211"
+                                       ],
+                      "virginia":  [
+                                       "5120"
+                                   ],
+                      "vista":  [
+                                    "5091"
+                                ],
+                      "waikerie":  [
+                                       "5330"
+                                   ],
+                      "waitpinga":  [
+                                        "5211"
+                                    ],
+                      "walkerflat":  [
+                                         "5238"
+                                     ],
+                      "walkerville":  [
+                                          "5081"
+                                      ],
+                      "walkleyheights":  [
+                                             "5098"
+                                         ],
+                      "wallaroo":  [
+                                       "5556"
+                                   ],
+                      "wallflat":  [
+                                       "5254"
+                                   ],
+                      "wandilo":  [
+                                      "5291"
+                                  ],
+                      "wangary":  [
+                                      "5607"
+                                  ],
+                      "warnertown":  [
+                                         "5540"
+                                     ],
+                      "warooka":  [
+                                      "5577"
+                                  ],
+                      "wasleys":  [
+                                      "5400"
+                                  ],
+                      "waterfallgully":  [
+                                             "5066"
+                                         ],
+                      "waterloocorner":  [
+                                             "5110"
+                                         ],
+                      "watervale":  [
+                                        "5452"
+                                    ],
+                      "wattlepark":  [
+                                         "5066"
+                                     ],
+                      "wauraltee":  [
+                                        "5573"
+                                    ],
+                      "wayville":  [
+                                       "5034"
+                                   ],
+                      "wellington":  [
+                                         "5259"
+                                     ],
+                      "westbournepark":  [
+                                             "5041"
+                                         ],
+                      "westernflat":  [
+                                          "5268"
+                                      ],
+                      "westlakes":  [
+                                        "5021"
+                                    ],
+                      "westlakesshore":  [
+                                             "5020"
+                                         ],
+                      "whitesands":  [
+                                         "5253"
+                                     ],
+                      "whitesvalley":  [
+                                           "5172"
+                                       ],
+                      "whyalla":  [
+                                      "5600"
+                                  ],
+                      "whyallajenkins":  [
+                                             "5609"
+                                         ],
+                      "whyallanorrie":  [
+                                            "5608"
+                                        ],
+                      "whyallaplayford":  [
+                                              "5600"
+                                          ],
+                      "whyallastuart":  [
+                                            "5608"
+                                        ],
+                      "wilddogvalley":  [
+                                            "5271"
+                                        ],
+                      "willaston":  [
+                                        "5118"
+                                    ],
+                      "williamstown":  [
+                                           "5351"
+                                       ],
+                      "willunga":  [
+                                       "5172"
+                                   ],
+                      "willungahill":  [
+                                           "5172"
+                                       ],
+                      "willungasouth":  [
+                                            "5172"
+                                        ],
+                      "wilmington":  [
+                                         "5485"
+                                     ],
+                      "windsor":  [
+                                      "5501"
+                                  ],
+                      "windsorgardens":  [
+                                             "5087"
+                                         ],
+                      "wingfield":  [
+                                        "5013"
+                                    ],
+                      "winkie":  [
+                                     "5343"
+                                 ],
+                      "winninowie":  [
+                                         "5700"
+                                     ],
+                      "wistow":  [
+                                     "5251"
+                                 ],
+                      "wolseley":  [
+                                       "5269"
+                                   ],
+                      "wongulla":  [
+                                       "5238"
+                                   ],
+                      "wonuarra":  [
+                                       "5340"
+                                   ],
+                      "woodchester":  [
+                                          "5255"
+                                      ],
+                      "woodcroft":  [
+                                        "5162"
+                                    ],
+                      "woodforde":  [
+                                        "5072"
+                                    ],
+                      "woodside":  [
+                                       "5244"
+                                   ],
+                      "woodspoint":  [
+                                         "5253"
+                                     ],
+                      "woodville":  [
+                                        "5011"
+                                    ],
+                      "woodvillegardens":  [
+                                               "5012"
+                                           ],
+                      "woodvillenorth":  [
+                                             "5012"
+                                         ],
+                      "woodvillepark":  [
+                                            "5011"
+                                        ],
+                      "woodvillesouth":  [
+                                             "5011"
+                                         ],
+                      "woodvillewest":  [
+                                            "5011"
+                                        ],
+                      "woolbay":  [
+                                      "5575"
+                                  ],
+                      "woolpunda":  [
+                                        "5330"
+                                    ],
+                      "woolumbool":  [
+                                         "5272"
+                                     ],
+                      "worrolong":  [
+                                        "5291"
+                                    ],
+                      "wudinna":  [
+                                      "5652"
+                                  ],
+                      "wynnvale":  [
+                                       "5127"
+                                   ],
+                      "yahl":  [
+                                   "5291"
+                               ],
+                      "yalata":  [
+                                     "5690"
+                                 ],
+                      "yankalilla":  [
+                                         "5203"
+                                     ],
+                      "yatalavale":  [
+                                         "5126"
+                                     ],
+                      "yorketown":  [
+                                        "5576"
+                                    ],
+                      "younghusband":  [
+                                           "5238"
+                                       ],
+                      "yumali":  [
+                                     "5261"
+                                 ],
+                      "yundi":  [
+                                    "5172"
+                                ]
+                  }
+}

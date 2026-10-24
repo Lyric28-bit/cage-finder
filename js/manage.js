@@ -134,6 +134,29 @@ export function openManage(app) {
     }
   }
 
+  // Muted postcode text (locked) or an editable box (editing) for one suburb.
+  // Whatever is typed overrides the shipped postcode; clearing it means none.
+  function postcodeCell(name) {
+    const current = app.postcodeOf(name).join(' / ');
+    if (!editing) return el('span', { className: 'count', textContent: current });
+    const input = el('input', { type: 'text', value: current, placeholder: '----', autocomplete: 'off',
+      inputMode: 'numeric', maxLength: 4, className: 'm-pc' });
+    input.setAttribute('aria-label', `Postcode for ${name}`);
+    input.addEventListener('change', () => {
+      try {
+        setPostcode(app.data, name, input.value);
+      } catch (err) {
+        input.setCustomValidity(err.message);
+        input.reportValidity();
+        input.value = current;
+        input.setCustomValidity('');
+        return;
+      }
+      app.save();
+    });
+    return input;
+  }
+
   // Locked view of an open cage: its suburbs and the photo, nothing to change.
   function readOnlyPanel(cage) {
     const panel = el('div', { className: 'm-panel' });
@@ -143,7 +166,7 @@ export function openManage(app) {
       panel.append(el('div', { className: 'm-line' }, view));
     }
     const list = el('ul', { className: 'm-subs' });
-    for (const sub of cage.suburbs) list.append(el('li', {}, el('span', { textContent: sub })));
+    for (const sub of cage.suburbs) list.append(el('li', {}, el('span', { className: 'grow', textContent: sub }), postcodeCell(sub)));
     panel.append(list);
     return panel;
   }
@@ -235,7 +258,7 @@ export function openManage(app) {
         app.save();
         renderAll();
       });
-      list.append(el('li', {}, el('span', { textContent: sub }), x));
+      list.append(el('li', {}, el('span', { className: 'grow', textContent: sub }), postcodeCell(sub), x));
     }
     panel.append(list);
 
@@ -317,8 +340,7 @@ export function openManage(app) {
         : 'These show as LOCAL until moved to a cage. Tap Edit to move them.' }));
     const list = el('ul', { className: 'm-subs' });
     for (const p of local) {
-      const li = el('li', {},
-        el('span', { className: 'grow' }, p.name, el('span', { className: 'count', textContent: ` ${p.postcode ?? ''}` })));
+      const li = el('li', {}, el('span', { className: 'grow', textContent: p.name }), postcodeCell(p.name));
       if (editing) {
         const move = el('button', { className: 'btn-ghost', type: 'button', textContent: 'Move' });
         move.setAttribute('aria-label', `Move ${p.name} to a cage`);

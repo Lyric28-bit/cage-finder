@@ -21,7 +21,7 @@ export const app = {
   showMessage,
   openAddDialog,
   openPhoto,
-  postcodesFor,
+  postcodeOf,
   isEstimated,
 };
 
@@ -114,13 +114,25 @@ async function loadReference() {
   ref.estimated = new Set((est?.cages || []).map(normalise));
 }
 
-// Typed-in postcode wins; otherwise the shipped list plus the Local list's own.
-function postcodesFor(place) {
+// Postcode(s) for one destination of a place. A typed-in postcode wins ('' means
+// "none"); otherwise a Local entry uses its own, a cage uses the shipped list.
+// Per destination because e.g. Happy Valley LOCAL (5159) and Happy Valley on the
+// Mildura sheet are different places.
+function postcodesAt(place, d) {
   const own = app.data.postcodes?.[place.key];
-  if (own) return [own];
-  const codes = new Set(ref.postcodes[place.key] || []);
-  for (const d of place.destinations) if (d.type === 'local' && d.postcode) codes.add(String(d.postcode));
-  return [...codes];
+  if (own !== undefined) return own ? [own] : [];
+  if (d.type === 'local') return d.postcode ? [String(d.postcode)] : [];
+  return ref.postcodes[place.key] || [];
+}
+
+// Every postcode the place could have, for search and prefill.
+function postcodesFor(place) {
+  return [...new Set(place.destinations.flatMap(d => postcodesAt(place, d)))];
+}
+
+function postcodeOf(name) {
+  const place = app.index.find(p => p.key === normalise(name));
+  return place ? postcodesFor(place) : [];
 }
 
 function isEstimated(cageName) {
@@ -223,9 +235,8 @@ function showResult(place, { typed = '' } = {}) {
   const bands = $('result-bands');
   bands.replaceChildren();
   bands.classList.toggle('multi', place.destinations.length > 1);
-  const codes = postcodesFor(place);
-
   for (const d of place.destinations) {
+    const codes = postcodesAt(place, d);
     const bg = d.type === 'local' ? LOCAL_COLOR : d.color;
     const cage = el('div', { className: 'cage', textContent: d.type === 'local' ? 'LOCAL' : d.cage });
     cage.style.background = bg;

@@ -116,15 +116,14 @@ export function replaceData(data, source) {
 }
 
 // Postcodes typed in by hand, keyed by normalised suburb name. Saved and
-// exported with the rest of the device's data; empty clears it.
+// exported with the rest of the device's data. They override the shipped list;
+// an empty one is stored as '' and means "no postcode".
 export const POSTCODE = /^\d{4}$/;
 export function setPostcode(data, suburb, postcode) {
   postcode = String(postcode || '').trim();
   if (postcode && !POSTCODE.test(postcode)) throw new Error('Postcode must be 4 digits');
   data.postcodes ||= {};
-  const key = normalise(suburb);
-  if (postcode) data.postcodes[key] = postcode;
-  else delete data.postcodes[key];
+  data.postcodes[normalise(suburb)] = postcode;
 }
 
 // For imports: valid shape, plus every cage suburb and local entry is well formed.
