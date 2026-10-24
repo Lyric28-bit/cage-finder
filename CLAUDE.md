@@ -12,7 +12,8 @@ Installable offline PWA for a warehouse sorter: type a suburb from a parcel stic
 - data/cages.json: 19 cages, 407 suburbs transcribed from the sheet photos, plus 6 local-region cages (City, North, North East, Port, Regency and South Cartons; 271 suburbs) estimated from the region map photos, edges unverified. `sheetVersion` at the top.
 - data/adelaide-suburbs.json: 158 Adelaide metro suburbs (SA Gov list, postcodes 5000-5199, minus ones on a cage sheet). These show as LOCAL. Happy Valley is in both on purpose (Mildura's is a different place).
 - Each device keeps its own copy in localStorage; edits don't sync. Export/Import in Manage moves them.
-- Still to verify with Lyric: Renmark spellings (blurry photo), possible hidden row in the Adelaide Hills fold, which cage really owns Pinkerton Plains (on Barossa and Kadina sheets).
+- 2026-10-22: all 19 printed sheets (407 names) verified. Two blind re-reads matched the data, and Lyric hand-checked every name against the photos and the app. The Adelaide Hills "fold" is two taped pages, with no hidden row. The 6 Cartons region cages are still unverified.
+- Open questions (Lyric asking his boss): Pinkerton Plains (on both Barossa and Kadina sheets); Aldinga/Seaford/McLaren Vale/Willunga (Victor Harbor sheet, but the South Cartons sign has SEAFORD crossed out with ALDINGA written in, and the South map covers them); Payneham (on the City/North East map line); a "WINGFIELD CARTONS" sign under the Regency map.
 - Suburbs still LOCAL weren't inside any region map; Lyric moves them in-app (LOCAL result → Move to cage). Suburbs on the original sheets always stay on their sheet cage, even where a region map overlaps (e.g. Aldinga/Seaford/Willunga stay Victor Harbor). Wingfield is in Regency Cartons.
 
 ## Rules and quirks
