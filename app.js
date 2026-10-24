@@ -250,7 +250,9 @@ function onAddSubmit(event) {
 async function start() {
   app.data = await loadData();
   app.refresh();
-  await initPhotos();
+  // Not awaited: if IndexedDB stalls (some iOS versions), search must still
+  // work. The note redraws with thumbnails once photos are in.
+  initPhotos().then(() => { if (!$('manage-root').hidden) showNote(); });
 
   $('photo-img').addEventListener('click', onPhotoTap);
   $('btn-photo-close').addEventListener('click', () => $('dlg-photo').close());
@@ -271,6 +273,7 @@ async function start() {
   $('btn-menu').addEventListener('click', () => toggleMenu());
 
   window.addEventListener('popstate', e => {
+    $('dlg-photo').close(); // some browsers' Back pops history without closing the dialog
     showView(e.state?.view || 'search', { fromHistory: true, focus: false });
   });
 

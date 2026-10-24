@@ -41,8 +41,11 @@ export function openManage(app) {
     const file = photoInput.files[0], cage = photoFor;
     photoInput.value = '';
     if (!file || !cage) return;
+    const name = cage.name;
     try {
-      await setPhoto(cage.name, file);
+      await setPhoto(name, file);
+      // Renamed while the photo was being shrunk: move it to the new name.
+      if (cage.name !== name) await renamePhoto(name, cage.name);
     } catch (err) {
       alert(err.message);
       return;
