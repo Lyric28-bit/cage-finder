@@ -1,14 +1,16 @@
-# Cage Finder
+# Cage Notes
 
 Type the suburb from a parcel sticker and get the cage it goes to. Works offline once installed.
 
-Live at <https://lyric28-bit.github.io/cage-finder/>
+Live at <https://lyric28-bit.github.io/cage-finder/> (the repo keeps its old name, Cage Finder).
 
 - **Search**: type a few letters. Case, spaces and punctuation don't matter, small typos are forgiven, and `Pt`/`Mt` match `Port`/`Mount`. Cage towns (Berri, Renmark...) find their own cage.
-- **Result**: the cage name, huge, on the cage colour. If a suburb is on more than one list (e.g. Pinkerton Plains: Barossa and Kadina) you get a yellow warning and every cage.
+- **Result**: the cage name, huge, in a block of the cage colour. If a suburb is on more than one list (e.g. Pinkerton Plains: Barossa and Kadina) you get a yellow warning and every cage.
 - **LOCAL**: Adelaide metro suburbs that aren't on any cage sheet show as **LOCAL** with their postcode. Tap **Move to cage** once you know the real cage (you can create a new cage right there).
 - **Not found**: tap **Add to a cage**.
-- **Manage**: add, rename, recolour and delete cages and suburbs, browse the Local list, and **Export / Import / Reset**.
+- **Look-alike warning**: if another name is a letter or two off and goes to a different cage (e.g. Enfield LOCAL vs Penfield North Cartons), the result lists it so you check the label.
+- **The note**: with the search empty, the cage list shows under it like a note. Tap a cage to add, rename, recolour or delete cages and suburbs; Local is the last line. **Export / Import / Reset** are in the **⋯** menu.
+- **Sheet photos**: tap 📷 on a cage line to add a photo of its printed sheet. Results from that cage show a thumbnail; tap it (or **View photo** in the cage) for full screen and tap to zoom. Photos stay on that device only: they are never uploaded and Export doesn't include them, so each phone adds its own.
 
 ## Where the data comes from
 
@@ -21,9 +23,9 @@ These files are only the starting point. Each device saves its own copy (in the 
 
 ## Moving data between phone and tablet
 
-1. On the device with the changes: **Manage → Export**. A file like `cage-finder-2026-10-16.json` is saved (Downloads on Android, Files app on iPhone).
+1. On the device with the changes: **⋯ → Export**. A file like `cage-finder-2026-10-16.json` is saved (Downloads on Android, Files app on iPhone).
 2. Get the file to the other device (email it to yourself, Google Drive, USB, etc.).
-3. On the other device: **Manage → Import**, pick the file, confirm. This replaces everything on that device.
+3. On the other device: **⋯ → Import**, pick the file, confirm. This replaces everything on that device.
 
 ## Deploy (free, HTTPS) with GitHub Pages
 
@@ -46,9 +48,9 @@ Installing and offline mode need HTTPS, so the app has to be hosted. GitHub Page
 
 1. Make the change, then open `sw.js` and bump `VERSION` (e.g. `'v1'` → `'v2'`). Without this, installed copies keep the old files.
 2. `git commit -am "Describe the change"` then `git push`.
-3. On each device, open the app, close it fully, and open it again to pick up the new version.
+3. On each device, open the app and tap **New version ready. Tap to update.**
 
-Changing `data/cages.json` and redeploying does **not** overwrite devices that already have saved data (that would wipe their edits). If you change it, also bump `"sheetVersion"` at the top of `data/cages.json` (e.g. `1` → `2`). Devices then show a yellow note saying new sheet data is available, and **Manage → Reset to sheet data** applies it (Export first if you want to keep your own edits).
+Changing `data/cages.json` and redeploying does **not** overwrite devices that already have saved data (that would wipe their edits). If you change it, also bump `"sheetVersion"` at the top of `data/cages.json` (e.g. `1` → `2`). Devices then show a yellow note saying new sheet data is available, and **⋯ → Reset to sheet data** applies it (Export first if you want to keep your own edits).
 
 ## Install on a device
 
@@ -68,7 +70,7 @@ No installs needed:
 powershell -ExecutionPolicy Bypass -File serve.ps1
 ```
 
-Then open <http://localhost:8080>. Matcher tests: <http://localhost:8080/tests.html> (should end with `RESULT: 17/17 passed`).
+Then open <http://localhost:8080>. Matcher tests: <http://localhost:8080/tests.html> (should end with `RESULT: 23/23 passed`).
 
 The app caches itself, so after editing files: F12 → **Application → Storage → Clear site data**, then reload.
 
@@ -76,10 +78,11 @@ The app caches itself, so after editing files: F12 → **Application → Storage
 
 | Path | What |
 |---|---|
-| `index.html`, `styles.css`, `app.js` | Screens: search, result, add/move dialog |
-| `js/match.js` | Normalising and fuzzy search |
+| `index.html`, `styles.css`, `app.js` | Main screen, result, add/move dialog, photo viewer |
+| `js/match.js` | Normalising, fuzzy search, look-alike names |
 | `js/store.js` | Saved data on the device |
-| `js/manage.js` | Manage screen |
+| `js/manage.js` | The cage note and the ⋯ menu |
+| `js/photos.js` | Sheet photos, stored on the device only (IndexedDB) |
 | `sw.js`, `manifest.webmanifest`, `icons/` | Offline + install |
 | `tests.html`, `serve.ps1` | Tests and local server |
 | `sheets/` | Original sheet photos (local only, gitignored, never push) |
