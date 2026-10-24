@@ -37,6 +37,7 @@ Installable offline PWA for a warehouse sorter: type a suburb from a parcel stic
 - No Python or Node on this PC. For scripts use PowerShell (Add-Type C# for anything heavy).
 
 ## Testing
+- **Self-test every change before calling it done or offering to push.** Lyric wants this every time. At minimum: tests.html (all pass) and a full tests-ui.html run (0 problems), driven in Chrome by Claude, plus a targeted check of whatever changed (screenshot or JS check at phone width). If a test fails, find the cause from evidence and fix it before reporting; say what failed and what fixed it. If the change alters what the tests look for, update tests-ui.html in the same job. Report what was tested and what couldn't be (real phone picker, camera, pinch zoom, Firefox).
 - Server: `powershell -ExecutionPolicy Bypass -File serve.ps1` (http://localhost:8080). It also serves sheets/ locally, which tests can fetch.
 - tests.html: matcher unit tests, 23/23 should pass.
 - tests-ui.html: drives the real app in a 390px frame. Searches every suburb (834) from test-data/ and checks it is listed under the right cage group(s) in the filtered note, then the result, colour, warnings, layout and Done, and opens every cage line in the note. Swaps in the test data and restores the browser's own data afterwards. tests-ui.html and test-data/ are excluded from git locally (.git/info/exclude).
