@@ -1,5 +1,5 @@
 {
-    "source":  "SA Government suburb boundaries (data.sa.gov.au, CC-BY 4.0, updated 2022-03-17). Only sheet names matching exactly one SA locality. Left out on purpose: every Mildura-sheet name (interstate towns; Happy Valley and Yelta only match unrelated SA places) and Hamilton on the Mount Gambier sheet (Hamilton VIC, not SA 5373). Postcodes typed into the app override these.",
+    "source":  "SA Government suburb boundaries (data.sa.gov.au, CC-BY 4.0, updated 2022-03-17). Only sheet names matching exactly one SA locality. Left out on purpose: every Mildura-sheet name (interstate towns; Happy Valley and Yelta only match unrelated SA places) and Hamilton on the Mount Gambier sheet (Hamilton VIC, not SA 5373). 2026-10-24 cross-check against Matthew Proctor australian_postcodes and schappim australian-postcodes (Delivery Areas): removed until Lyric checks at work: Kuitpo, Kulpara, Monteith, Mount Gambier, Murray Bridge, Petwood, Port Augusta, Port Lincoln, Tailem Bend. Postcodes typed into the app override these.",
     "postcodes":  {
                       "adelaide":  [
                                        "5000"
@@ -766,12 +766,6 @@
                       "koolunga":  [
                                        "5464"
                                    ],
-                      "kuitpo":  [
-                                     "5201"
-                                 ],
-                      "kulpara":  [
-                                      "5552"
-                                  ],
                       "laffer":  [
                                      "5267"
                                  ],
@@ -997,9 +991,6 @@
                       "montacute":  [
                                         "5134"
                                     ],
-                      "monteith":  [
-                                       "5253"
-                                   ],
                       "moonta":  [
                                      "5558"
                                  ],
@@ -1029,9 +1020,6 @@
                                        ],
                       "mountcompass":  [
                                            "5210"
-                                       ],
-                      "mountgambier":  [
-                                           "5290"
                                        ],
                       "mountlight":  [
                                          "5271"
@@ -1063,9 +1051,6 @@
                       "murbko":  [
                                      "5320"
                                  ],
-                      "murraybridge":  [
-                                           "5253"
-                                       ],
                       "murraytown":  [
                                          "5481"
                                      ],
@@ -1264,9 +1249,6 @@
                       "peterhead":  [
                                         "5016"
                                     ],
-                      "petwood":  [
-                                      "5254"
-                                  ],
                       "piccadilly":  [
                                          "5151"
                                      ],
@@ -1288,9 +1270,6 @@
                       "portadelaide":  [
                                            "5015"
                                        ],
-                      "portaugusta":  [
-                                          "5700"
-                                      ],
                       "portbonython":  [
                                            "5601"
                                        ],
@@ -1309,9 +1288,6 @@
                       "porthughes":  [
                                          "5558"
                                      ],
-                      "portlincoln":  [
-                                          "5606"
-                                      ],
                       "portmacdonnell":  [
                                              "5291"
                                          ],
@@ -1606,9 +1582,6 @@
                       "swanreach":  [
                                         "5354"
                                     ],
-                      "tailembend":  [
-                                         "5260"
-                                     ],
                       "tantanoola":  [
                                          "5280"
                                      ],
