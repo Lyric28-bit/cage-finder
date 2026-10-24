@@ -319,8 +319,15 @@ function showResult(place, { typed = '' } = {}) {
   moveBtn.hidden = !hasLocal;
   moveBtn.onclick = () => openAddDialog(place.name, { move: true });
 
+  // With a sheet photo, "Check picture" stands in for Done until the photo has
+  // been opened and closed (see the dlg-photo close listener).
+  const firstPhoto = place.destinations.map(d => d.type === 'cage' && photoUrl(d.cage)).find(Boolean);
+  $('btn-check-photo').hidden = !firstPhoto;
+  $('btn-check-photo').onclick = () => openPhoto(firstPhoto);
+  $('btn-next').hidden = !!firstPhoto;
+
   showView('result');
-  $('btn-next').focus();
+  $(firstPhoto ? 'btn-check-photo' : 'btn-next').focus();
 }
 
 // ---------- sheet photo viewer ----------
@@ -427,7 +434,16 @@ async function start() {
   });
 
   $('photo-img').addEventListener('click', onPhotoTap);
-  $('btn-photo-close').addEventListener('click', () => $('dlg-photo').close());
+  // After the photo is closed, "Check picture" turns into Done. Done straight
+  // from the ✕ too: Chrome can fire the dialog's close event ~0.5s late.
+  const photoChecked = () => {
+    if ($('view-result').hidden || $('btn-check-photo').hidden) return;
+    $('btn-check-photo').hidden = true;
+    $('btn-next').hidden = false;
+    $('btn-next').focus();
+  };
+  $('btn-photo-close').addEventListener('click', () => { $('dlg-photo').close(); photoChecked(); });
+  $('dlg-photo').addEventListener('close', photoChecked); // Esc, Back
 
   $('search').addEventListener('input', onSearchInput);
   $('search').addEventListener('keydown', e => {
