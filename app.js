@@ -30,6 +30,7 @@ export const app = {
   postcodeOf,
   isEstimated,
   estTag,
+  postcodeRange,
 };
 
 // ---------- helpers ----------
@@ -148,6 +149,17 @@ function postcodeOf(name, dest) {
 
 function isEstimated(cageName) {
   return ref.estimated.has(normalise(cageName));
+}
+
+// Lowest to highest postcode of a cage's suburbs ("5000–5072"), or ''.
+// Worked out live, so moves and typed-in postcodes show straight away.
+function postcodeRange(cageName) {
+  const cage = findCage(app.data, cageName);
+  if (!cage) return '';
+  const codes = cage.suburbs.flatMap(s => postcodeOf(s, cage.name)).map(Number).filter(Boolean);
+  if (!codes.length) return '';
+  const lo = Math.min(...codes), hi = Math.max(...codes);
+  return lo === hi ? String(lo) : `${lo}–${hi}`;
 }
 
 // "EST" after a postcode on an estimated (Cartons) cage, or nothing.
@@ -278,6 +290,8 @@ function showResult(place, { typed = '' } = {}) {
       hint.addEventListener('click', () => openPhoto(photo));
       band.append(thumb, hint);
     }
+    const range = d.type === 'cage' && isEstimated(d.cage) ? postcodeRange(d.cage) : '';
+    if (range) band.append(el('div', { className: 'cage-range', textContent: `Cage postcodes ${range}` }, estTag(d.cage)));
     bands.append(band);
   }
 

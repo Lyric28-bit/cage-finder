@@ -81,14 +81,6 @@ export function openManage(app) {
   }
 
   // One line per cage: dot, name, count, and a preview of its suburbs.
-  // Lowest to highest postcode of a cage's suburbs ("5000–5072"), or ''.
-  function postcodeRange(cage) {
-    const codes = cage.suburbs.flatMap(s => app.postcodeOf(s, cage.name)).map(Number).filter(Boolean);
-    if (!codes.length) return '';
-    const lo = Math.min(...codes), hi = Math.max(...codes);
-    return lo === hi ? String(lo) : `${lo}–${hi}`;
-  }
-
   // `range` (estimated cages only) shows before the count with an EST tag;
   // that's the only estimate marker on the full note's lines.
   function entry(key, swatchColor, title, count, previewText, side, range = '') {
@@ -139,7 +131,7 @@ export function openManage(app) {
     for (const cage of app.data.cages) {
       const { open, item } = entry(cage.name, cage.color, cage.name, cage.suburbs.length,
         preview(cage.suburbs), photoButton(cage),
-        app.isEstimated(cage.name) ? postcodeRange(cage) : '');
+        app.isEstimated(cage.name) ? app.postcodeRange(cage.name) : '');
       if (open) item.append(editing ? cagePanel(cage) : readOnlyPanel(cage));
       cagesBox.append(item);
     }

@@ -279,6 +279,7 @@ button { font: inherit; cursor: pointer; }
 .result-photo img { height: 100%; width: auto; max-width: 70vw; object-fit: cover; display: block; }
 .result-bands.multi .result-photo { height: 80px; }
 .photo-hint { margin-top: 4px; font-size: 14px; color: var(--muted); cursor: pointer; }
+.cage-range { margin-top: 8px; font-size: 16px; font-weight: 600; color: var(--muted); }
 
 /* Full-screen photo viewer */
 #dlg-photo {
