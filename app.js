@@ -258,7 +258,9 @@ function showResult(place, { typed = '' } = {}) {
       const thumb = el('button', { className: 'result-photo', type: 'button' }, el('img', { src: photo, alt: '' }));
       thumb.setAttribute('aria-label', `Show the ${d.cage} sheet`);
       thumb.addEventListener('click', () => openPhoto(photo));
-      band.append(thumb);
+      const hint = el('div', { className: 'photo-hint', textContent: 'Click to zoom' });
+      hint.addEventListener('click', () => openPhoto(photo));
+      band.append(thumb, hint);
     }
     bands.append(band);
   }
