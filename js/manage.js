@@ -1,12 +1,12 @@
-// Manage screen: cages, Local list, import/export. Rebuilt every time it opens.
+// The note under the search box: cages, Local list, plus import/export in the
+// ⋯ menu. Rebuilt every time it's shown.
 
-import { normalise } from './match.js';
 import {
   loadDefaults, isImportable, addCage, addSuburbToCage, renameCage, setCageColor,
   removeSuburbFromCage, deleteCage, replaceData,
 } from './store.js';
 
-const LOCAL_LIMIT = 50;
+const PREVIEW = 8; // suburbs shown on a closed cage line
 
 function el(tag, props = {}, ...children) {
   const node = document.createElement(tag);
@@ -15,54 +15,63 @@ function el(tag, props = {}, ...children) {
   return node;
 }
 
+function preview(names) {
+  const shown = names.slice(0, PREVIEW).join(', ');
+  return names.length > PREVIEW ? shown + ', …' : shown || 'No suburbs yet';
+}
+
 export function openManage(app) {
   const root = document.getElementById('manage-root');
-  let filter = '';
-  let expanded = null; // name of the open cage
+  const menu = document.getElementById('menu');
+  let expanded = null; // name of the open cage, or LOCAL_KEY
   let addingCage = false;
+  const LOCAL_KEY = '__local__';
 
-  const filterInput = el('input', {
-    type: 'search', placeholder: 'Filter suburbs or cages', autocomplete: 'off',
-    spellcheck: false,
-  });
-  filterInput.setAttribute('aria-label', 'Filter suburbs or cages');
+  const metaLine = el('p', { className: 'note-meta' });
   const cagesBox = el('div');
   const addCageBox = el('div');
-  const localHead = el('h2');
   const localBox = el('div');
   const dataMsg = el('p', { className: 'error', hidden: true });
 
-  function matches(text) {
-    const f = normalise(filter);
-    return !f || normalise(text).includes(f);
-  }
-
   function renderAll() {
+    renderMeta();
     renderCages();
     renderAddCage();
     renderLocal();
+  }
+
+  function renderMeta() {
+    const subs = app.data.cages.reduce((n, c) => n + c.suburbs.length, 0);
+    metaLine.textContent = `${app.data.cages.length} cages · ${subs} suburbs`;
+  }
+
+  // One line per cage: dot, name, count, and a preview of its suburbs.
+  function entry(key, swatchColor, title, count, previewText) {
+    const open = expanded === key;
+    const swatch = el('span', { className: 'm-swatch' });
+    if (swatchColor) swatch.style.background = swatchColor;
+    else swatch.classList.add('empty');
+    const row = el('button', { className: 'm-row', type: 'button' },
+      el('span', { className: 'm-head' },
+        swatch,
+        el('span', { className: 'grow', textContent: title }),
+        el('span', { className: 'count', textContent: String(count) })),
+      el('span', { className: 'm-preview', textContent: previewText, hidden: open }));
+    row.setAttribute('aria-expanded', String(open));
+    row.addEventListener('click', () => {
+      expanded = open ? null : key;
+      renderCages();
+      renderLocal();
+    });
+    return { open, item: el('div', { className: 'm-item' + (open ? ' open' : '') }, row) };
   }
 
   // ---------- cages ----------
 
   function renderCages() {
     cagesBox.replaceChildren();
-    const shown = app.data.cages.filter(c => matches(c.name) || c.suburbs.some(matches));
-    if (!shown.length) cagesBox.append(el('p', { className: 'note', textContent: 'No cages match.' }));
-    for (const cage of shown) {
-      const open = expanded === cage.name;
-      const swatch = el('span', { className: 'm-swatch' });
-      swatch.style.background = cage.color;
-      const row = el('button', { className: 'm-row', type: 'button' },
-        swatch,
-        el('span', { className: 'grow', textContent: cage.name }),
-        el('span', { className: 'count', textContent: String(cage.suburbs.length) }));
-      row.setAttribute('aria-expanded', String(open));
-      row.addEventListener('click', () => {
-        expanded = open ? null : cage.name;
-        renderCages();
-      });
-      const item = el('div', { className: 'm-item' }, row);
+    for (const cage of app.data.cages) {
+      const { open, item } = entry(cage.name, cage.color, cage.name, cage.suburbs.length, preview(cage.suburbs));
       if (open) item.append(cagePanel(cage));
       cagesBox.append(item);
     }
@@ -119,15 +128,14 @@ export function openManage(app) {
     panel.append(el('div', { className: 'm-line' }, subInput, addBtn), subErr);
 
     const list = el('ul', { className: 'm-subs' });
-    const subs = cage.suburbs.filter(s => matches(cage.name) || matches(s));
-    for (const sub of subs) {
+    for (const sub of cage.suburbs) {
       const x = el('button', { className: 'm-x', type: 'button', textContent: '×' });
       x.setAttribute('aria-label', `Remove ${sub}`);
       x.addEventListener('click', () => {
         if (!confirm(`Remove ${sub} from ${cage.name}?`)) return;
         removeSuburbFromCage(cage, sub);
         app.save();
-        renderCages();
+        renderAll();
       });
       list.append(el('li', {}, el('span', { textContent: sub }), x));
     }
@@ -151,7 +159,7 @@ export function openManage(app) {
   function renderAddCage() {
     addCageBox.replaceChildren();
     if (!addingCage) {
-      const btn = el('button', { className: 'btn-secondary', type: 'button', textContent: '+ Add cage' });
+      const btn = el('button', { className: 'btn-ghost m-add', type: 'button', textContent: '+ New cage' });
       btn.addEventListener('click', () => {
         addingCage = true;
         renderAddCage();
@@ -198,26 +206,27 @@ export function openManage(app) {
 
   function renderLocal() {
     const local = app.data.local || [];
-    const all = local.filter(p => matches(p.name) || matches(String(p.postcode ?? '')));
-    localHead.textContent = `Local (Adelaide metro) (${local.length})`;
     localBox.replaceChildren();
-    if (!all.length) localBox.append(el('p', { className: 'note', textContent: 'No local suburbs match.' }));
-    for (const p of all.slice(0, LOCAL_LIMIT)) {
-      const move = el('button', { className: 'btn-secondary', type: 'button', textContent: 'Move' });
+    const { open, item } = entry(LOCAL_KEY, null, 'Local (Adelaide metro)', local.length,
+      local.length ? preview(local.map(p => p.name)) : 'None left');
+    localBox.append(item);
+    if (!open) return;
+    const panel = el('div', { className: 'm-panel' },
+      el('p', { className: 'm-hint', textContent: 'These show as LOCAL until you move them to a cage.' }));
+    const list = el('ul', { className: 'm-subs' });
+    for (const p of local) {
+      const move = el('button', { className: 'btn-ghost', type: 'button', textContent: 'Move' });
       move.setAttribute('aria-label', `Move ${p.name} to a cage`);
       move.addEventListener('click', () => app.openAddDialog(p.name, { move: true }));
-      localBox.append(el('div', { className: 'm-item' },
-        el('div', { className: 'm-row' },
-          el('span', { className: 'grow', textContent: p.name }),
-          el('span', { className: 'count', textContent: String(p.postcode ?? '') }),
-          move)));
+      list.append(el('li', {},
+        el('span', { className: 'grow' }, p.name, el('span', { className: 'count', textContent: ` ${p.postcode ?? ''}` })),
+        move));
     }
-    if (all.length > LOCAL_LIMIT) {
-      localBox.append(el('p', { className: 'm-more', textContent: `Showing ${LOCAL_LIMIT} of ${all.length}, use the filter` }));
-    }
+    panel.append(list);
+    item.append(panel);
   }
 
-  // ---------- data ----------
+  // ---------- data (⋯ menu) ----------
 
   function showDataError(msg) {
     dataMsg.textContent = msg;
@@ -288,29 +297,19 @@ export function openManage(app) {
     await importFile(fileInput.files[0]);
     fileInput.value = '';
   });
-  const exportBtn = el('button', { className: 'btn-secondary', type: 'button', textContent: 'Export' });
+  const exportBtn = el('button', { className: 'menu-item', type: 'button', textContent: 'Export' });
   exportBtn.addEventListener('click', exportData);
-  const importBtn = el('button', { className: 'btn-secondary', type: 'button', textContent: 'Import' });
+  const importBtn = el('button', { className: 'menu-item', type: 'button', textContent: 'Import' });
   importBtn.addEventListener('click', () => fileInput.click());
-  const resetBtn = el('button', { className: 'btn-danger', type: 'button', textContent: 'Reset to sheet data' });
+  const resetBtn = el('button', { className: 'menu-item danger', type: 'button', textContent: 'Reset to sheet data' });
   resetBtn.addEventListener('click', resetData);
 
-  filterInput.addEventListener('input', () => {
-    filter = filterInput.value;
-    renderCages();
-    renderLocal();
-  });
-
+  menu.replaceChildren(exportBtn, importBtn, resetBtn, fileInput, dataMsg);
   root.replaceChildren(
-    el('div', { style: 'padding-top: 4px' }, filterInput),
-    el('h2', { textContent: 'Cages' }),
+    el('h2', { className: 'note-title', textContent: 'Cages' }),
+    metaLine,
     cagesBox,
     addCageBox,
-    localHead,
-    el('p', { className: 'note', textContent: 'Suburbs here show as LOCAL until you move them to a cage.' }),
-    localBox,
-    el('h2', { textContent: 'Data' }),
-    el('div', { className: 'm-data' }, exportBtn, importBtn, resetBtn, fileInput),
-    dataMsg);
+    localBox);
   renderAll();
 }

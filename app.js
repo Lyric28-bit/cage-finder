@@ -1,9 +1,10 @@
 import { buildIndex, search, normalise } from './js/match.js';
 import { loadData, saveData, addCage, addSuburbToCage, sheetUpdateAvailable, LOCAL_COLOR } from './js/store.js';
+import { openManage } from './js/manage.js';
 
 const $ = id => document.getElementById(id);
 
-// Shared app state. manage.js gets this via `app`.
+// Shared app state. manage.js (the note under the search box) gets this via `app`.
 export const app = {
   data: null,
   index: [],
@@ -54,7 +55,7 @@ function chipFor(dest) {
 
 // ---------- views ----------
 
-// Result and Manage get a history entry so the phone's Back button returns
+// Result gets a history entry so the phone's Back button returns
 // to search instead of closing the app.
 function showView(name, { focus = true, fromHistory = false } = {}) {
   if (!fromHistory) {
@@ -65,7 +66,7 @@ function showView(name, { focus = true, fromHistory = false } = {}) {
       else history.pushState({ view: name }, '');
     }
   }
-  for (const v of ['search', 'result', 'manage']) $('view-' + v).hidden = v !== name;
+  for (const v of ['search', 'result']) $('view-' + v).hidden = v !== name;
   if (name === 'search' && focus) $('search').focus();
 }
 
@@ -79,7 +80,20 @@ function nextBox() {
   $('search').value = '';
   showMessage('');
   renderSuggestions([]);
+  showNote();
   showView('search');
+}
+
+// The note (cage list) shows while the search box is empty, so typing swaps
+// it for the matches. Rebuilt on show so edits made elsewhere appear.
+function showNote() {
+  openManage(app);
+  $('manage-root').hidden = false;
+}
+
+function toggleMenu(open = $('menu').hidden) {
+  $('menu').hidden = !open;
+  $('btn-menu').setAttribute('aria-expanded', String(open));
 }
 
 // ---------- search ----------
@@ -104,6 +118,8 @@ function onSearchInput() {
   const q = $('search').value;
   showMessage('');
   renderSuggestions(search(app.index, q), q);
+  if (q.trim()) $('manage-root').hidden = true;
+  else showNote();
 }
 
 // ---------- result ----------
@@ -115,14 +131,14 @@ function showResult(place) {
 
   for (const d of place.destinations) {
     const bg = d.type === 'local' ? LOCAL_COLOR : d.color;
+    const cage = el('div', { className: 'cage', textContent: d.type === 'local' ? 'LOCAL' : d.cage });
+    cage.style.background = bg;
+    cage.style.color = textColorFor(bg);
     const band = el('div', { className: 'band' },
-      el('div', { className: 'suburb', textContent: place.name }),
-      el('div', { className: 'cage', textContent: d.type === 'local' ? 'LOCAL' : d.cage }));
+      el('div', { className: 'suburb', textContent: place.name }), cage);
     if (d.type === 'local') {
-      band.append(el('div', { className: 'note', textContent: `Adelaide metro ${d.postcode} · cage not set yet` }));
+      band.append(el('div', { className: 'note-line', textContent: `Adelaide metro ${d.postcode} · cage not set yet` }));
     }
-    band.style.background = bg;
-    band.style.color = textColorFor(bg);
     bands.append(band);
   }
 
@@ -205,21 +221,17 @@ async function start() {
   $('form-add').addEventListener('submit', onAddSubmit);
   $('btn-add-cancel').addEventListener('click', () => $('dlg-add').close());
 
-  $('btn-manage').addEventListener('click', async () => {
-    const { openManage } = await import('./js/manage.js').catch(() => ({}));
-    if (openManage) openManage(app);
-    showView('manage');
-  });
-  $('btn-manage-back').addEventListener('click', nextBox);
+  $('btn-menu').addEventListener('click', () => toggleMenu());
 
   window.addEventListener('popstate', e => {
     showView(e.state?.view || 'search', { fromHistory: true, focus: false });
   });
 
+  showNote();
   showView('search');
 
   if (await sheetUpdateAvailable(app.data)) {
-    showMessage('New sheet data is available. Manage → Reset to sheet data to use it (this clears your edits, so Export first).');
+    showMessage('New sheet data is available. ⋯ → Reset to sheet data to use it (this clears your edits, so Export first).');
   }
 
   // Ask the browser not to clear saved cages when the device is low on space.
