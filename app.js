@@ -20,6 +20,7 @@ export const app = {
   showResult,
   showMessage,
   openAddDialog,
+  openPhoto,
 };
 
 // ---------- helpers ----------
@@ -252,7 +253,8 @@ async function start() {
   app.refresh();
   // Not awaited: if IndexedDB stalls (some iOS versions), search must still
   // work. The note redraws with thumbnails once photos are in.
-  initPhotos().then(() => { if (!$('manage-root').hidden) showNote(); });
+  // Only redraw if there's something to show, so a cage opened meanwhile stays open.
+  initPhotos().then(count => { if (count && !$('manage-root').hidden) showNote(); });
 
   $('photo-img').addEventListener('click', onPhotoTap);
   $('btn-photo-close').addEventListener('click', () => $('dlg-photo').close());

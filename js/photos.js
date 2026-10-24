@@ -58,6 +58,7 @@ export async function initPhotos() {
   } catch (err) {
     console.warn('Photos unavailable:', err);
   }
+  return urls.size;
 }
 
 export function photoUrl(cageName) {

@@ -189,6 +189,7 @@ button { font: inherit; cursor: pointer; }
 }
 .m-hint { color: var(--muted); margin: 0; font-size: 16px; }
 .m-line { display: flex; gap: 10px; align-items: center; }
+.m-line.wrap { flex-wrap: wrap; }
 .note input[type=text] {
   flex: 1;
   min-width: 0;

@@ -145,8 +145,11 @@ export function openManage(app) {
     const changePhoto = el('button', { className: 'btn-secondary', type: 'button',
       textContent: photoUrl(cage.name) ? 'Change photo' : 'Add sheet photo' });
     changePhoto.addEventListener('click', () => pickPhoto(cage));
-    const photoLine = el('div', { className: 'm-line' }, changePhoto);
+    const photoLine = el('div', { className: 'm-line wrap' }, changePhoto);
     if (photoUrl(cage.name)) {
+      const view = el('button', { className: 'btn-primary', type: 'button', textContent: 'View photo' });
+      view.addEventListener('click', () => app.openPhoto(photoUrl(cage.name)));
+      photoLine.prepend(view);
       const rm = el('button', { className: 'btn-ghost', type: 'button', textContent: 'Remove photo' });
       rm.addEventListener('click', async () => {
         if (!confirm(`Remove the sheet photo for ${cage.name}?`)) return;
