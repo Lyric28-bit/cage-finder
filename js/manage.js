@@ -81,7 +81,16 @@ export function openManage(app) {
   }
 
   // One line per cage: dot, name, count, and a preview of its suburbs.
-  function entry(key, swatchColor, title, count, previewText, side, est = false) {
+  // Lowest to highest postcode of a cage's suburbs ("5000–5072"), or ''.
+  function postcodeRange(cage) {
+    const codes = cage.suburbs.flatMap(s => app.postcodeOf(s, cage.name)).map(Number).filter(Boolean);
+    if (!codes.length) return '';
+    const lo = Math.min(...codes), hi = Math.max(...codes);
+    return lo === hi ? String(lo) : `${lo}–${hi}`;
+  }
+
+  // `range` (estimated cages only) shows before the count with an EST tag.
+  function entry(key, swatchColor, title, count, previewText, side, est = false, range = '') {
     const open = expanded === key;
     const swatch = el('span', { className: 'm-swatch' });
     if (swatchColor) swatch.style.background = swatchColor;
@@ -92,6 +101,7 @@ export function openManage(app) {
       el('span', { className: 'm-head' },
         swatch,
         name,
+        range ? el('span', { className: 'count m-range', textContent: range }, app.estTag(key)) : '',
         el('span', { className: 'count', textContent: String(count) })),
       el('span', { className: 'm-preview', textContent: previewText, hidden: open }));
     row.setAttribute('aria-expanded', String(open));
@@ -128,7 +138,8 @@ export function openManage(app) {
     cagesBox.replaceChildren();
     for (const cage of app.data.cages) {
       const { open, item } = entry(cage.name, cage.color, cage.name, cage.suburbs.length,
-        preview(cage.suburbs), photoButton(cage), app.isEstimated(cage.name));
+        preview(cage.suburbs), photoButton(cage), app.isEstimated(cage.name),
+        app.isEstimated(cage.name) ? postcodeRange(cage) : '');
       if (open) item.append(editing ? cagePanel(cage) : readOnlyPanel(cage));
       cagesBox.append(item);
     }
