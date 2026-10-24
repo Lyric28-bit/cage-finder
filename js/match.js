@@ -108,3 +108,17 @@ export function search(index, query, limit = 8) {
   hits.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
   return hits.slice(0, limit);
 }
+
+// Look-alike names that go somewhere else, e.g. Enfield (LOCAL) vs Penfield
+// (North Cartons): one letter apart, or two when both are 6+ letters.
+// Shown on the result so a misread sticker gets a second look.
+export function similarPlaces(index, place) {
+  const where = p => p.destinations.map(d => d.type === 'local' ? 'LOCAL' : d.cage).sort().join('|');
+  const mine = where(place);
+  return index.filter(p => {
+    if (p.key === place.key || where(p) === mine) return false;
+    if (Math.abs(p.key.length - place.key.length) > 2) return false;
+    const d = editDistance(place.key, p.key);
+    return d === 1 || (d === 2 && Math.min(p.key.length, place.key.length) >= 6);
+  }).sort((a, b) => a.name.localeCompare(b.name));
+}

@@ -8,7 +8,7 @@
 <body>
 <pre id="out">running...</pre>
 <script type="module">
-import { buildIndex, search } from './js/match.js';
+import { buildIndex, search, similarPlaces } from './js/match.js';
 
 const out = [];
 let passed = 0, total = 0;
@@ -56,6 +56,15 @@ try {
 
   // Type-ahead
   r = search(index, 'jame');  check('type-ahead "jame" includes Jamestown', r.some(p => p.name === 'Jamestown'), r.map(p => p.name).join(', '));
+
+  // Similar-name warnings
+  const sim = q => similarPlaces(index, top(q)).map(p => p.name);
+  r = sim('Enfield');        check('"Enfield" warns about Penfield', r.includes('Penfield'), r.join(', '));
+  r = sim('Paringi');        check('"Paringi" warns about Paringa', r.includes('Paringa'), r.join(', '));
+  r = sim('Newton');         check('"Newton" warns about New Town', r.includes('New Town'), r.join(', '));
+  r = sim('Myponga');        check('"Myponga" warns about Mypolonga', r.includes('Mypolonga'), r.join(', '));
+  r = sim('Marino');         check('"Marino" no warning for Marion (both LOCAL)', !r.includes('Marion'), r.join(', ') || '(none)');
+  r = sim('Hove');           check('"Hove" no warning for Robe (too short)', !r.includes('Robe'), r.join(', ') || '(none)');
 } catch (e) {
   out.push('ERROR ' + e.stack);
 }

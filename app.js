@@ -1,4 +1,4 @@
-import { buildIndex, search, normalise } from './js/match.js';
+import { buildIndex, search, normalise, similarPlaces } from './js/match.js';
 import { loadData, saveData, addCage, addSuburbToCage, sheetUpdateAvailable, LOCAL_COLOR } from './js/store.js';
 import { openManage } from './js/manage.js';
 
@@ -145,6 +145,17 @@ function showResult(place) {
   const warn = $('result-warning');
   warn.hidden = place.destinations.length < 2;
   warn.textContent = `⚠ ${place.name} is on ${place.destinations.length} lists. Check the address.`;
+
+  const similar = similarPlaces(app.index, place);
+  const sim = $('result-similar');
+  sim.hidden = !similar.length;
+  sim.replaceChildren(
+    el('div', { className: 'similar-title', textContent: '⚠ Similar name, check the label:' }),
+    ...similar.map(p => {
+      const chips = el('span', { className: 'chips' });
+      for (const d of p.destinations) chips.append(chipFor(d));
+      return el('div', { className: 'similar-row' }, el('span', { textContent: p.name }), chips);
+    }));
 
   const hasLocal = place.destinations.some(d => d.type === 'local');
   const moveBtn = $('btn-result-move');

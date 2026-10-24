@@ -256,6 +256,20 @@ button { font: inherit; cursor: pointer; }
 }
 .result-bands.multi .band .cage { font-size: clamp(38px, 10vw, 120px); }
 .band .note-line { font-size: clamp(16px, 4vw, 22px); font-weight: 600; color: var(--muted); }
+.result-similar {
+  margin: 0 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #FFE08A;
+  color: #1D1D1F;
+  font-size: 18px;
+  width: calc(100% - 32px);
+  max-width: 728px;
+  align-self: center;
+}
+.similar-title { font-weight: 700; margin-bottom: 4px; }
+.similar-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 36px; }
+.similar-row .chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
 .result-actions {
   display: flex;
   gap: 12px;
