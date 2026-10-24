@@ -114,28 +114,25 @@ button { font: inherit; cursor: pointer; }
 #search::placeholder { color: var(--muted); }
 #search:focus { outline: none; border-color: var(--accent); }
 
-.suggestions {
-  list-style: none;
-  margin: 0;
-  padding: 0 16px;
-  overflow-y: auto;
-}
-.suggestions li { border-bottom: 1px solid var(--border); }
+/* Search results: the note filtered in place. Cage line, then its matches. */
+.m-group { flex-basis: 100%; padding: 12px 2px 4px; }
 .suggestion {
-  width: 100%;
+  flex-basis: 100%;
   min-height: var(--tap);
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
-  padding: 8px 2px;
+  padding: 6px 2px 6px 24px;
   border: none;
   background: none;
   color: var(--text);
   text-align: left;
   font-size: 22px;
 }
-.suggestion .chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.suggestion .grow { flex: 1; overflow-wrap: anywhere; }
+.suggestion .chev { color: var(--muted); font-size: 26px; line-height: 1; }
+.suggestion mark { background: #FFE08A; color: #1D1D1F; border-radius: 3px; padding: 0 1px; }
+.suggestion + .suggestion { border-top: 1px dashed var(--border); }
 .chip {
   font-size: 15px;
   font-weight: 700;

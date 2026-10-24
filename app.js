@@ -100,16 +100,62 @@ function toggleMenu(open = $('menu').hidden) {
 
 // ---------- search ----------
 
+const MATCH_LIMIT = 30;
+
+// Name with the typed letters marked, when they appear as typed.
+// Typo / Pt-Mt matches just show the plain name.
+function highlighted(name, query) {
+  const q = query.trim();
+  const at = q ? name.toLowerCase().indexOf(q.toLowerCase()) : -1;
+  const span = el('span', { className: 'grow' });
+  if (at < 0) span.textContent = name;
+  else span.append(name.slice(0, at), el('mark', { textContent: name.slice(at, at + q.length) }), name.slice(at + q.length));
+  return span;
+}
+
+// While typing, the note filters in place: matches grouped under their cage
+// (or Local), best-matching cage first. Drawn with the note's own classes so
+// it reads as the same note, not a new page.
 function renderSuggestions(places, query = '') {
-  const list = $('suggestions');
-  list.replaceChildren();
+  const box = $('note-results');
+  box.replaceChildren();
+  box.hidden = !places.length;
+  const groups = new Map(); // cage name or LOCAL -> { item, list }
   for (const place of places) {
-    const chips = el('span', { className: 'chips' });
-    if (place.destinations.length > 1) chips.append(el('span', { className: 'chip warn', textContent: `${place.destinations.length} cages` }));
-    for (const d of place.destinations) chips.append(chipFor(d));
-    const btn = el('button', { className: 'suggestion', type: 'button' }, el('span', { textContent: place.name }), chips);
-    btn.addEventListener('click', () => showResult(place));
-    list.append(el('li', {}, btn));
+    for (const d of place.destinations) {
+      const key = d.type === 'local' ? 'LOCAL' : d.cage;
+      if (!groups.has(key)) {
+        const swatch = el('span', { className: 'm-swatch' });
+        let title, count;
+        if (d.type === 'local') {
+          swatch.classList.add('empty');
+          title = 'Local (Adelaide metro)';
+          count = (app.data.local || []).length;
+        } else {
+          swatch.style.background = d.color;
+          title = d.cage;
+          count = app.data.cages.find(c => c.name === d.cage)?.suburbs.length ?? '';
+        }
+        const item = el('div', { className: 'm-item' },
+          el('div', { className: 'm-head m-group' }, swatch,
+            el('span', { className: 'grow', textContent: title }),
+            el('span', { className: 'count', textContent: String(count) })));
+        item.dataset.cage = key;
+        groups.set(key, item);
+        box.append(item);
+      }
+      const btn = el('button', { className: 'suggestion', type: 'button' },
+        highlighted(place.name, query), el('span', { className: 'chev', textContent: '›' }));
+      btn.addEventListener('click', () => showResult(place));
+      groups.get(key).append(btn);
+    }
+  }
+  if (places.length) {
+    box.prepend(
+      el('h2', { className: 'note-title', textContent: 'Cages' }),
+      el('p', { className: 'note-meta', textContent: places.length >= MATCH_LIMIT
+        ? `Top ${MATCH_LIMIT} matches, keep typing to narrow it down`
+        : `${places.length} match${places.length === 1 ? '' : 'es'}` }));
   }
   const showNotFound = places.length === 0 && normalise(query).length >= 3;
   $('not-found').hidden = !showNotFound;
@@ -119,7 +165,7 @@ function renderSuggestions(places, query = '') {
 function onSearchInput() {
   const q = $('search').value;
   showMessage('');
-  renderSuggestions(search(app.index, q), q);
+  renderSuggestions(search(app.index, q, MATCH_LIMIT), q);
   if (q.trim()) $('manage-root').hidden = true;
   else showNote();
 }
@@ -262,7 +308,7 @@ async function start() {
   $('search').addEventListener('input', onSearchInput);
   $('search').addEventListener('keydown', e => {
     if (e.key === 'Enter') {
-      const first = $('suggestions').querySelector('.suggestion');
+      const first = $('note-results').querySelector('.suggestion');
       if (first) first.click();
     }
   });
