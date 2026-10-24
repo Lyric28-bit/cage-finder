@@ -1,7 +1,7 @@
 import { buildIndex, search, normalise, similarPlaces } from './js/match.js';
-import { loadData, saveData, addCage, addSuburbToCage, applyUnsure, sheetUpdateAvailable, LOCAL_COLOR, POSTCODE, setPostcode, postcodeKey, LOCAL_DEST } from './js/store.js';
+import { loadData, saveData, addCage, addSuburbToCage, applyUnsure, applyRenames, CAGE_RENAMES, findCage, sheetUpdateAvailable, LOCAL_COLOR, POSTCODE, setPostcode, postcodeKey, LOCAL_DEST } from './js/store.js';
 import { openManage } from './js/manage.js';
-import { initPhotos, photoUrl } from './js/photos.js';
+import { initPhotos, photoUrl, renamePhoto } from './js/photos.js';
 
 const $ = id => document.getElementById(id);
 
@@ -16,9 +16,11 @@ export const app = {
     saveData(this.data);
     this.refresh();
   },
-  // Move not-sure Cartons suburbs to Local (once per unsure.json version).
-  applyUnsure() {
-    return applyUnsure(this.data, ref.unsure, ref.postcodes);
+  // One-off data changes shipped after phones already had the data: renamed
+  // default cages, and not-sure Cartons suburbs moved to Local. Each runs once.
+  migrate() {
+    const renamed = applyRenames(this.data);
+    return applyUnsure(this.data, ref.unsure, ref.postcodes) || renamed;
   },
   showView,
   showResult,
@@ -27,6 +29,7 @@ export const app = {
   openPhoto,
   postcodeOf,
   isEstimated,
+  estTag,
 };
 
 // ---------- helpers ----------
@@ -147,6 +150,12 @@ function isEstimated(cageName) {
   return ref.estimated.has(normalise(cageName));
 }
 
+// "EST" after a postcode on an estimated (Cartons) cage, or nothing.
+function estTag(cageName) {
+  return cageName && cageName !== LOCAL_DEST && isEstimated(cageName)
+    ? el('span', { className: 'est-tag', textContent: 'EST' }) : '';
+}
+
 // Name with the typed letters marked, when they appear as typed.
 // Typo / Pt-Mt matches just show the plain name.
 function highlighted(name, query) {
@@ -200,7 +209,8 @@ function renderSuggestions(places, query = '') {
       }
       const btn = el('button', { className: 'suggestion', type: 'button' },
         highlighted(place.name, query),
-        el('span', { className: 'count', textContent: postcodesFor(place).join(' / ') }),
+        el('span', { className: 'count', textContent: postcodesFor(place).join(' / ') },
+          postcodesFor(place).length ? estTag(d.cage) : ''),
         el('span', { className: 'chev', textContent: '›' }));
       btn.addEventListener('click', () => showResult(place, { typed: query }));
       groups.get(key).append(btn);
@@ -251,7 +261,7 @@ function showResult(place, { typed = '' } = {}) {
     cage.style.color = textColorFor(bg);
     const band = el('div', { className: 'band' },
       el('div', { className: 'suburb', textContent: place.name }));
-    if (codes.length) band.append(el('div', { className: 'postcode', textContent: `Postcode ${codes.join(' / ')}` }));
+    if (codes.length) band.append(el('div', { className: 'postcode', textContent: `Postcode ${codes.join(' / ')}` }, estTag(d.cage)));
     band.append(cage);
     if (d.type === 'local') {
       band.append(el('div', { className: 'note-line', textContent: 'Adelaide metro · cage not set yet' }));
@@ -379,15 +389,28 @@ function onAddSubmit(event) {
 
 // ---------- start ----------
 
+// A default cage renamed by CAGE_RENAMES keeps its photo. Checked every start
+// (photos load after the data), so a move that didn't finish is retried.
+async function movePhotosOfRenamedCages() {
+  for (const r of CAGE_RENAMES) {
+    if (photoUrl(r.from) && !photoUrl(r.to) && !findCage(app.data, r.from) && findCage(app.data, r.to)) {
+      await renamePhoto(r.from, r.to).catch(() => {});
+    }
+  }
+}
+
 async function start() {
   app.data = await loadData();
   app.refresh();
   await loadReference();
-  if (app.applyUnsure()) app.save();
+  if (app.migrate()) app.save();
   // Not awaited: if IndexedDB stalls (some iOS versions), search must still
   // work. The note redraws with thumbnails once photos are in.
   // Only redraw if there's something to show, so a cage opened meanwhile stays open.
-  initPhotos().then(count => { if (count && !$('manage-root').hidden) showNote(); });
+  initPhotos().then(async count => {
+    await movePhotosOfRenamedCages();
+    if (count && !$('manage-root').hidden) showNote();
+  });
 
   $('photo-img').addEventListener('click', onPhotoTap);
   $('btn-photo-close').addEventListener('click', () => $('dlg-photo').close());

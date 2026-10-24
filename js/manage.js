@@ -139,7 +139,7 @@ export function openManage(app) {
   // `dest` is the cage name, or LOCAL_DEST for the Local list.
   function postcodeCell(name, dest) {
     const now = () => app.postcodeOf(name, dest).join(' / ');
-    if (!editing) return el('span', { className: 'count', textContent: now() });
+    if (!editing) return el('span', { className: 'count', textContent: now() }, now() ? app.estTag(dest) : '');
     const input = el('input', { type: 'text', value: now(), placeholder: '----', autocomplete: 'off',
       inputMode: 'numeric', maxLength: 4, className: 'm-pc' });
     input.setAttribute('aria-label', `Postcode for ${name}`);
@@ -401,7 +401,7 @@ export function openManage(app) {
     }
     if (!confirm('Replace all cages and suburbs on this device with the imported file?')) return;
     replaceData(app.data, parsed);
-    app.applyUnsure();
+    app.migrate();
     expanded = null;
     app.save();
     renderAll();
@@ -416,7 +416,7 @@ export function openManage(app) {
       showDataError('Could not load the sheet data. Check your connection and try again.');
       return;
     }
-    app.applyUnsure();
+    app.migrate();
     expanded = null;
     app.save();
     renderAll();

@@ -43,7 +43,7 @@ try {
   r = top('mil lel');        check('"mil lel" -> Mil-lel', r?.name === 'Mil-lel', describe(r));
 
   // Multi-destination and local
-  r = top('Pinkerton Plains'); check('"Pinkerton Plains" -> Barossa + Kadina (flagged)', cagesOf(r) === 'Barossa+Kadina', describe(r));
+  r = top('Pinkerton Plains'); check('"Pinkerton Plains" -> Barossa + Kadina / Yorke Peninsula (flagged)', cagesOf(r) === 'Barossa+Kadina / Yorke Peninsula', describe(r));
   r = top('Happy Valley');   check('"Happy Valley" -> Mildura + LOCAL', cagesOf(r) === 'LOCAL+Mildura', describe(r));
   r = top('Glenelg');        check('"Glenelg" -> LOCAL', r?.name === 'Glenelg' && cagesOf(r) === 'LOCAL', describe(r));
   r = top('Gawler');         check('"Gawler" -> Barossa only (not LOCAL)', cagesOf(r) === 'Barossa', describe(r));

@@ -118,6 +118,7 @@ export function replaceData(data, source) {
   data.local = source.local || [];
   // Older exports and the sheet defaults haven't had data/unsure.json applied yet.
   data.unsureApplied = Number(source.unsureApplied) || 0;
+  data.renamesApplied = Number(source.renamesApplied) || 0;
   // Keep only well-formed entries, so a hand-edited import can't break search.
   data.postcodes = {};
   if (source.postcodes && typeof source.postcodes === 'object') {
@@ -141,6 +142,24 @@ export function setPostcode(data, suburb, dest, postcode) {
   if (postcode && !POSTCODE.test(postcode)) throw new Error('Postcode must be 4 digits');
   data.postcodes ||= {};
   data.postcodes[postcodeKey(suburb, dest)] = postcode;
+}
+
+// Default cage names changed after phones already had the data. Each rename
+// runs once per device (newest id saved as data.renamesApplied), and only if a
+// cage still has the old name, so a name chosen on the device stays.
+export const CAGE_RENAMES = [
+  { id: 1, from: 'Kadina', to: 'Kadina / Yorke Peninsula' },
+];
+export function applyRenames(data) {
+  let changed = false;
+  for (const r of CAGE_RENAMES) {
+    if (r.id <= (data.renamesApplied || 0)) continue;
+    const cage = findCage(data, r.from);
+    if (cage && !findCage(data, r.to)) renameCage(data, cage, r.to);
+    data.renamesApplied = r.id;
+    changed = true;
+  }
+  return changed;
 }
 
 // Cartons suburbs we're not 100% sure of (data/unsure.json) move to the Local

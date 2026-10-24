@@ -1,6 +1,6 @@
 // Offline support: everything is cached on first load.
 // Bump VERSION whenever you deploy changes, so phones pick up the new files.
-const VERSION = 'v15';
+const VERSION = 'v16';
 const CACHE = 'cage-finder-' + VERSION;
 
 const FILES = [
