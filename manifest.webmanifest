@@ -1,6 +1,6 @@
 {
-  "name": "Cage Finder",
-  "short_name": "Cages",
+  "name": "Cage Notes",
+  "short_name": "Cage Notes",
   "description": "Look up a suburb, get the cage.",
   "start_url": "./",
   "scope": "./",

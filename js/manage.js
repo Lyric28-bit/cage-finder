@@ -243,7 +243,7 @@ export function openManage(app) {
     const file = new File([blob], name, { type: 'application/json' });
     if (isIOS && navigator.canShare?.({ files: [file] })) {
       try {
-        await navigator.share({ files: [file], title: 'Cage Finder data' });
+        await navigator.share({ files: [file], title: 'Cage Notes data' });
         return;
       } catch (err) {
         if (err.name === 'AbortError') return; // user closed the share sheet
@@ -268,7 +268,7 @@ export function openManage(app) {
       return;
     }
     if (!isImportable(parsed)) {
-      showDataError('That file does not look like Cage Finder data.');
+      showDataError('That file does not look like Cage Notes data.');
       return;
     }
     if (!confirm('Replace all cages and suburbs on this device with the imported file?')) return;
