@@ -401,6 +401,7 @@ export function openManage(app) {
     }
     if (!confirm('Replace all cages and suburbs on this device with the imported file?')) return;
     replaceData(app.data, parsed);
+    app.applyUnsure();
     expanded = null;
     app.save();
     renderAll();
@@ -415,6 +416,7 @@ export function openManage(app) {
       showDataError('Could not load the sheet data. Check your connection and try again.');
       return;
     }
+    app.applyUnsure();
     expanded = null;
     app.save();
     renderAll();

@@ -1,5 +1,5 @@
 import { buildIndex, search, normalise, similarPlaces } from './js/match.js';
-import { loadData, saveData, addCage, addSuburbToCage, sheetUpdateAvailable, LOCAL_COLOR, POSTCODE, setPostcode, postcodeKey, LOCAL_DEST } from './js/store.js';
+import { loadData, saveData, addCage, addSuburbToCage, applyUnsure, sheetUpdateAvailable, LOCAL_COLOR, POSTCODE, setPostcode, postcodeKey, LOCAL_DEST } from './js/store.js';
 import { openManage } from './js/manage.js';
 import { initPhotos, photoUrl } from './js/photos.js';
 
@@ -15,6 +15,10 @@ export const app = {
   save() {
     saveData(this.data);
     this.refresh();
+  },
+  // Move not-sure Cartons suburbs to Local (once per unsure.json version).
+  applyUnsure() {
+    return applyUnsure(this.data, ref.unsure, ref.postcodes);
   },
   showView,
   showResult,
@@ -105,13 +109,15 @@ function toggleMenu(open = $('menu').hidden) {
 const MATCH_LIMIT = 30;
 
 // Shipped reference data (not part of the editable cage data, so updating it
-// never needs a reset): postcodes we're sure of, and cages that are estimates.
-const ref = { postcodes: {}, estimated: new Set() };
+// never needs a reset): postcodes we're sure of, cages that are estimates, and
+// Cartons suburbs we're not sure of.
+const ref = { postcodes: {}, estimated: new Set(), unsure: null };
 async function loadReference() {
   const get = url => fetch(url).then(r => (r.ok ? r.json() : null)).catch(() => null);
-  const [pc, est] = await Promise.all([get('data/postcodes.json'), get('data/estimated.json')]);
+  const [pc, est, unsure] = await Promise.all([get('data/postcodes.json'), get('data/estimated.json'), get('data/unsure.json')]);
   ref.postcodes = pc?.postcodes || {};
   ref.estimated = new Set((est?.cages || []).map(normalise));
+  ref.unsure = unsure;
 }
 
 // Postcode(s) for one destination of a place. A typed-in postcode wins ('' means
@@ -377,6 +383,7 @@ async function start() {
   app.data = await loadData();
   app.refresh();
   await loadReference();
+  if (app.applyUnsure()) app.save();
   // Not awaited: if IndexedDB stalls (some iOS versions), search must still
   // work. The note redraws with thumbnails once photos are in.
   // Only redraw if there's something to show, so a cage opened meanwhile stays open.

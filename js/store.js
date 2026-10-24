@@ -116,6 +116,8 @@ export function replaceData(data, source) {
   data.sheetVersion = source.sheetVersion || 1;
   data.cages = source.cages;
   data.local = source.local || [];
+  // Older exports and the sheet defaults haven't had data/unsure.json applied yet.
+  data.unsureApplied = Number(source.unsureApplied) || 0;
   // Keep only well-formed entries, so a hand-edited import can't break search.
   data.postcodes = {};
   if (source.postcodes && typeof source.postcodes === 'object') {
@@ -139,6 +141,37 @@ export function setPostcode(data, suburb, dest, postcode) {
   if (postcode && !POSTCODE.test(postcode)) throw new Error('Postcode must be 4 digits');
   data.postcodes ||= {};
   data.postcodes[postcodeKey(suburb, dest)] = postcode;
+}
+
+// Cartons suburbs we're not 100% sure of (data/unsure.json) move to the Local
+// list, so they show "cage not set yet" until Lyric moves them in-app. Runs once
+// per list version, and only touches suburbs still on the cage the list names,
+// so moves made on the device stay. `shipped` is the shipped postcode list.
+export function applyUnsure(data, unsure, shipped = {}) {
+  if (!unsure?.cages || !(unsure.version > (data.unsureApplied || 0))) return false;
+  data.local ||= [];
+  for (const [cageName, names] of Object.entries(unsure.cages)) {
+    const cage = findCage(data, cageName);
+    if (!cage) continue;
+    for (const name of names) {
+      const key = normalise(name);
+      const onCage = cage.suburbs.find(s => normalise(s) === key);
+      if (!onCage) continue;
+      cage.suburbs = cage.suburbs.filter(s => normalise(s) !== key);
+      const own = data.postcodes?.[postcodeKey(onCage, cage.name)];
+      if (own !== undefined) {
+        delete data.postcodes[postcodeKey(onCage, cage.name)];
+        data.postcodes[postcodeKey(onCage, LOCAL_DEST)] ??= own;
+      }
+      if (!data.local.some(p => normalise(p.name) === key)) {
+        const codes = shipped[key] || [];
+        data.local.push({ name: onCage, postcode: codes.length === 1 ? codes[0] : '' });
+      }
+    }
+  }
+  data.local.sort((a, b) => a.name.localeCompare(b.name));
+  data.unsureApplied = unsure.version;
+  return true;
 }
 
 function movePostcodes(data, oldCage, newCage) {
