@@ -90,6 +90,7 @@ export function renameCage(data, cage, newName) {
   if (!newName) throw new Error('Cage name is empty');
   const clash = findCage(data, newName);
   if (clash && clash !== cage) throw new Error(`A cage called "${clash.name}" already exists`);
+  movePostcodes(data, cage.name, newName);
   cage.name = newName;
   data.cages.sort((a, b) => a.name.localeCompare(b.name));
 }
@@ -98,12 +99,15 @@ export function setCageColor(cage, color) {
   cage.color = color;
 }
 
-export function removeSuburbFromCage(cage, suburb) {
+export function removeSuburbFromCage(data, cage, suburb) {
   cage.suburbs = cage.suburbs.filter(s => s !== suburb);
+  if (data.postcodes) delete data.postcodes[postcodeKey(suburb, cage.name)];
 }
 
 export function deleteCage(data, cage) {
   data.cages = data.cages.filter(c => c !== cage);
+  const tail = '|' + normalise(cage.name);
+  for (const k of Object.keys(data.postcodes || {})) if (k.endsWith(tail)) delete data.postcodes[k];
 }
 
 // Swap the contents of `data` in place so anything holding a reference still sees the new data.
@@ -112,18 +116,39 @@ export function replaceData(data, source) {
   data.sheetVersion = source.sheetVersion || 1;
   data.cages = source.cages;
   data.local = source.local || [];
-  data.postcodes = source.postcodes && typeof source.postcodes === 'object' ? source.postcodes : {};
+  // Keep only well-formed entries, so a hand-edited import can't break search.
+  data.postcodes = {};
+  if (source.postcodes && typeof source.postcodes === 'object') {
+    for (const [k, v] of Object.entries(source.postcodes)) {
+      if (typeof v === 'string' && (v === '' || POSTCODE.test(v)) && k.includes('|')) data.postcodes[k] = v;
+    }
+  }
 }
 
-// Postcodes typed in by hand, keyed by normalised suburb name. Saved and
-// exported with the rest of the device's data. They override the shipped list;
-// an empty one is stored as '' and means "no postcode".
+// Postcodes typed in by hand. Saved and exported with the rest of the device's
+// data and override the shipped list; '' means "no postcode". Keyed per
+// destination ("suburb|cage" or "suburb|local"), because one name can be two
+// places, e.g. Happy Valley LOCAL vs Happy Valley on the Mildura sheet.
 export const POSTCODE = /^\d{4}$/;
-export function setPostcode(data, suburb, postcode) {
+export const LOCAL_DEST = 'local';
+export function postcodeKey(suburb, dest) {
+  return normalise(suburb) + '|' + (dest === LOCAL_DEST ? LOCAL_DEST : normalise(dest));
+}
+export function setPostcode(data, suburb, dest, postcode) {
   postcode = String(postcode || '').trim();
   if (postcode && !POSTCODE.test(postcode)) throw new Error('Postcode must be 4 digits');
   data.postcodes ||= {};
-  data.postcodes[normalise(suburb)] = postcode;
+  data.postcodes[postcodeKey(suburb, dest)] = postcode;
+}
+
+function movePostcodes(data, oldCage, newCage) {
+  const from = '|' + normalise(oldCage), to = '|' + normalise(newCage);
+  if (from === to) return;
+  for (const [k, v] of Object.entries(data.postcodes || {})) {
+    if (!k.endsWith(from)) continue;
+    delete data.postcodes[k];
+    data.postcodes[k.slice(0, -from.length) + to] = v;
+  }
 }
 
 // For imports: valid shape, plus every cage suburb and local entry is well formed.

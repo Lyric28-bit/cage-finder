@@ -1,5 +1,5 @@
 import { buildIndex, search, normalise, similarPlaces } from './js/match.js';
-import { loadData, saveData, addCage, addSuburbToCage, sheetUpdateAvailable, LOCAL_COLOR, POSTCODE, setPostcode } from './js/store.js';
+import { loadData, saveData, addCage, addSuburbToCage, sheetUpdateAvailable, LOCAL_COLOR, POSTCODE, setPostcode, postcodeKey, LOCAL_DEST } from './js/store.js';
 import { openManage } from './js/manage.js';
 import { initPhotos, photoUrl } from './js/photos.js';
 
@@ -119,7 +119,7 @@ async function loadReference() {
 // Per destination because e.g. Happy Valley LOCAL (5159) and Happy Valley on the
 // Mildura sheet are different places.
 function postcodesAt(place, d) {
-  const own = app.data.postcodes?.[place.key];
+  const own = app.data.postcodes?.[postcodeKey(place.name, d.type === 'local' ? LOCAL_DEST : d.cage)];
   if (own !== undefined) return own ? [own] : [];
   if (d.type === 'local') return d.postcode ? [String(d.postcode)] : [];
   return ref.postcodes[place.key] || [];
@@ -130,9 +130,11 @@ function postcodesFor(place) {
   return [...new Set(place.destinations.flatMap(d => postcodesAt(place, d)))];
 }
 
-function postcodeOf(name) {
+// Postcode for one name at one destination (a cage name, or LOCAL_DEST).
+function postcodeOf(name, dest) {
   const place = app.index.find(p => p.key === normalise(name));
-  return place ? postcodesFor(place) : [];
+  const d = place?.destinations.find(x => (dest === LOCAL_DEST ? x.type === 'local' : x.cage === dest));
+  return d ? postcodesAt(place, d) : [];
 }
 
 function isEstimated(cageName) {
@@ -322,9 +324,9 @@ function openAddDialog(suburb = '', { move = false } = {}) {
   $('add-suburb').value = suburb.trim();
   $('add-suburb').readOnly = move;
   $('add-error').hidden = true;
-  // Prefill a known single postcode, so a move off the Local list keeps it.
-  const known = app.index.find(p => p.key === normalise(suburb));
-  const codes = known ? postcodesFor(known) : [];
+  // A move off the Local list keeps the Local postcode (same place, new cage).
+  // Otherwise start blank: another cage's postcode may be a different place.
+  const codes = move ? postcodeOf(suburb, LOCAL_DEST) : [];
   $('add-postcode').value = codes.length === 1 ? codes[0] : '';
 
   const select = $('add-cage');
@@ -355,7 +357,7 @@ function onAddSubmit(event) {
       addCage(app.data, cageName, $('add-new-color').value);
     }
     addSuburbToCage(app.data, suburb, cageName);
-    if (postcode) setPostcode(app.data, suburb, postcode);
+    if (postcode) setPostcode(app.data, suburb, cageName, postcode);
   } catch (err) {
     $('add-error').textContent = err.message;
     $('add-error').hidden = false;

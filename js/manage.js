@@ -3,7 +3,7 @@
 
 import {
   loadDefaults, isImportable, addCage, addSuburbToCage, renameCage, setCageColor,
-  removeSuburbFromCage, deleteCage, replaceData, POSTCODE, setPostcode,
+  removeSuburbFromCage, deleteCage, replaceData, POSTCODE, setPostcode, LOCAL_DEST,
 } from './store.js';
 import { photoUrl, setPhoto, removePhoto, renamePhoto } from './photos.js';
 
@@ -136,20 +136,21 @@ export function openManage(app) {
 
   // Muted postcode text (locked) or an editable box (editing) for one suburb.
   // Whatever is typed overrides the shipped postcode; clearing it means none.
-  function postcodeCell(name) {
-    const current = app.postcodeOf(name).join(' / ');
-    if (!editing) return el('span', { className: 'count', textContent: current });
-    const input = el('input', { type: 'text', value: current, placeholder: '----', autocomplete: 'off',
+  // `dest` is the cage name, or LOCAL_DEST for the Local list.
+  function postcodeCell(name, dest) {
+    const now = () => app.postcodeOf(name, dest).join(' / ');
+    if (!editing) return el('span', { className: 'count', textContent: now() });
+    const input = el('input', { type: 'text', value: now(), placeholder: '----', autocomplete: 'off',
       inputMode: 'numeric', maxLength: 4, className: 'm-pc' });
     input.setAttribute('aria-label', `Postcode for ${name}`);
     input.addEventListener('change', () => {
       try {
-        setPostcode(app.data, name, input.value);
+        setPostcode(app.data, name, dest, input.value);
       } catch (err) {
-        input.setCustomValidity(err.message);
-        input.reportValidity();
-        input.value = current;
-        input.setCustomValidity('');
+        // alert, not a validity bubble: the note may redraw straight after
+        // (e.g. tapping Done), which would drop a bubble unseen.
+        alert(`${name}: ${err.message}. Kept ${now() || 'no postcode'}.`);
+        input.value = now();
         return;
       }
       app.save();
@@ -166,7 +167,7 @@ export function openManage(app) {
       panel.append(el('div', { className: 'm-line' }, view));
     }
     const list = el('ul', { className: 'm-subs' });
-    for (const sub of cage.suburbs) list.append(el('li', {}, el('span', { className: 'grow', textContent: sub }), postcodeCell(sub)));
+    for (const sub of cage.suburbs) list.append(el('li', {}, el('span', { className: 'grow', textContent: sub }), postcodeCell(sub, cage.name)));
     panel.append(list);
     return panel;
   }
@@ -229,7 +230,7 @@ export function openManage(app) {
       try {
         if (pc && !POSTCODE.test(pc)) throw new Error('Postcode must be 4 digits');
         addSuburbToCage(app.data, subInput.value, cage.name);
-        if (pc) setPostcode(app.data, subInput.value, pc);
+        if (pc) setPostcode(app.data, subInput.value, cage.name, pc);
       } catch (err) {
         subErr.textContent = err.message;
         subErr.hidden = false;
@@ -254,11 +255,11 @@ export function openManage(app) {
       x.setAttribute('aria-label', `Remove ${sub}`);
       x.addEventListener('click', () => {
         if (!confirm(`Remove ${sub} from ${cage.name}?`)) return;
-        removeSuburbFromCage(cage, sub);
+        removeSuburbFromCage(app.data, cage, sub);
         app.save();
         renderAll();
       });
-      list.append(el('li', {}, el('span', { className: 'grow', textContent: sub }), postcodeCell(sub), x));
+      list.append(el('li', {}, el('span', { className: 'grow', textContent: sub }), postcodeCell(sub, cage.name), x));
     }
     panel.append(list);
 
@@ -340,7 +341,7 @@ export function openManage(app) {
         : 'These show as LOCAL until moved to a cage. Tap Edit to move them.' }));
     const list = el('ul', { className: 'm-subs' });
     for (const p of local) {
-      const li = el('li', {}, el('span', { className: 'grow', textContent: p.name }), postcodeCell(p.name));
+      const li = el('li', {}, el('span', { className: 'grow', textContent: p.name }), postcodeCell(p.name, LOCAL_DEST));
       if (editing) {
         const move = el('button', { className: 'btn-ghost', type: 'button', textContent: 'Move' });
         move.setAttribute('aria-label', `Move ${p.name} to a cage`);
