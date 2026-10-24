@@ -89,14 +89,14 @@ export function openManage(app) {
     return lo === hi ? String(lo) : `${lo}–${hi}`;
   }
 
-  // `range` (estimated cages only) shows before the count with an EST tag.
-  function entry(key, swatchColor, title, count, previewText, side, est = false, range = '') {
+  // `range` (estimated cages only) shows before the count with an EST tag;
+  // that's the only estimate marker on the full note's lines.
+  function entry(key, swatchColor, title, count, previewText, side, range = '') {
     const open = expanded === key;
     const swatch = el('span', { className: 'm-swatch' });
     if (swatchColor) swatch.style.background = swatchColor;
     else swatch.classList.add('empty');
     const name = el('span', { className: 'grow', textContent: title });
-    if (est) name.append(el('span', { className: 'est-tag', textContent: 'est.' }));
     const row = el('button', { className: 'm-row', type: 'button' },
       el('span', { className: 'm-head' },
         swatch,
@@ -138,7 +138,7 @@ export function openManage(app) {
     cagesBox.replaceChildren();
     for (const cage of app.data.cages) {
       const { open, item } = entry(cage.name, cage.color, cage.name, cage.suburbs.length,
-        preview(cage.suburbs), photoButton(cage), app.isEstimated(cage.name),
+        preview(cage.suburbs), photoButton(cage),
         app.isEstimated(cage.name) ? postcodeRange(cage) : '');
       if (open) item.append(editing ? cagePanel(cage) : readOnlyPanel(cage));
       cagesBox.append(item);
