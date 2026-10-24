@@ -3,7 +3,7 @@
 
 import {
   loadDefaults, isImportable, addCage, addSuburbToCage, renameCage, setCageColor,
-  removeSuburbFromCage, deleteCage, replaceData,
+  removeSuburbFromCage, deleteCage, replaceData, POSTCODE, setPostcode,
 } from './store.js';
 import { photoUrl, setPhoto, removePhoto, renamePhoto } from './photos.js';
 
@@ -26,8 +26,19 @@ export function openManage(app) {
   const menu = document.getElementById('menu');
   let expanded = null; // name of the open cage, or LOCAL_KEY
   let addingCage = false;
+  // Locked by default so a stray tap can't change a cage. Edit unlocks it
+  // until the note is rebuilt (search, Done, reopening the app).
+  let editing = false;
   const LOCAL_KEY = '__local__';
 
+  const editBtn = el('button', { className: 'btn-ghost note-edit', type: 'button', textContent: 'Edit' });
+  editBtn.addEventListener('click', () => {
+    editing = !editing;
+    addingCage = false;
+    editBtn.textContent = editing ? 'Done' : 'Edit';
+    editBtn.setAttribute('aria-pressed', String(editing));
+    renderAll();
+  });
   const metaLine = el('p', { className: 'note-meta' });
   const cagesBox = el('div');
   const addCageBox = el('div');
@@ -70,15 +81,17 @@ export function openManage(app) {
   }
 
   // One line per cage: dot, name, count, and a preview of its suburbs.
-  function entry(key, swatchColor, title, count, previewText, side) {
+  function entry(key, swatchColor, title, count, previewText, side, est = false) {
     const open = expanded === key;
     const swatch = el('span', { className: 'm-swatch' });
     if (swatchColor) swatch.style.background = swatchColor;
     else swatch.classList.add('empty');
+    const name = el('span', { className: 'grow', textContent: title });
+    if (est) name.append(el('span', { className: 'est-tag', textContent: 'est.' }));
     const row = el('button', { className: 'm-row', type: 'button' },
       el('span', { className: 'm-head' },
         swatch,
-        el('span', { className: 'grow', textContent: title }),
+        name,
         el('span', { className: 'count', textContent: String(count) })),
       el('span', { className: 'm-preview', textContent: previewText, hidden: open }));
     row.setAttribute('aria-expanded', String(open));
@@ -94,23 +107,45 @@ export function openManage(app) {
 
   // ---------- cages ----------
 
-  // Camera icon, or a thumbnail once the cage has a sheet photo.
+  // Editing: camera icon, or a thumbnail, that picks a photo.
+  // Locked: just the thumbnail (if any), which views it.
   function photoButton(cage) {
     const url = photoUrl(cage.name);
+    if (!editing && !url) return null;
     const btn = el('button', { className: 'm-photo', type: 'button' },
       url ? el('img', { src: url, alt: '' }) : '📷');
-    btn.setAttribute('aria-label', `${url ? 'Change' : 'Add'} sheet photo for ${cage.name}`);
-    btn.addEventListener('click', () => pickPhoto(cage));
+    if (editing) {
+      btn.setAttribute('aria-label', `${url ? 'Change' : 'Add'} sheet photo for ${cage.name}`);
+      btn.addEventListener('click', () => pickPhoto(cage));
+    } else {
+      btn.setAttribute('aria-label', `Show the ${cage.name} sheet`);
+      btn.addEventListener('click', () => app.openPhoto(url));
+    }
     return btn;
   }
 
   function renderCages() {
     cagesBox.replaceChildren();
     for (const cage of app.data.cages) {
-      const { open, item } = entry(cage.name, cage.color, cage.name, cage.suburbs.length, preview(cage.suburbs), photoButton(cage));
-      if (open) item.append(cagePanel(cage));
+      const { open, item } = entry(cage.name, cage.color, cage.name, cage.suburbs.length,
+        preview(cage.suburbs), photoButton(cage), app.isEstimated(cage.name));
+      if (open) item.append(editing ? cagePanel(cage) : readOnlyPanel(cage));
       cagesBox.append(item);
     }
+  }
+
+  // Locked view of an open cage: its suburbs and the photo, nothing to change.
+  function readOnlyPanel(cage) {
+    const panel = el('div', { className: 'm-panel' });
+    if (photoUrl(cage.name)) {
+      const view = el('button', { className: 'btn-secondary', type: 'button', textContent: 'View photo' });
+      view.addEventListener('click', () => app.openPhoto(photoUrl(cage.name)));
+      panel.append(el('div', { className: 'm-line' }, view));
+    }
+    const list = el('ul', { className: 'm-subs' });
+    for (const sub of cage.suburbs) list.append(el('li', {}, el('span', { textContent: sub })));
+    panel.append(list);
+    return panel;
   }
 
   function cagePanel(cage) {
@@ -163,10 +198,15 @@ export function openManage(app) {
     const subErr = el('p', { className: 'error', hidden: true });
     const subInput = el('input', { type: 'text', placeholder: 'Add suburb', autocomplete: 'off' });
     subInput.setAttribute('aria-label', 'Add suburb');
+    const pcInput = el('input', { type: 'text', placeholder: 'Postcode', autocomplete: 'off', inputMode: 'numeric', maxLength: 4, className: 'm-pc' });
+    pcInput.setAttribute('aria-label', 'Postcode (optional)');
     const addSub = () => {
       if (!subInput.value.trim()) return;
+      const pc = pcInput.value.trim();
       try {
+        if (pc && !POSTCODE.test(pc)) throw new Error('Postcode must be 4 digits');
         addSuburbToCage(app.data, subInput.value, cage.name);
+        if (pc) setPostcode(app.data, subInput.value, pc);
       } catch (err) {
         subErr.textContent = err.message;
         subErr.hidden = false;
@@ -178,10 +218,12 @@ export function openManage(app) {
     };
     const addBtn = el('button', { className: 'btn-primary', type: 'button', textContent: 'Add' });
     addBtn.addEventListener('click', addSub);
-    subInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') { e.preventDefault(); addSub(); }
-    });
-    panel.append(el('div', { className: 'm-line' }, subInput, addBtn), subErr);
+    for (const input of [subInput, pcInput]) {
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); addSub(); }
+      });
+    }
+    panel.append(el('div', { className: 'm-line' }, subInput, pcInput, addBtn), subErr);
 
     const list = el('ul', { className: 'm-subs' });
     for (const sub of cage.suburbs) {
@@ -215,6 +257,7 @@ export function openManage(app) {
 
   function renderAddCage() {
     addCageBox.replaceChildren();
+    if (!editing) return;
     if (!addingCage) {
       const btn = el('button', { className: 'btn-ghost m-add', type: 'button', textContent: '+ New cage' });
       btn.addEventListener('click', () => {
@@ -269,15 +312,20 @@ export function openManage(app) {
     localBox.append(item);
     if (!open) return;
     const panel = el('div', { className: 'm-panel' },
-      el('p', { className: 'm-hint', textContent: 'These show as LOCAL until you move them to a cage.' }));
+      el('p', { className: 'm-hint', textContent: editing
+        ? 'These show as LOCAL until you move them to a cage.'
+        : 'These show as LOCAL until moved to a cage. Tap Edit to move them.' }));
     const list = el('ul', { className: 'm-subs' });
     for (const p of local) {
-      const move = el('button', { className: 'btn-ghost', type: 'button', textContent: 'Move' });
-      move.setAttribute('aria-label', `Move ${p.name} to a cage`);
-      move.addEventListener('click', () => app.openAddDialog(p.name, { move: true }));
-      list.append(el('li', {},
-        el('span', { className: 'grow' }, p.name, el('span', { className: 'count', textContent: ` ${p.postcode ?? ''}` })),
-        move));
+      const li = el('li', {},
+        el('span', { className: 'grow' }, p.name, el('span', { className: 'count', textContent: ` ${p.postcode ?? ''}` })));
+      if (editing) {
+        const move = el('button', { className: 'btn-ghost', type: 'button', textContent: 'Move' });
+        move.setAttribute('aria-label', `Move ${p.name} to a cage`);
+        move.addEventListener('click', () => app.openAddDialog(p.name, { move: true }));
+        li.append(move);
+      }
+      list.append(li);
     }
     panel.append(list);
     item.append(panel);
@@ -363,7 +411,7 @@ export function openManage(app) {
 
   menu.replaceChildren(exportBtn, importBtn, resetBtn, fileInput, dataMsg);
   root.replaceChildren(
-    el('h2', { className: 'note-title', textContent: 'Cages' }),
+    el('div', { className: 'note-head' }, el('h2', { className: 'note-title', textContent: 'Cages' }), editBtn),
     metaLine,
     cagesBox,
     addCageBox,

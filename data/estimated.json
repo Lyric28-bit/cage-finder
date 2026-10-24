@@ -1,0 +1,4 @@
+{
+  "note": "Cages whose suburbs were estimated from the warehouse region maps and not yet checked. Results show 'Estimated from the region map'. Remove a cage once Lyric has verified it.",
+  "cages": ["City Cartons", "North Cartons", "North East Cartons", "Port Cartons", "Regency Cartons", "South Cartons"]
+}

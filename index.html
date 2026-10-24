@@ -45,6 +45,7 @@
 <!-- Result -->
 <section id="view-result" class="view" hidden>
   <div id="result-warning" class="result-warning" hidden></div>
+  <div id="result-typed" class="result-typed" hidden></div>
   <div id="result-bands" class="result-bands"></div>
   <div id="result-similar" class="result-similar" hidden></div>
   <div class="result-actions">
@@ -59,6 +60,9 @@
     <h2 id="dlg-add-title">Add to a cage</h2>
     <label>Suburb
       <input id="add-suburb" type="text" required autocomplete="off" autocapitalize="words">
+    </label>
+    <label>Postcode <span class="optional">(optional)</span>
+      <input id="add-postcode" type="text" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="e.g. 5121">
     </label>
     <label>Cage
       <select id="add-cage"></select>

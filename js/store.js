@@ -112,6 +112,19 @@ export function replaceData(data, source) {
   data.sheetVersion = source.sheetVersion || 1;
   data.cages = source.cages;
   data.local = source.local || [];
+  data.postcodes = source.postcodes && typeof source.postcodes === 'object' ? source.postcodes : {};
+}
+
+// Postcodes typed in by hand, keyed by normalised suburb name. Saved and
+// exported with the rest of the device's data; empty clears it.
+export const POSTCODE = /^\d{4}$/;
+export function setPostcode(data, suburb, postcode) {
+  postcode = String(postcode || '').trim();
+  if (postcode && !POSTCODE.test(postcode)) throw new Error('Postcode must be 4 digits');
+  data.postcodes ||= {};
+  const key = normalise(suburb);
+  if (postcode) data.postcodes[key] = postcode;
+  else delete data.postcodes[key];
 }
 
 // For imports: valid shape, plus every cage suburb and local entry is well formed.

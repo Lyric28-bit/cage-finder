@@ -1,5 +1,5 @@
 import { buildIndex, search, normalise, similarPlaces } from './js/match.js';
-import { loadData, saveData, addCage, addSuburbToCage, sheetUpdateAvailable, LOCAL_COLOR } from './js/store.js';
+import { loadData, saveData, addCage, addSuburbToCage, sheetUpdateAvailable, LOCAL_COLOR, POSTCODE, setPostcode } from './js/store.js';
 import { openManage } from './js/manage.js';
 import { initPhotos, photoUrl } from './js/photos.js';
 
@@ -21,6 +21,8 @@ export const app = {
   showMessage,
   openAddDialog,
   openPhoto,
+  postcodesFor,
+  isEstimated,
 };
 
 // ---------- helpers ----------
@@ -102,6 +104,29 @@ function toggleMenu(open = $('menu').hidden) {
 
 const MATCH_LIMIT = 30;
 
+// Shipped reference data (not part of the editable cage data, so updating it
+// never needs a reset): postcodes we're sure of, and cages that are estimates.
+const ref = { postcodes: {}, estimated: new Set() };
+async function loadReference() {
+  const get = url => fetch(url).then(r => (r.ok ? r.json() : null)).catch(() => null);
+  const [pc, est] = await Promise.all([get('data/postcodes.json'), get('data/estimated.json')]);
+  ref.postcodes = pc?.postcodes || {};
+  ref.estimated = new Set((est?.cages || []).map(normalise));
+}
+
+// Typed-in postcode wins; otherwise the shipped list plus the Local list's own.
+function postcodesFor(place) {
+  const own = app.data.postcodes?.[place.key];
+  if (own) return [own];
+  const codes = new Set(ref.postcodes[place.key] || []);
+  for (const d of place.destinations) if (d.type === 'local' && d.postcode) codes.add(String(d.postcode));
+  return [...codes];
+}
+
+function isEstimated(cageName) {
+  return ref.estimated.has(normalise(cageName));
+}
+
 // Name with the typed letters marked, when they appear as typed.
 // Typo / Pt-Mt matches just show the plain name.
 function highlighted(name, query) {
@@ -136,8 +161,9 @@ function renderSuggestions(places, query = '') {
           title = d.cage;
           count = app.data.cages.find(c => c.name === d.cage)?.suburbs.length ?? '';
         }
-        const head = el('div', { className: 'm-head m-group' }, swatch,
-          el('span', { className: 'grow', textContent: title }),
+        const name = el('span', { className: 'grow', textContent: title });
+        if (d.type === 'cage' && isEstimated(d.cage)) name.append(el('span', { className: 'est-tag', textContent: 'est.' }));
+        const head = el('div', { className: 'm-head m-group' }, swatch, name,
           el('span', { className: 'count', textContent: String(count) }));
         // Keep the cage's sheet thumbnail while searching; here a tap views it.
         const photo = d.type === 'cage' && photoUrl(d.cage);
@@ -153,8 +179,10 @@ function renderSuggestions(places, query = '') {
         box.append(item);
       }
       const btn = el('button', { className: 'suggestion', type: 'button' },
-        highlighted(place.name, query), el('span', { className: 'chev', textContent: '›' }));
-      btn.addEventListener('click', () => showResult(place));
+        highlighted(place.name, query),
+        el('span', { className: 'count', textContent: postcodesFor(place).join(' / ') }),
+        el('span', { className: 'chev', textContent: '›' }));
+      btn.addEventListener('click', () => showResult(place, { typed: query }));
       groups.get(key).append(btn);
     }
   }
@@ -173,17 +201,29 @@ function renderSuggestions(places, query = '') {
 function onSearchInput() {
   const q = $('search').value;
   showMessage('');
-  renderSuggestions(search(app.index, q, MATCH_LIMIT), q);
+  // All digits: search by postcode instead of name.
+  const digits = q.trim();
+  const places = /^\d{3,4}$/.test(digits)
+    ? app.index.filter(p => postcodesFor(p).some(c => c.startsWith(digits))).slice(0, MATCH_LIMIT)
+    : search(app.index, q, MATCH_LIMIT);
+  renderSuggestions(places, q);
   if (q.trim()) $('manage-root').hidden = true;
   else showNote();
 }
 
 // ---------- result ----------
 
-function showResult(place) {
+// `typed` is the search text that led here, if any. When the match was a
+// typo correction rather than the start of the name, say so.
+function showResult(place, { typed = '' } = {}) {
+  const q = normalise(typed);
+  $('result-typed').hidden = !q || place.key.includes(q);
+  $('result-typed').textContent = `You typed "${typed.trim()}", showing ${place.name}. Check it's the right place.`;
+
   const bands = $('result-bands');
   bands.replaceChildren();
   bands.classList.toggle('multi', place.destinations.length > 1);
+  const codes = postcodesFor(place);
 
   for (const d of place.destinations) {
     const bg = d.type === 'local' ? LOCAL_COLOR : d.color;
@@ -191,9 +231,14 @@ function showResult(place) {
     cage.style.background = bg;
     cage.style.color = textColorFor(bg);
     const band = el('div', { className: 'band' },
-      el('div', { className: 'suburb', textContent: place.name }), cage);
+      el('div', { className: 'suburb', textContent: place.name }));
+    if (codes.length) band.append(el('div', { className: 'postcode', textContent: `Postcode ${codes.join(' / ')}` }));
+    band.append(cage);
     if (d.type === 'local') {
-      band.append(el('div', { className: 'note-line', textContent: `Adelaide metro ${d.postcode} · cage not set yet` }));
+      band.append(el('div', { className: 'note-line', textContent: 'Adelaide metro · cage not set yet' }));
+    }
+    if (d.type === 'cage' && isEstimated(d.cage)) {
+      band.append(el('div', { className: 'note-line est', textContent: 'Estimated from the region map, check the map' }));
     }
     const photo = d.type === 'cage' && photoUrl(d.cage);
     if (photo) {
@@ -266,6 +311,10 @@ function openAddDialog(suburb = '', { move = false } = {}) {
   $('add-suburb').value = suburb.trim();
   $('add-suburb').readOnly = move;
   $('add-error').hidden = true;
+  // Prefill a known single postcode, so a move off the Local list keeps it.
+  const known = app.index.find(p => p.key === normalise(suburb));
+  const codes = known ? postcodesFor(known) : [];
+  $('add-postcode').value = codes.length === 1 ? codes[0] : '';
 
   const select = $('add-cage');
   select.replaceChildren(
@@ -287,12 +336,15 @@ function onAddSubmit(event) {
   event.preventDefault();
   const suburb = $('add-suburb').value.trim();
   let cageName = $('add-cage').value;
+  const postcode = $('add-postcode').value.trim();
   try {
+    if (postcode && !POSTCODE.test(postcode)) throw new Error('Postcode must be 4 digits');
     if (cageName === NEW_CAGE) {
       cageName = $('add-new-name').value.trim();
       addCage(app.data, cageName, $('add-new-color').value);
     }
     addSuburbToCage(app.data, suburb, cageName);
+    if (postcode) setPostcode(app.data, suburb, postcode);
   } catch (err) {
     $('add-error').textContent = err.message;
     $('add-error').hidden = false;
@@ -309,6 +361,7 @@ function onAddSubmit(event) {
 async function start() {
   app.data = await loadData();
   app.refresh();
+  await loadReference();
   // Not awaited: if IndexedDB stalls (some iOS versions), search must still
   // work. The note redraws with thumbnails once photos are in.
   // Only redraw if there's something to show, so a cage opened meanwhile stays open.
