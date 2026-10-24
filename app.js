@@ -136,10 +136,18 @@ function renderSuggestions(places, query = '') {
           title = d.cage;
           count = app.data.cages.find(c => c.name === d.cage)?.suburbs.length ?? '';
         }
-        const item = el('div', { className: 'm-item' },
-          el('div', { className: 'm-head m-group' }, swatch,
-            el('span', { className: 'grow', textContent: title }),
-            el('span', { className: 'count', textContent: String(count) })));
+        const head = el('div', { className: 'm-head m-group' }, swatch,
+          el('span', { className: 'grow', textContent: title }),
+          el('span', { className: 'count', textContent: String(count) }));
+        // Keep the cage's sheet thumbnail while searching; here a tap views it.
+        const photo = d.type === 'cage' && photoUrl(d.cage);
+        if (photo) {
+          const thumb = el('button', { className: 'm-photo', type: 'button' }, el('img', { src: photo, alt: '' }));
+          thumb.setAttribute('aria-label', `Show the ${d.cage} sheet`);
+          thumb.addEventListener('click', () => openPhoto(photo));
+          head.append(thumb);
+        }
+        const item = el('div', { className: 'm-item' }, head);
         item.dataset.cage = key;
         groups.set(key, item);
         box.append(item);

@@ -116,6 +116,7 @@ button { font: inherit; cursor: pointer; }
 
 /* Search results: the note filtered in place. Cage line, then its matches. */
 .m-group { flex-basis: 100%; padding: 12px 2px 4px; }
+.m-group .m-photo { margin-top: 0; }
 .suggestion {
   flex-basis: 100%;
   min-height: var(--tap);
