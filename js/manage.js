@@ -5,6 +5,7 @@ import {
   loadDefaults, isImportable, addCage, addSuburbToCage, renameCage, setCageColor,
   removeSuburbFromCage, deleteCage, replaceData,
 } from './store.js';
+import { photoUrl, setPhoto, removePhoto, renamePhoto } from './photos.js';
 
 const PREVIEW = 8; // suburbs shown on a closed cage line
 
@@ -33,6 +34,26 @@ export function openManage(app) {
   const localBox = el('div');
   const dataMsg = el('p', { className: 'error', hidden: true });
 
+  // One hidden picker shared by every cage's photo button.
+  let photoFor = null; // the cage the picker is open for
+  const photoInput = el('input', { type: 'file', accept: 'image/*', hidden: true });
+  photoInput.addEventListener('change', async () => {
+    const file = photoInput.files[0], cage = photoFor;
+    photoInput.value = '';
+    if (!file || !cage) return;
+    try {
+      await setPhoto(cage.name, file);
+    } catch (err) {
+      alert(err.message);
+      return;
+    }
+    renderCages();
+  });
+  function pickPhoto(cage) {
+    photoFor = cage;
+    photoInput.click();
+  }
+
   function renderAll() {
     renderMeta();
     renderCages();
@@ -46,7 +67,7 @@ export function openManage(app) {
   }
 
   // One line per cage: dot, name, count, and a preview of its suburbs.
-  function entry(key, swatchColor, title, count, previewText) {
+  function entry(key, swatchColor, title, count, previewText, side) {
     const open = expanded === key;
     const swatch = el('span', { className: 'm-swatch' });
     if (swatchColor) swatch.style.background = swatchColor;
@@ -63,15 +84,27 @@ export function openManage(app) {
       renderCages();
       renderLocal();
     });
-    return { open, item: el('div', { className: 'm-item' + (open ? ' open' : '') }, row) };
+    const item = el('div', { className: 'm-item' + (open ? ' open' : '') }, row);
+    if (side) item.append(side);
+    return { open, item };
   }
 
   // ---------- cages ----------
 
+  // Camera icon, or a thumbnail once the cage has a sheet photo.
+  function photoButton(cage) {
+    const url = photoUrl(cage.name);
+    const btn = el('button', { className: 'm-photo', type: 'button' },
+      url ? el('img', { src: url, alt: '' }) : '📷');
+    btn.setAttribute('aria-label', `${url ? 'Change' : 'Add'} sheet photo for ${cage.name}`);
+    btn.addEventListener('click', () => pickPhoto(cage));
+    return btn;
+  }
+
   function renderCages() {
     cagesBox.replaceChildren();
     for (const cage of app.data.cages) {
-      const { open, item } = entry(cage.name, cage.color, cage.name, cage.suburbs.length, preview(cage.suburbs));
+      const { open, item } = entry(cage.name, cage.color, cage.name, cage.suburbs.length, preview(cage.suburbs), photoButton(cage));
       if (open) item.append(cagePanel(cage));
       cagesBox.append(item);
     }
@@ -85,7 +118,8 @@ export function openManage(app) {
     nameInput.setAttribute('aria-label', 'Cage name');
     const colorInput = el('input', { type: 'color', value: cage.color });
     colorInput.setAttribute('aria-label', 'Cage colour');
-    nameInput.addEventListener('change', () => {
+    nameInput.addEventListener('change', async () => {
+      const oldName = cage.name;
       try {
         renameCage(app.data, cage, nameInput.value);
       } catch (err) {
@@ -95,6 +129,7 @@ export function openManage(app) {
       }
       expanded = cage.name;
       app.save();
+      await renamePhoto(oldName, cage.name).catch(() => {});
       renderAll();
     });
     colorInput.addEventListener('change', () => {
@@ -103,6 +138,21 @@ export function openManage(app) {
       renderCages();
     });
     panel.append(el('div', { className: 'm-line' }, nameInput, colorInput), nameErr);
+
+    const changePhoto = el('button', { className: 'btn-secondary', type: 'button',
+      textContent: photoUrl(cage.name) ? 'Change photo' : 'Add sheet photo' });
+    changePhoto.addEventListener('click', () => pickPhoto(cage));
+    const photoLine = el('div', { className: 'm-line' }, changePhoto);
+    if (photoUrl(cage.name)) {
+      const rm = el('button', { className: 'btn-ghost', type: 'button', textContent: 'Remove photo' });
+      rm.addEventListener('click', async () => {
+        if (!confirm(`Remove the sheet photo for ${cage.name}?`)) return;
+        await removePhoto(cage.name).catch(() => {});
+        renderCages();
+      });
+      photoLine.append(rm);
+    }
+    panel.append(photoLine);
 
     const subErr = el('p', { className: 'error', hidden: true });
     const subInput = el('input', { type: 'text', placeholder: 'Add suburb', autocomplete: 'off' });
@@ -146,6 +196,7 @@ export function openManage(app) {
       const n = cage.suburbs.length;
       if (!confirm(`Delete cage ${cage.name}? Its ${n} suburb${n === 1 ? '' : 's'} will be deleted too.`)) return;
       deleteCage(app.data, cage);
+      removePhoto(cage.name).catch(() => {});
       expanded = null;
       app.save();
       renderAll();
@@ -310,6 +361,7 @@ export function openManage(app) {
     metaLine,
     cagesBox,
     addCageBox,
-    localBox);
+    localBox,
+    photoInput);
   renderAll();
 }

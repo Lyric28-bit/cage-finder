@@ -1,6 +1,7 @@
 import { buildIndex, search, normalise, similarPlaces } from './js/match.js';
 import { loadData, saveData, addCage, addSuburbToCage, sheetUpdateAvailable, LOCAL_COLOR } from './js/store.js';
 import { openManage } from './js/manage.js';
+import { initPhotos, photoUrl } from './js/photos.js';
 
 const $ = id => document.getElementById(id);
 
@@ -139,6 +140,13 @@ function showResult(place) {
     if (d.type === 'local') {
       band.append(el('div', { className: 'note-line', textContent: `Adelaide metro ${d.postcode} · cage not set yet` }));
     }
+    const photo = d.type === 'cage' && photoUrl(d.cage);
+    if (photo) {
+      const thumb = el('button', { className: 'result-photo', type: 'button' }, el('img', { src: photo, alt: '' }));
+      thumb.setAttribute('aria-label', `Show the ${d.cage} sheet`);
+      thumb.addEventListener('click', () => openPhoto(photo));
+      band.append(thumb);
+    }
     bands.append(band);
   }
 
@@ -164,6 +172,30 @@ function showResult(place) {
 
   showView('result');
   $('btn-next').focus();
+}
+
+// ---------- sheet photo viewer ----------
+
+// Opens fitted to the screen; a tap zooms to full size around that spot
+// (then drag/scroll to read), another tap fits it again.
+function openPhoto(url) {
+  const box = $('photo-box'), img = $('photo-img');
+  img.src = url;
+  box.classList.remove('zoomed');
+  $('dlg-photo').showModal();
+}
+
+function onPhotoTap(event) {
+  const box = $('photo-box'), img = $('photo-img');
+  if (box.classList.contains('zoomed')) {
+    box.classList.remove('zoomed');
+    return;
+  }
+  const r = img.getBoundingClientRect();
+  const fx = (event.clientX - r.left) / r.width, fy = (event.clientY - r.top) / r.height;
+  box.classList.add('zoomed');
+  box.scrollLeft = fx * img.offsetWidth - box.clientWidth / 2;
+  box.scrollTop = fy * img.offsetHeight - box.clientHeight / 2;
 }
 
 // ---------- add / move dialog ----------
@@ -218,6 +250,10 @@ function onAddSubmit(event) {
 async function start() {
   app.data = await loadData();
   app.refresh();
+  await initPhotos();
+
+  $('photo-img').addEventListener('click', onPhotoTap);
+  $('btn-photo-close').addEventListener('click', () => $('dlg-photo').close());
 
   $('search').addEventListener('input', onSearchInput);
   $('search').addEventListener('keydown', e => {

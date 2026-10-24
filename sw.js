@@ -1,6 +1,6 @@
 // Offline support: everything is cached on first load.
 // Bump VERSION whenever you deploy changes, so phones pick up the new files.
-const VERSION = 'v6';
+const VERSION = 'v7';
 const CACHE = 'cage-finder-' + VERSION;
 
 const FILES = [
@@ -12,6 +12,7 @@ const FILES = [
   'js/match.js',
   'js/store.js',
   'js/manage.js',
+  'js/photos.js',
   'data/cages.json',
   'data/adelaide-suburbs.json',
   'icons/icon-192.png',
