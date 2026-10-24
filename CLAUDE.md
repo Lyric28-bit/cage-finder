@@ -8,7 +8,7 @@ Working rules in short: back up (git tag + Desktop folder copy) before a big cha
 Installable offline PWA for a warehouse sorter: type a suburb from a parcel sticker, get the cage. Plain HTML/CSS/JS, no build step, no backend. Called "Cage Notes" (renamed from Cage Finder 2026-10-24); the repo and URL keep the old name.
 
 - Live: https://lyric28-bit.github.io/cage-finder/ (GitHub Pages, public repo Lyric28-bit/cage-finder, branch main).
-- Status (2026-10-24): sw.js VERSION v12 (fail-safes: typo banner, edit lock, estimated flags, postcodes; opus-reviewed, pushed for Lyric to test on his phone). Next save would be a v7 tag once he confirms it.
+- Status (2026-10-24): sw.js VERSION v12 (fail-safes: typo banner, edit lock, estimated flags, postcodes; opus-reviewed, pushed for Lyric to test on his phone). Confirmed on his phone 2026-10-24.
 
 ## Layout (2026-10-24 redesign)
 - One main screen styled like a plain notes app: "Notes" header, `⋯` menu (Export / Import / Reset to sheet data), "Search notes" box.
@@ -36,7 +36,7 @@ Installable offline PWA for a warehouse sorter: type a suburb from a parcel stic
 - **Never commit or push sheets/** (workplace photos), or any photo. The site is public. It's gitignored and was stripped from main's history. Local branch `backup-with-photos` still has them: never push it, never push --all. Check `git ls-files sheets` is empty before pushing.
 - Pushing: Claude can run `git push origin main` (credentials cached since 2026-10-24) but only after Lyric says yes for that push. If it ever asks for a login, Lyric runs it himself in a normal PowerShell window.
 - Deploying a change: bump VERSION in sw.js (and add any new file to its FILES list). If cage data changes, also bump sheetVersion in data/cages.json. Installed apps show a "New version ready. Tap to update." button.
-- Saves of known-good versions: git tags `v1-original` (pre-redesign), `v2-cage-notes`, `v3-photos`, `v4-view-photo` (v8, last version with the old suggestion-list search), `v5-note-search` (v10, confirmed on phone), `v6-tap-similar` (v11, before the fail-safes), plus matching folder copies on the Desktop (`Shipping-App-backup-2026-10-24`, `Shipping-App-v2-cage-notes-2026-10-24`, `Shipping-App-v3-photos-2026-10-24`, `Shipping-App-v4-view-photo-2026-10-24`, `Shipping-App-v5-note-search-2026-10-24`, `Shipping-App-v6-tap-similar-2026-10-24`). Tags are local only.
+- Saves of known-good versions: git tags `v1-original` (pre-redesign), `v2-cage-notes`, `v3-photos`, `v4-view-photo` (v8, last version with the old suggestion-list search), `v5-note-search` (v10, confirmed on phone), `v6-tap-similar` (v11, before the fail-safes), `v7-failsafes` (v12, confirmed on phone), plus matching folder copies on the Desktop (`Shipping-App-backup-2026-10-24`, `Shipping-App-v2-cage-notes-2026-10-24`, `Shipping-App-v3-photos-2026-10-24`, `Shipping-App-v4-view-photo-2026-10-24`, `Shipping-App-v5-note-search-2026-10-24`, `Shipping-App-v6-tap-similar-2026-10-24`, `Shipping-App-v7-failsafes-2026-10-24`). Tags are local only.
 - Lyric shares screenshots by saving with ShareX: read the newest file in C:\Users\Lyric\Documents\ShareX\Screenshots\<yyyy-mm>.
 - Camera/OCR scanning was built and then removed at Lyric's request. Don't re-add unless asked. (Sheet photos are a different, manual feature.)
 - A password lock was considered and dropped: it can't protect anything on a public static site.
