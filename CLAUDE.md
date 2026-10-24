@@ -1,12 +1,14 @@
 # Cage Notes: notes for Claude
 
-Read README.md for the original features, data and install steps (it predates the 2026-10-24 redesign; this file is current). Start Claude Code in this folder so this file loads.
+**This file is the source of truth for the app. Read all of it before changing anything**, even if the session started in another folder (Lyric often starts Claude elsewhere, e.g. C:\Users\Lyric\claude-work, then points it at C:\Users\Lyric\Desktop\Shipping-App). README.md is the user-facing guide.
+
+Working rules in short: back up (git tag + Desktop folder copy) before a big change and when Lyric says a version is good; work on a branch; self-test every change (see Testing); get an opus review for bigger changes; ask before each push; update this file in every push; never push photos.
 
 ## What it is
 Installable offline PWA for a warehouse sorter: type a suburb from a parcel sticker, get the cage. Plain HTML/CSS/JS, no build step, no backend. Called "Cage Notes" (renamed from Cage Finder 2026-10-24); the repo and URL keep the old name.
 
 - Live: https://lyric28-bit.github.io/cage-finder/ (GitHub Pages, public repo Lyric28-bit/cage-finder, branch main).
-- Status (2026-10-24): sw.js VERSION v12 (fail-safes: typo banner, edit lock, estimated flags, postcodes).
+- Status (2026-10-24): sw.js VERSION v12 (fail-safes: typo banner, edit lock, estimated flags, postcodes; opus-reviewed, pushed for Lyric to test on his phone). Next save would be a v7 tag once he confirms it.
 
 ## Layout (2026-10-24 redesign)
 - One main screen styled like a plain notes app: "Notes" header, `⋯` menu (Export / Import / Reset to sheet data), "Search notes" box.
