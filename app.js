@@ -246,8 +246,13 @@ function renderSuggestions(places, query = '') {
   box.replaceChildren();
   box.hidden = !places.length;
   const groups = new Map(); // cage name or LOCAL -> { item, list }
+  // Postcode search: only list a place under the cages whose own postcode
+  // matches, e.g. 5159 is Happy Valley LOCAL, not the Mildura one.
+  const digits = /^\d{3,4}$/.test(query.trim()) ? query.trim() : '';
   for (const place of places) {
     for (const d of place.destinations) {
+      const codes = postcodesAt(place, d);
+      if (digits && !codes.some(c => c.startsWith(digits))) continue;
       const key = d.type === 'local' ? 'LOCAL' : d.cage;
       if (!groups.has(key)) {
         const swatch = el('span', { className: 'm-swatch' });
@@ -280,8 +285,8 @@ function renderSuggestions(places, query = '') {
       }
       const btn = el('button', { className: 'suggestion', type: 'button' },
         highlighted(place.name, query),
-        el('span', { className: 'count', textContent: postcodesFor(place).join(' / ') },
-          postcodesFor(place).length ? estTag(d.cage) : ''),
+        el('span', { className: 'count', textContent: codes.join(' / ') },
+          codes.length ? estTag(d.cage) : ''),
         el('span', { className: 'chev', textContent: '›' }));
       btn.addEventListener('click', () => showResult(place, { typed: query }));
       groups.get(key).append(btn);
