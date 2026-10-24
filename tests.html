@@ -8,7 +8,8 @@
 <body>
 <pre id="out">running...</pre>
 <script type="module">
-import { buildIndex, search, similarPlaces } from './js/match.js';
+import { buildIndex, search, similarPlaces, normalise } from './js/match.js';
+import { isValid, isImportable, findCage, addCage, addSuburbToCage, renameCage, removeSuburbFromCage, deleteCage, replaceData, setPostcode, postcodeKey, applyRenames, applyUnsure, CAGE_RENAMES, LOCAL_DEST } from './js/store.js';
 
 const out = [];
 let passed = 0, total = 0;
@@ -65,6 +66,312 @@ try {
   r = sim('Myponga');        check('"Myponga" warns about Mypolonga', r.includes('Mypolonga'), r.join(', '));
   r = sim('Marino');         check('"Marino" no warning for Marion (both LOCAL)', !r.includes('Marion'), r.join(', ') || '(none)');
   r = sim('Hove');           check('"Hove" no warning for Robe (too short)', !r.includes('Robe'), r.join(', ') || '(none)');
+  // ---------- Store ----------
+  // Pure-function tests on deep copies of the shipped data. Nothing here calls
+  // saveData/loadData; localStorage is snapshotted and restored just in case.
+  const KEY = 'cage-finder-data-v1';
+  const lsBefore = localStorage.getItem(KEY);
+  try {
+    const unsure = await (await fetch('data/unsure.json')).json();
+    const shipped = (await (await fetch('data/postcodes.json')).json()).postcodes;
+    const base = { version: 1, sheetVersion: cages.sheetVersion || 1, cages: cages.cages, local: adelaide.suburbs };
+    const fresh = () => structuredClone(base);
+    const J = x => JSON.stringify(x);
+    const throws = fn => { try { fn(); return false; } catch { return true; } };
+    const hasSub = (c, s) => c.suburbs.some(x => normalise(x) === normalise(s));
+    const hasLocal = (d, s) => d.local.some(p => normalise(p.name) === normalise(s));
+    out.push('\n-- Store --');
+
+    // isValid
+    check('isValid accepts default data', isValid(fresh()));
+    check('isValid accepts data without a local list', isValid({ cages: [] }));
+    check('isValid rejects null', isValid(null) === false);
+    check('isValid rejects {}', isValid({}) === false);
+    check('isValid rejects missing cages', isValid({ local: [] }) === false);
+    check('isValid rejects cages that is a string', isValid({ cages: 'x' }) === false);
+    check('isValid rejects cage name that is a number', isValid({ cages: [{ name: 5, color: '#112233', suburbs: [] }] }) === false);
+    check('isValid rejects bad colour', isValid({ cages: [{ name: 'A', color: 'red', suburbs: [] }] }) === false);
+    check('isValid rejects suburbs that is not an array', isValid({ cages: [{ name: 'A', color: '#112233', suburbs: 'x' }] }) === false);
+    check('isValid rejects local that is not an array', isValid({ cages: [], local: 'x' }) === false);
+
+    // isImportable
+    check('isImportable accepts JSON round-trip of default data', isImportable(JSON.parse(J(fresh()))));
+    for (const [label, junk] of [['string', 'hello'], ['number', 42], ['[]', []], ['null', null],
+      ['{cages:"x"}', { cages: 'x' }],
+      ['cage with no name', { cages: [{ color: '#112233', suburbs: [] }] }],
+      ['non-string suburb', { cages: [{ name: 'A', color: '#112233', suburbs: [1] }] }],
+      ['local entry with no name', { cages: [], local: [{ postcode: '5000' }] }]]) {
+      check(`isImportable rejects ${label}`, isImportable(junk) === false);
+    }
+
+    // addCage
+    {
+      const d = fresh(), n = d.cages.length;
+      const c = addCage(d, '  Test Cage ', '#112233');
+      check('addCage returns the trimmed cage and grows the list', c.name === 'Test Cage' && d.cages.length === n + 1);
+      check('addCage: new cage is findable (case-insensitive)', findCage(d, 'test cage') === c);
+      check('addCage keeps cages sorted by name', J(d.cages.map(x => x.name)) === J([...d.cages.map(x => x.name)].sort((a, b) => a.localeCompare(b))));
+      check('addCage rejects a duplicate name (throws, nothing added)', throws(() => addCage(d, 'TEST CAGE', '#445566')) && d.cages.length === n + 1);
+      check('addCage rejects an empty name', throws(() => addCage(d, '   ', '#112233')));
+    }
+
+    // addSuburbToCage / removeSuburbFromCage
+    {
+      const d = fresh(), cage = d.cages[0], s = 'Zzz Testville';
+      const othersBefore = J(d.cages.slice(1)), localBefore = J(d.local);
+      addSuburbToCage(d, '  ' + s + ' ', cage.name);
+      check('addSuburbToCage: suburb appears on the cage', cage.suburbs.includes(s));
+      check('addSuburbToCage: other cages unchanged', J(d.cages.slice(1)) === othersBefore);
+      check('addSuburbToCage: a non-local suburb leaves the Local list alone', J(d.local) === localBefore);
+      const len = cage.suburbs.length;
+      addSuburbToCage(d, s.toUpperCase(), cage.name);
+      check('addSuburbToCage: same name again (other case) is not duplicated', cage.suburbs.length === len);
+      check('addSuburbToCage: unknown cage throws', throws(() => addSuburbToCage(d, 'X', 'No Such Cage')));
+      check('addSuburbToCage: empty suburb throws', throws(() => addSuburbToCage(d, ' ', cage.name)));
+      setPostcode(d, s, cage.name, '5000');
+      removeSuburbFromCage(d, cage, s);
+      check('removeSuburbFromCage: suburb is gone', !cage.suburbs.includes(s));
+      check('removeSuburbFromCage: other cages unchanged', J(d.cages.slice(1)) === othersBefore);
+      check('removeSuburbFromCage: its typed postcode is removed too', !(postcodeKey(s, cage.name) in d.postcodes));
+      check('removeSuburbFromCage: cage is back to its original suburbs', J([...cage.suburbs].sort()) === J([...cages.cages[0].suburbs].sort()));
+
+      const d2 = fresh(), loc = d2.local[0].name;
+      addSuburbToCage(d2, loc, d2.cages[0].name);
+      check('addSuburbToCage: moving a Local suburb takes it off the Local list', !hasLocal(d2, loc) && hasSub(d2.cages[0], loc));
+    }
+
+    // renameCage
+    {
+      const d = fresh(), cage = d.cages[0], oldName = cage.name, subs = J(cage.suburbs), sub = cage.suburbs[0];
+      const other = d.cages[1];
+      setPostcode(d, sub, oldName, '5123');
+      setPostcode(d, 'Somewhere', other.name, '5222');
+      renameCage(d, cage, '  Renamed Cage ');
+      check('renameCage: old name no longer found', findCage(d, oldName) === undefined);
+      check('renameCage: new name found (trimmed)', findCage(d, 'renamed cage') === cage && cage.name === 'Renamed Cage');
+      check('renameCage: suburbs kept', J(cage.suburbs) === subs);
+      check('renameCage: postcodes move with the cage', d.postcodes[postcodeKey(sub, 'Renamed Cage')] === '5123' && !(postcodeKey(sub, oldName) in d.postcodes));
+      check('renameCage: postcodes of other cages untouched', d.postcodes[postcodeKey('Somewhere', other.name)] === '5222');
+      check('renameCage: to another cage name throws', throws(() => renameCage(d, cage, other.name)));
+      check('renameCage: empty name throws', throws(() => renameCage(d, cage, '  ')));
+      renameCage(d, cage, 'RENAMED CAGE');
+      check('renameCage: changing only the case is allowed', cage.name === 'RENAMED CAGE');
+    }
+
+    // deleteCage
+    {
+      const d = fresh(), cage = d.cages[2], n = d.cages.length;
+      const othersBefore = J(d.cages.filter(c => c !== cage));
+      setPostcode(d, 'Foo', cage.name, '5000');
+      setPostcode(d, 'Foo', d.cages[0].name, '5001');
+      deleteCage(d, cage);
+      check('deleteCage: cage is gone', findCage(d, cage.name) === undefined && d.cages.length === n - 1);
+      check('deleteCage: other cages untouched', J(d.cages) === othersBefore);
+      check('deleteCage: its postcodes removed, others kept', !(postcodeKey('Foo', cage.name) in d.postcodes) && postcodeKey('Foo', d.cages[0].name) in d.postcodes);
+    }
+
+    // setPostcode / postcodeKey
+    {
+      const d = fresh();
+      setPostcode(d, 'Happy Valley', 'Mildura', ' 3500 ');
+      setPostcode(d, 'Happy Valley', LOCAL_DEST, '5159');
+      check('setPostcode/postcodeKey round trip (cage)', d.postcodes[postcodeKey('happy  valley', 'MILDURA')] === '3500');
+      check('setPostcode: Local destination is a separate key', d.postcodes[postcodeKey('Happy Valley', 'local')] === '5159' && postcodeKey('Happy Valley', LOCAL_DEST).endsWith('|local'));
+      setPostcode(d, 'Happy Valley', 'Mildura', '');
+      check('setPostcode: empty string is stored (means "none")', d.postcodes[postcodeKey('Happy Valley', 'Mildura')] === '');
+      check('setPostcode: rejects non-4-digit', throws(() => setPostcode(d, 'X', 'Y', '12a4')) && throws(() => setPostcode(d, 'X', 'Y', '123')));
+    }
+
+    // replaceData
+    {
+      const original = fresh();
+      const copy = fresh();
+      copy.cages.pop(); copy.local = []; copy.sheetVersion = 99;
+      replaceData(copy, JSON.parse(J(original)));
+      check('replaceData: cages deep-equal the original', J(copy.cages) === J(original.cages));
+      check('replaceData: local deep-equal the original', J(copy.local) === J(original.local));
+      check('replaceData: sheetVersion and version copied', copy.sheetVersion === original.sheetVersion && copy.version === 1);
+      check('replaceData: markers default to 0, postcodes to {}', copy.unsureApplied === 0 && copy.renamesApplied === 0 && J(copy.postcodes) === '{}');
+      const d = fresh();
+      replaceData(d, { cages: [], local: [], unsureApplied: 3, renamesApplied: 2,
+        postcodes: { 'a|b': '5000', 'c|local': '', 'd|e': 'abcd', 'nobar': '5000', 'f|g': 12 } });
+      check('replaceData: copies markers, keeps only well-formed postcodes',
+        d.unsureApplied === 3 && d.renamesApplied === 2 && J(Object.keys(d.postcodes).sort()) === J(['a|b', 'c|local']));
+    }
+
+    // applyRenames
+    {
+      const once = fresh();
+      const r1 = applyRenames(once);
+      const snap = J(once);
+      const r2 = applyRenames(once);
+      check('applyRenames: second run changes nothing (idempotent)', J(once) === snap && r2 === false, `first returned ${r1}`);
+      check('applyRenames: renamesApplied set to newest id', once.renamesApplied === CAGE_RENAMES.at(-1).id);
+      check('applyRenames: every rename target exists, old name gone', CAGE_RENAMES.every(r => findCage(once, r.to) && !findCage(once, r.from)));
+      const d = { cages: [{ name: 'Kadina', color: '#112233', suburbs: ['Moonta'] }], postcodes: { [postcodeKey('Moonta', 'Kadina')]: '5558' } };
+      applyRenames(d);
+      check('applyRenames: renames an old-named cage and moves its postcodes',
+        d.cages[0].name === 'Kadina / Yorke Peninsula' && d.postcodes[postcodeKey('Moonta', 'Kadina / Yorke Peninsula')] === '5558'
+        && !(postcodeKey('Moonta', 'Kadina') in d.postcodes), J(d.postcodes));
+      const kept = { cages: [{ name: 'Kadina', color: '#112233', suburbs: [] }], renamesApplied: 1 };
+      applyRenames(kept);
+      check('applyRenames: skips a rename already applied (device name stays)', kept.cages[0].name === 'Kadina');
+    }
+
+    // applyUnsure
+    {
+      const d = fresh();
+      const before = d.cages.reduce((n, c) => n + c.suburbs.length, 0);
+      const r1 = applyUnsure(d, unsure, shipped);
+      const afterOnce = J(d);
+      const afterCount = d.cages.reduce((n, c) => n + c.suburbs.length, 0);
+      const r2 = applyUnsure(d, unsure, shipped);
+      check('applyUnsure: runs once, second call is a no-op', r1 === true && r2 === false && J(d) === afterOnce);
+      check('applyUnsure: unsureApplied set to the list version', d.unsureApplied === unsure.version);
+      d.unsureApplied = 0;
+      applyUnsure(d, unsure, shipped);
+      check('applyUnsure: forced second pass gives the same data (idempotent)', J(d) === afterOnce);
+      const stillThere = [], missingLocal = [];
+      for (const [cn, names] of Object.entries(unsure.cages)) {
+        const c = findCage(d, cn);
+        for (const n of names) {
+          if (c && hasSub(c, n)) stillThere.push(`${n} (${cn})`);
+          if (!hasLocal(d, n)) missingLocal.push(n);
+        }
+      }
+      check('applyUnsure: no moved suburb still sits on its Cartons cage', stillThere.length === 0, stillThere.slice(0, 10).join(', '));
+      check('applyUnsure: every moved suburb is now in the Local list', missingLocal.length === 0, missingLocal.slice(0, 10).join(', '));
+      const total = Object.values(unsure.cages).reduce((n, a) => n + a.length, 0);
+      check('applyUnsure: cage suburb count dropped by the list size', before - afterCount === total, `${before} -> ${afterCount}, list ${total}`);
+      const sorted = d.local.every((p, i) => i === 0 || d.local[i - 1].name.localeCompare(p.name) <= 0);
+      check('applyUnsure: Local list left sorted', sorted);
+
+      // Typed postcode moves with the suburb; shipped code used when exactly one.
+      const [cn, names] = Object.entries(unsure.cages)[0];
+      const s = cages.cages.find(c => c.name === cn).suburbs.find(x => normalise(x) === normalise(names[0]));
+      const d3 = fresh();
+      setPostcode(d3, s, cn, '5999');
+      applyUnsure(d3, unsure, shipped);
+      check('applyUnsure: a typed "suburb|cage" postcode moves to "suburb|local"',
+        d3.postcodes[postcodeKey(s, LOCAL_DEST)] === '5999' && !(postcodeKey(s, cn) in d3.postcodes));
+      const codes = shipped[normalise(s)] || [];
+      const lp = d3.local.find(p => normalise(p.name) === normalise(s));
+      check('applyUnsure: Local entry gets the shipped postcode when there is exactly one', !!lp && lp.postcode === (codes.length === 1 ? codes[0] : ''));
+      const d4 = fresh(); d4.unsureApplied = unsure.version;
+      const d4copy = J(d4);
+      check('applyUnsure: already-applied version does nothing', applyUnsure(d4, unsure, shipped) === false && J(d4) === d4copy);
+    }
+  } finally {
+    // Restore the browser's own saved data if anything touched it.
+    if (localStorage.getItem(KEY) !== lsBefore) {
+      if (lsBefore === null) localStorage.removeItem(KEY); else localStorage.setItem(KEY, lsBefore);
+    }
+  }
+  check('Store tests left localStorage data unchanged', localStorage.getItem(KEY) === lsBefore);
+
+  // ---------- Data files ----------
+  out.push('\n-- Data files --');
+  const D = {};
+  for (const f of ['cages', 'adelaide-suburbs', 'estimated', 'postcodes', 'unsure']) {
+    try {
+      const resp = await fetch(`data/${f}.json`, { cache: 'reload' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      D[f] = await resp.json();
+      check(`data/${f}.json loads and parses`, true);
+    } catch (e) {
+      check(`data/${f}.json loads and parses`, false, e.message);
+    }
+  }
+  const list = (a, n = 10) => a.slice(0, n).join('; ') + (a.length > n ? ` (+${a.length - n} more)` : '');
+  const blank = s => typeof s !== 'string' || !s.trim();
+  const dups = arr => { const seen = new Set(), d = new Set(); for (const s of arr) { const k = normalise(s); if (seen.has(k)) d.add(s); seen.add(k); } return [...d]; };
+
+  if (D.cages) {
+    const cs = D.cages.cages;
+    check('cages.json has a cages array', Array.isArray(cs) && cs.length > 0);
+    if (Array.isArray(cs)) {
+      const noName = cs.map((c, i) => [c, i]).filter(([c]) => blank(c.name)).map(([, i]) => `cage #${i}`);
+      check('Every cage has a non-empty name', noName.length === 0, list(noName));
+      const badCol = cs.filter(c => !/^#[0-9a-fA-F]{6}$/.test(c.color)).map(c => `${c.name}: ${c.color}`);
+      check('Every cage has a #RRGGBB colour', badCol.length === 0, list(badCol));
+      const noSubs = cs.filter(c => !Array.isArray(c.suburbs) || c.suburbs.length === 0).map(c => c.name);
+      check('Every cage has a non-empty suburbs array', noSubs.length === 0, list(noSubs));
+      const dupNames = dups(cs.map(c => c.name));
+      check('No duplicate cage names', dupNames.length === 0, list(dupNames));
+      const blanks = [], dupSubs = [];
+      for (const c of cs) {
+        if (!Array.isArray(c.suburbs)) continue;
+        for (const s of c.suburbs) if (blank(s)) blanks.push(c.name);
+        for (const s of dups(c.suburbs.filter(x => !blank(x)))) dupSubs.push(`${s} (${c.name})`);
+      }
+      check('No blank suburbs in any cage', blanks.length === 0, list(blanks));
+      check('No duplicate suburbs within a cage', dupSubs.length === 0, list(dupSubs));
+      const where = new Map();
+      for (const c of cs) for (const s of c.suburbs || []) if (!blank(s)) {
+        const k = normalise(s);
+        if (!where.has(k)) where.set(k, new Set());
+        where.get(k).add(c.name);
+      }
+      const cross = [...where.entries()].filter(([, v]) => v.size > 1).map(([k, v]) => `${k} [${[...v].join(' + ')}]`);
+      out.push(`INFO  ${cross.length} suburb(s) listed on more than one cage (allowed): ${list(cross)}`);
+    }
+    check('sheetVersion is a positive integer', Number.isInteger(D.cages.sheetVersion) && D.cages.sheetVersion > 0, String(D.cages.sheetVersion));
+  }
+
+  if (D['adelaide-suburbs']) {
+    const sub = D['adelaide-suburbs'].suburbs;
+    check('adelaide-suburbs.json has a suburbs array', Array.isArray(sub) && sub.length > 0);
+    if (Array.isArray(sub)) {
+      const names = sub.map(p => p && p.name);
+      const bl = names.map((n, i) => [n, i]).filter(([n]) => blank(n)).map(([, i]) => `entry #${i}`);
+      check('adelaide-suburbs: no blank names', bl.length === 0, list(bl));
+      const dp = dups(names.filter(n => !blank(n)));
+      check('adelaide-suburbs: no duplicate names', dp.length === 0, list(dp));
+      const badPc = sub.filter(p => !/^\d{4}$/.test(String(p && p.postcode))).map(p => `${p && p.name}: ${p && p.postcode}`);
+      check('adelaide-suburbs: every postcode is 4 digits', badPc.length === 0, list(badPc));
+    }
+  }
+
+  if (D.postcodes) {
+    const pc = D.postcodes.postcodes;
+    check('postcodes.json has a postcodes object', !!pc && typeof pc === 'object' && !Array.isArray(pc));
+    if (pc && typeof pc === 'object') {
+      const bad = [];
+      for (const [k, v] of Object.entries(pc)) {
+        const arr = Array.isArray(v) ? v : [v];
+        if (arr.length === 0 || !arr.every(x => /^\d{4}$/.test(String(x)))) bad.push(`${k}: ${JSON.stringify(v)}`);
+      }
+      check('postcodes.json: every postcode is 4 digits', bad.length === 0, list(bad));
+    }
+  }
+
+  if (D.estimated && D.cages) {
+    const ec = D.estimated.cages;
+    check('estimated.json has a cages array', Array.isArray(ec));
+    if (Array.isArray(ec) && Array.isArray(D.cages.cages)) {
+      const have = new Set(D.cages.cages.map(c => normalise(c.name)));
+      const missing = ec.filter(n => !have.has(normalise(n)));
+      check('Every cage in estimated.json exists in cages.json', missing.length === 0, list(missing));
+    }
+  }
+
+  if (D.unsure && D.cages) {
+    const u = D.unsure;
+    check('unsure.json version is a positive integer', Number.isInteger(u.version) && u.version > 0, String(u.version));
+    check('unsure.json has a cages object', !!u.cages && typeof u.cages === 'object');
+    if (u.cages && Array.isArray(D.cages.cages)) {
+      const noCage = [], notOn = [];
+      for (const [cn, names] of Object.entries(u.cages)) {
+        const c = D.cages.cages.find(x => normalise(x.name) === normalise(cn));
+        if (!c) { noCage.push(cn); continue; }
+        const have = new Set(c.suburbs.map(normalise));
+        for (const n of names) if (!have.has(normalise(n))) notOn.push(`${n} (${cn})`);
+      }
+      check('Every cage named in unsure.json exists in cages.json', noCage.length === 0, list(noCage));
+      check('Every suburb in unsure.json is on the cage it claims', notOn.length === 0, list(notOn));
+    }
+  }
+
 } catch (e) {
   out.push('ERROR ' + e.stack);
 }
