@@ -63,6 +63,7 @@ export function addCage(data, name, color) {
   name = name.trim();
   if (!name) throw new Error('Cage name is empty');
   if (findCage(data, name)) throw new Error(`A cage called "${name}" already exists`);
+  sheetNameClash(data, name, null);
   const cage = { name, color, suburbs: [] };
   data.cages.push(cage);
   data.cages.sort((a, b) => a.name.localeCompare(b.name));
@@ -90,9 +91,19 @@ export function renameCage(data, cage, newName) {
   if (!newName) throw new Error('Cage name is empty');
   const clash = findCage(data, newName);
   if (clash && clash !== cage) throw new Error(`A cage called "${clash.name}" already exists`);
+  sheetNameClash(data, newName, cage);
   movePostcodes(data, cage.name, newName);
+  // The first name is kept so its sheet suburbs still count as on the sheets.
+  if (!cage.sheetName && normalise(cage.name) !== normalise(newName)) cage.sheetName = cage.name;
   cage.name = newName;
   data.cages.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+// A renamed cage still owns its sheet name (for the on-the-sheets check), so no
+// other cage may take it, or that sheet's suburbs would count in both.
+function sheetNameClash(data, name, self) {
+  const other = data.cages.find(c => c !== self && typeof c.sheetName === 'string' && normalise(c.sheetName) === normalise(name));
+  if (other) throw new Error(`"${name}" is the sheet name of ${other.name}. Pick another name`);
 }
 
 export function setCageColor(cage, color) {
@@ -101,13 +112,15 @@ export function setCageColor(cage, color) {
 
 export function removeSuburbFromCage(data, cage, suburb) {
   cage.suburbs = cage.suburbs.filter(s => s !== suburb);
-  if (data.postcodes) delete data.postcodes[postcodeKey(suburb, cage.name)];
+  for (const map of [data.postcodes, data.approvals]) if (map) delete map[postcodeKey(suburb, cage.name)];
 }
 
 export function deleteCage(data, cage) {
   data.cages = data.cages.filter(c => c !== cage);
   const tail = '|' + normalise(cage.name);
-  for (const k of Object.keys(data.postcodes || {})) if (k.endsWith(tail)) delete data.postcodes[k];
+  for (const map of [data.postcodes, data.approvals]) {
+    for (const k of Object.keys(map || {})) if (k.endsWith(tail)) delete map[k];
+  }
 }
 
 // Swap the contents of `data` in place so anything holding a reference still sees the new data.
@@ -126,6 +139,38 @@ export function replaceData(data, source) {
       if (typeof v === 'string' && (v === '' || POSTCODE.test(v)) && k.includes('|')) data.postcodes[k] = v;
     }
   }
+  data.approvals = {};
+  if (source.approvals && typeof source.approvals === 'object') {
+    for (const [k, v] of Object.entries(source.approvals)) {
+      if (k.includes('|') && typeof v?.by === 'string' && v.by.trim() && typeof v.at === 'string') {
+        data.approvals[k] = { by: v.by.trim().slice(0, APPROVER_MAX), at: v.at.slice(0, 10) };
+      }
+    }
+  }
+}
+
+// Who said a suburb that isn't on the sheets goes in a cage, so a wrong one can
+// be traced back. Keyed like postcodes ("suburb|cage"): { by, at: 'YYYY-MM-DD' }.
+export const APPROVER_MAX = 60;
+export function checkApprover(by) {
+  by = String(by || '').trim();
+  if (by.length > APPROVER_MAX) throw new Error(`Approved by is too long (max ${APPROVER_MAX} letters)`);
+  return by;
+}
+// Empty `by` removes the approval. Re-saving the same name keeps the first date.
+export function setApproval(data, suburb, cageName, by) {
+  by = checkApprover(by);
+  const key = postcodeKey(suburb, cageName);
+  data.approvals ||= {};
+  if (!by) {
+    delete data.approvals[key];
+    return;
+  }
+  const prev = data.approvals[key];
+  data.approvals[key] = { by, at: prev?.by === by ? prev.at : new Date().toLocaleDateString('en-CA') };
+}
+export function approvalOf(data, suburb, cageName) {
+  return data.approvals?.[postcodeKey(suburb, cageName)];
 }
 
 // Postcodes typed in by hand. Saved and exported with the rest of the device's
@@ -182,6 +227,7 @@ export function applyUnsure(data, unsure, shipped = {}) {
         delete data.postcodes[postcodeKey(onCage, cage.name)];
         data.postcodes[postcodeKey(onCage, LOCAL_DEST)] ??= own;
       }
+      if (data.approvals) delete data.approvals[postcodeKey(onCage, cage.name)];
       if (!data.local.some(p => normalise(p.name) === key)) {
         const codes = shipped[key] || [];
         data.local.push({ name: onCage, postcode: codes.length === 1 ? codes[0] : '' });
@@ -193,13 +239,16 @@ export function applyUnsure(data, unsure, shipped = {}) {
   return true;
 }
 
+// Postcodes and approvals follow a renamed cage.
 function movePostcodes(data, oldCage, newCage) {
   const from = '|' + normalise(oldCage), to = '|' + normalise(newCage);
   if (from === to) return;
-  for (const [k, v] of Object.entries(data.postcodes || {})) {
-    if (!k.endsWith(from)) continue;
-    delete data.postcodes[k];
-    data.postcodes[k.slice(0, -from.length) + to] = v;
+  for (const map of [data.postcodes, data.approvals]) {
+    for (const [k, v] of Object.entries(map || {})) {
+      if (!k.endsWith(from)) continue;
+      delete map[k];
+      map[k.slice(0, -from.length) + to] = v;
+    }
   }
 }
 

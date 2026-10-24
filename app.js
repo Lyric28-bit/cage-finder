@@ -1,5 +1,5 @@
 import { buildIndex, search, normalise, similarPlaces } from './js/match.js';
-import { loadData, saveData, addCage, addSuburbToCage, applyUnsure, applyRenames, CAGE_RENAMES, findCage, sheetUpdateAvailable, LOCAL_COLOR, POSTCODE, setPostcode, postcodeKey, LOCAL_DEST } from './js/store.js';
+import { loadData, saveData, addCage, addSuburbToCage, applyUnsure, applyRenames, CAGE_RENAMES, findCage, sheetUpdateAvailable, LOCAL_COLOR, POSTCODE, setPostcode, postcodeKey, LOCAL_DEST, checkApprover, setApproval, approvalOf } from './js/store.js';
 import { openManage } from './js/manage.js';
 import { initPhotos, photoUrl, renamePhoto } from './js/photos.js';
 
@@ -20,7 +20,8 @@ export const app = {
   // default cages, and not-sure Cartons suburbs moved to Local. Each runs once.
   migrate() {
     const renamed = applyRenames(this.data);
-    return applyUnsure(this.data, ref.unsure, ref.postcodes) || renamed;
+    const unsure = applyUnsure(this.data, ref.unsure, ref.postcodes);
+    return linkSheetNames() || unsure || renamed;
   },
   showView,
   showResult,
@@ -31,6 +32,8 @@ export const app = {
   isEstimated,
   estTag,
   postcodeRange,
+  onSheet,
+  approvalText,
 };
 
 // ---------- helpers ----------
@@ -118,10 +121,66 @@ const MATCH_LIMIT = 30;
 const ref = { postcodes: {}, estimated: new Set(), unsure: null };
 async function loadReference() {
   const get = url => fetch(url).then(r => (r.ok ? r.json() : null)).catch(() => null);
-  const [pc, est, unsure] = await Promise.all([get('data/postcodes.json'), get('data/estimated.json'), get('data/unsure.json')]);
+  const [pc, est, unsure, sheet] = await Promise.all([get('data/postcodes.json'), get('data/estimated.json'),
+    get('data/unsure.json'), get('data/cages.json')]);
   ref.postcodes = pc?.postcodes || {};
   ref.estimated = new Set((est?.cages || []).map(normalise));
   ref.unsure = unsure;
+  // What the printed sheets say: cage -> suburbs. Suburbs taken off as not sure
+  // (unsure.json) don't count, so moving one back still needs an approval.
+  ref.sheet = sheet?.cages ? new Map(sheet.cages.map(c => [normalise(c.name), new Set(c.suburbs.map(normalise))])) : null;
+  ref.sheetTitle = new Map((sheet?.cages || []).map(c => [normalise(c.name), c.name]));
+  for (const [cage, names] of Object.entries(unsure?.cages || {})) {
+    for (const n of names) ref.sheet?.get(normalise(cage))?.delete(normalise(n));
+  }
+}
+
+// Cages renamed before v19 have no sheetName, so all their sheet suburbs would
+// look added by hand. Link each to the unclaimed sheet cage it shares most
+// suburbs with, if that's over half of them. Runs every start; only fills gaps.
+function linkSheetNames() {
+  if (!ref.sheet) return false;
+  let changed = false;
+  const taken = new Set(app.data.cages.flatMap(c => [normalise(c.name), normalise(c.sheetName || '')]));
+  for (const cage of app.data.cages) {
+    if (cage.sheetName || ref.sheet.has(normalise(cage.name)) || !cage.suburbs.length) continue;
+    const subs = cage.suburbs.map(normalise);
+    let best = null, bestN = 0;
+    for (const [name, set] of ref.sheet) {
+      if (taken.has(name)) continue;
+      const n = subs.filter(s => set.has(s)).length;
+      if (n > bestN) { best = name; bestN = n; }
+    }
+    if (best && bestN * 2 > subs.length) {
+      cage.sheetName = ref.sheetTitle.get(best);
+      taken.add(best);
+      changed = true;
+    }
+  }
+  return changed;
+}
+
+// Is this suburb in this cage on the sheets? A cage renamed on the device still
+// matches its first name. If the sheet list didn't load, don't flag anything.
+function onSheet(suburb, cageName) {
+  if (!ref.sheet) return true;
+  const cage = findCage(app.data, cageName);
+  const names = [cageName, typeof cage?.sheetName === 'string' ? cage.sheetName : ''];
+  return names.some(n => ref.sheet.get(normalise(n))?.has(normalise(suburb)));
+}
+
+function shortDate(iso) {
+  const d = new Date(iso + 'T00:00');
+  return isNaN(d) ? iso : d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// "Not on the sheets · approved by Dave, 24 Oct 2026", or the warning when no one
+// is recorded. '' for sheet suburbs with no approval.
+function approvalText(suburb, cageName) {
+  const a = approvalOf(app.data, suburb, cageName);
+  const off = !onSheet(suburb, cageName);
+  if (a) return `${off ? 'Not on the sheets · approved' : 'Approved'} by ${a.by}, ${shortDate(a.at)}`;
+  return off ? 'Not on the sheets · no approval noted' : '';
 }
 
 // Postcode(s) for one destination of a place. A typed-in postcode wins ('' means
@@ -281,6 +340,10 @@ function showResult(place, { typed = '' } = {}) {
     if (d.type === 'cage' && isEstimated(d.cage)) {
       band.append(el('div', { className: 'note-line est', textContent: 'Estimated from the region map, check the map' }));
     }
+    const approval = d.type === 'cage' ? approvalText(place.name, d.cage) : '';
+    if (approval) {
+      band.append(el('div', { className: 'note-line approval' + (approvalOf(app.data, place.name, d.cage) ? '' : ' missing'), textContent: approval }));
+    }
     const photo = d.type === 'cage' && photoUrl(d.cage);
     if (photo) {
       const thumb = el('button', { className: 'result-photo', type: 'button' }, el('img', { src: photo, alt: '' }));
@@ -367,6 +430,7 @@ function openAddDialog(suburb = '', { move = false } = {}) {
   // Otherwise start blank: another cage's postcode may be a different place.
   const codes = move ? postcodeOf(suburb, LOCAL_DEST) : [];
   $('add-postcode').value = codes.length === 1 ? codes[0] : '';
+  $('add-approver').value = '';
 
   const select = $('add-cage');
   select.replaceChildren(
@@ -391,12 +455,14 @@ function onAddSubmit(event) {
   const postcode = $('add-postcode').value.trim();
   try {
     if (postcode && !POSTCODE.test(postcode)) throw new Error('Postcode must be 4 digits');
-    if (cageName === NEW_CAGE) {
-      cageName = $('add-new-name').value.trim();
-      addCage(app.data, cageName, $('add-new-color').value);
-    }
+    const isNew = cageName === NEW_CAGE;
+    if (isNew) cageName = $('add-new-name').value.trim();
+    const approver = checkApprover($('add-approver').value);
+    if (!approver && (isNew || !onSheet(suburb, cageName))) throw new Error('Type who approved it (not on the sheets)');
+    if (isNew) addCage(app.data, cageName, $('add-new-color').value);
     addSuburbToCage(app.data, suburb, cageName);
     if (postcode) setPostcode(app.data, suburb, cageName, postcode);
+    if (approver) setApproval(app.data, suburb, cageName, approver);
   } catch (err) {
     $('add-error').textContent = err.message;
     $('add-error').hidden = false;

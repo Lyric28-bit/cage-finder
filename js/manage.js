@@ -4,6 +4,7 @@
 import {
   loadDefaults, isImportable, addCage, addSuburbToCage, renameCage, setCageColor,
   removeSuburbFromCage, deleteCage, replaceData, POSTCODE, setPostcode, LOCAL_DEST,
+  checkApprover, setApproval, approvalOf,
 } from './store.js';
 import { photoUrl, setPhoto, removePhoto, renamePhoto } from './photos.js';
 
@@ -161,6 +162,35 @@ export function openManage(app) {
     return input;
   }
 
+  // Suburb name, plus who approved it when it isn't on the sheets. Editing: a box
+  // to change the name, which can't be cleared while the suburb is off the sheets.
+  function suburbCell(sub, cage) {
+    const cell = el('span', { className: 'grow' }, sub);
+    const text = app.approvalText(sub, cage.name);
+    if (!editing) {
+      if (text) cell.append(el('span', { className: 'm-approval' + (approvalOf(app.data, sub, cage.name) ? '' : ' missing'), textContent: text }));
+      return cell;
+    }
+    if (!text) return cell;
+    const now = () => approvalOf(app.data, sub, cage.name)?.by || '';
+    const input = el('input', { type: 'text', value: now(), placeholder: 'Approved by (needed)', autocomplete: 'off', maxLength: 60, className: 'm-appr' });
+    input.setAttribute('aria-label', `Who approved ${sub}`);
+    input.addEventListener('change', () => {
+      try {
+        const by = checkApprover(input.value);
+        if (!by && !app.onSheet(sub, cage.name)) throw new Error('Approved by is needed for suburbs not on the sheets');
+        setApproval(app.data, sub, cage.name, by);
+      } catch (err) {
+        alert(`${sub}: ${err.message}. Kept ${now() || 'no name'}.`);
+        input.value = now();
+        return;
+      }
+      app.save();
+    });
+    cell.append(input);
+    return cell;
+  }
+
   // Locked view of an open cage: its suburbs and the photo, nothing to change.
   function readOnlyPanel(cage) {
     const panel = el('div', { className: 'm-panel' });
@@ -170,7 +200,7 @@ export function openManage(app) {
       panel.append(el('div', { className: 'm-line' }, view));
     }
     const list = el('ul', { className: 'm-subs' });
-    for (const sub of cage.suburbs) list.append(el('li', {}, el('span', { className: 'grow', textContent: sub }), postcodeCell(sub, cage.name)));
+    for (const sub of cage.suburbs) list.append(el('li', {}, suburbCell(sub, cage), postcodeCell(sub, cage.name)));
     panel.append(list);
     return panel;
   }
@@ -227,13 +257,19 @@ export function openManage(app) {
     subInput.setAttribute('aria-label', 'Add suburb');
     const pcInput = el('input', { type: 'text', placeholder: 'Postcode', autocomplete: 'off', inputMode: 'numeric', maxLength: 4, className: 'm-pc' });
     pcInput.setAttribute('aria-label', 'Postcode (optional)');
+    // Starts empty every time, so an add never picks up the last person's name.
+    const byInput = el('input', { type: 'text', placeholder: 'Approved by (who said so)', autocomplete: 'off', maxLength: 60 });
+    byInput.setAttribute('aria-label', 'Approved by');
     const addSub = () => {
       if (!subInput.value.trim()) return;
       const pc = pcInput.value.trim();
       try {
         if (pc && !POSTCODE.test(pc)) throw new Error('Postcode must be 4 digits');
+        const by = checkApprover(byInput.value);
+        if (!by && !app.onSheet(subInput.value, cage.name)) throw new Error('Type who approved it (not on the sheets)');
         addSuburbToCage(app.data, subInput.value, cage.name);
         if (pc) setPostcode(app.data, subInput.value, cage.name, pc);
+        if (by) setApproval(app.data, subInput.value, cage.name, by);
       } catch (err) {
         subErr.textContent = err.message;
         subErr.hidden = false;
@@ -245,12 +281,12 @@ export function openManage(app) {
     };
     const addBtn = el('button', { className: 'btn-primary', type: 'button', textContent: 'Add' });
     addBtn.addEventListener('click', addSub);
-    for (const input of [subInput, pcInput]) {
+    for (const input of [subInput, pcInput, byInput]) {
       input.addEventListener('keydown', e => {
         if (e.key === 'Enter') { e.preventDefault(); addSub(); }
       });
     }
-    panel.append(el('div', { className: 'm-line' }, subInput, pcInput, addBtn), subErr);
+    panel.append(el('div', { className: 'm-line' }, subInput, pcInput, addBtn), el('div', { className: 'm-line' }, byInput), subErr);
 
     const list = el('ul', { className: 'm-subs' });
     for (const sub of cage.suburbs) {
@@ -262,7 +298,7 @@ export function openManage(app) {
         app.save();
         renderAll();
       });
-      list.append(el('li', {}, el('span', { className: 'grow', textContent: sub }), postcodeCell(sub, cage.name), x));
+      list.append(el('li', {}, suburbCell(sub, cage), postcodeCell(sub, cage.name), x));
     }
     panel.append(list);
 

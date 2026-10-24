@@ -9,7 +9,7 @@
 <pre id="out">running...</pre>
 <script type="module">
 import { buildIndex, search, similarPlaces, normalise } from './js/match.js';
-import { isValid, isImportable, findCage, addCage, addSuburbToCage, renameCage, removeSuburbFromCage, deleteCage, replaceData, setPostcode, postcodeKey, applyRenames, applyUnsure, CAGE_RENAMES, LOCAL_DEST } from './js/store.js';
+import { isValid, isImportable, findCage, addCage, addSuburbToCage, renameCage, removeSuburbFromCage, deleteCage, replaceData, setPostcode, postcodeKey, applyRenames, applyUnsure, CAGE_RENAMES, LOCAL_DEST, setApproval, approvalOf, checkApprover } from './js/store.js';
 
 const out = [];
 let passed = 0, total = 0;
@@ -197,6 +197,50 @@ try {
         postcodes: { 'a|b': '5000', 'c|local': '', 'd|e': 'abcd', 'nobar': '5000', 'f|g': 12 } });
       check('replaceData: copies markers, keeps only well-formed postcodes',
         d.unsureApplied === 3 && d.renamesApplied === 2 && J(Object.keys(d.postcodes).sort()) === J(['a|b', 'c|local']));
+    }
+
+    // Approvals (v19)
+    {
+      const d = fresh(), cage = d.cages[0], other = d.cages[1], s = 'Zzz Testville';
+      addSuburbToCage(d, s, cage.name);
+      setApproval(d, s, cage.name, '  Dave ');
+      const a = approvalOf(d, s, cage.name);
+      check('setApproval: stores trimmed name and a YYYY-MM-DD date', a?.by === 'Dave' && /^\d{4}-\d{2}-\d{2}$/.test(a.at), J(a));
+      d.approvals[postcodeKey(s, cage.name)].at = '2020-01-01';
+      setApproval(d, s, cage.name, 'Dave');
+      check('setApproval: same name again keeps the first date', approvalOf(d, s, cage.name).at === '2020-01-01');
+      setApproval(d, s, cage.name, 'Sam');
+      check('setApproval: a new name gets a new date', approvalOf(d, s, cage.name).by === 'Sam' && approvalOf(d, s, cage.name).at !== '2020-01-01');
+      check('checkApprover: too long throws', throws(() => checkApprover('x'.repeat(61))) && checkApprover(' Jo ') === 'Jo');
+      setApproval(d, 'Other Place', other.name, 'Kim');
+      const oldName = cage.name;
+      renameCage(d, cage, 'Renamed For Approval');
+      check('renameCage: approval moves with the cage', approvalOf(d, s, 'Renamed For Approval')?.by === 'Sam' && !approvalOf(d, s, oldName));
+      check('renameCage: first name kept as sheetName', cage.sheetName === oldName);
+      renameCage(d, cage, 'Renamed Again');
+      check('renameCage: sheetName not overwritten by a second rename', cage.sheetName === oldName);
+      removeSuburbFromCage(d, cage, s);
+      check('removeSuburbFromCage: its approval is removed', !approvalOf(d, s, cage.name));
+      setApproval(d, 'Foo', cage.name, 'Lee');
+      deleteCage(d, cage);
+      check('deleteCage: its approvals removed, others kept', !approvalOf(d, 'Foo', 'Renamed Again') && approvalOf(d, 'Other Place', other.name)?.by === 'Kim');
+      setApproval(d, 'Other Place', other.name, '');
+      check('setApproval: empty name removes it', !approvalOf(d, 'Other Place', other.name));
+      const r = fresh();
+      replaceData(r, { cages: [], local: [], approvals: { 'a|b': { by: 'Dave', at: '2026-10-24' }, 'c|d': { by: '  ', at: '2026-10-24' },
+        'e|f': { by: 'X' }, 'nobar': { by: 'Y', at: '2026-10-24' }, 'g|h': 'Dave' } });
+      check('replaceData: keeps only well-formed approvals', J(r.approvals) === J({ 'a|b': { by: 'Dave', at: '2026-10-24' } }), J(r.approvals));
+      const n = fresh(), first = n.cages[0], firstName = first.name;
+      renameCage(n, first, 'Moved Away');
+      check('addCage: refuses a renamed cage\'s sheet name', throws(() => addCage(n, firstName, '#112233')));
+      check('renameCage: refuses another cage\'s sheet name', throws(() => renameCage(n, findCage(n, n.cages.find(c => c !== first).name), firstName)));
+      renameCage(n, first, firstName);
+      check('renameCage: a cage can take its own sheet name back', first.name === firstName);
+      const [uCage, uNames] = Object.entries(unsure.cages)[0];
+      const u = fresh();
+      setApproval(u, uNames[0], uCage, 'Dave');
+      applyUnsure(u, unsure, shipped);
+      check('applyUnsure: drops the approval of a suburb it moves to Local', !approvalOf(u, uNames[0], uCage));
     }
 
     // applyRenames
