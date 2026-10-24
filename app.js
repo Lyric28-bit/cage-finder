@@ -217,7 +217,11 @@ function showResult(place) {
     ...similar.map(p => {
       const chips = el('span', { className: 'chips' });
       for (const d of p.destinations) chips.append(chipFor(d));
-      return el('div', { className: 'similar-row' }, el('span', { textContent: p.name }), chips);
+      // Tap to open the look-alike's own result.
+      const row = el('button', { className: 'similar-row', type: 'button' },
+        el('span', { className: 'grow', textContent: p.name }), chips, el('span', { className: 'chev', textContent: '›' }));
+      row.addEventListener('click', () => showResult(p));
+      return row;
     }));
 
   const hasLocal = place.destinations.some(d => d.type === 'local');

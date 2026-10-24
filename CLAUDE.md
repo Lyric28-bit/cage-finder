@@ -6,14 +6,14 @@ Read README.md for the original features, data and install steps (it predates th
 Installable offline PWA for a warehouse sorter: type a suburb from a parcel sticker, get the cage. Plain HTML/CSS/JS, no build step, no backend. Called "Cage Notes" (renamed from Cage Finder 2026-10-24); the repo and URL keep the old name.
 
 - Live: https://lyric28-bit.github.io/cage-finder/ (GitHub Pages, public repo Lyric28-bit/cage-finder, branch main).
-- Status (2026-10-24): sw.js VERSION v10 (note-style search, Lyric prefers it; photo thumbnails kept while searching).
+- Status (2026-10-24): sw.js VERSION v11 (tappable look-alike names on the result).
 
 ## Layout (2026-10-24 redesign)
 - One main screen styled like a plain notes app: "Notes" header, `⋯` menu (Export / Import / Reset to sheet data), "Search notes" box.
 - With the search empty, the cage list shows as a note under it (js/manage.js renders into `#manage-root`): one line per cage (colour dot, name, count, suburb preview) plus a collapsible Local line. Tap a line to edit inline (rename, colour, add/remove suburbs, delete, photo buttons). There is no separate Manage page any more.
 - Search (v9): typing swaps the full note for a filtered copy of it in `#note-results` (renderSuggestions in app.js): same "Cages" heading and cage lines, each matching suburb listed under its cage (or Local) with the typed letters in a `<mark>`, best-matching cage first, top 30 matches. A suburb on two cages appears under both. Enter opens the best match (first `.suggestion`). Typo and Pt/Mt matches show without a highlight. Cages with a sheet photo keep their thumbnail on the cage line while searching (v10); there a tap opens the viewer instead of the picker. Previous suggestion-list look: tag `v4-view-photo`.
 - Result: the cage name in a thick block of its colour on the page, "on 2 lists" bar for multi-cage suburbs, "Done" returns to search.
-- Look-alike warning (`similarPlaces` in js/match.js): the result lists other names 1 letter off, or 2 off when both are 6+ letters, that go to a different cage (e.g. Enfield LOCAL vs Penfield North Cartons). Worked out live from the device's data. Same-destination pairs and short names are skipped on purpose.
+- Look-alike warning (`similarPlaces` in js/match.js): the result lists other names 1 letter off, or 2 off when both are 6+ letters, that go to a different cage (e.g. Enfield LOCAL vs Penfield North Cartons). Worked out live from the device's data. Same-destination pairs and short names are skipped on purpose. Each look-alike in the box is a button that opens its own result (v11); Done still goes back to search.
 - Sheet photos (js/photos.js): each cage can have one photo of its printed sheet, stored **on the device only** in IndexedDB (`cage-notes-photos`, key = normalised cage name), shrunk to 2000px JPEG. 📷 button on each cage line; panel has View / Change / Remove photo; results show a thumbnail that opens a full-screen tap-to-zoom viewer. Rename moves the photo, delete removes it. Export/Import does not carry photos; each phone adds its own. Startup never waits on IndexedDB (some iOS versions stall).
 
 ## Data
