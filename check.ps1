@@ -55,7 +55,7 @@ if ($LASTEXITCODE -ne 0) {
     $changed = @(git diff --name-only origin/main)
     $changed += @(git ls-files --others --exclude-standard)
     $changed = @($changed | Where-Object { $_ } | Select-Object -Unique)
-    $ignore = @('CLAUDE.md', 'README.md', 'check.ps1', 'tests.html', '.gitignore')
+    $ignore = @('CLAUDE.md', 'HISTORY.md', 'README.md', 'check.ps1', 'tests.html', '.gitignore')
     $appChanges = @($changed | Where-Object { $ignore -notcontains $_ })
     if ($appChanges.Count -eq 0) {
         Pass 'VERSION check: no app changes vs origin/main'

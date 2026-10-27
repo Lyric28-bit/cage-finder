@@ -1,0 +1,30 @@
+# Cage Notes: history
+
+Background for Claude: why things are the way they are. CLAUDE.md describes the app as it is now; read this only when you need the story behind a feature or a data decision.
+
+## Versions (sw.js VERSION)
+- 2026-10-16: first deploy as "Cage Finder" (GitHub Pages).
+- 2026-10-17: 6 local Cartons cages added from the region-map photos (commits caf9d26, 56f7e3c). Edges were estimates.
+- 2026-10-24 redesign: renamed "Cage Notes", plain notes-app look; the Manage page merged into the main screen. Pre-redesign = tag `v1-original` (187a628).
+- v7: per-cage sheet photos on the device (IndexedDB). v8: View photo button in the cage panel.
+- v9: search filters the note in place instead of a suggestion list (old look: tag `v4-view-photo`). v10: photo thumbnails stay on cage lines while searching.
+- v11: look-alike names on the result are tappable.
+- v12 fail-safes (opus-reviewed): typo banner, edit lock, estimated flags, postcodes.
+- v13: 9 doubtful postcodes removed after the cross-check below.
+- v14: "Click to zoom" text under the result-screen sheet photo.
+- v15: 194 not-sure Cartons suburbs moved to Local via data/unsure.json (see the Cartons check below).
+- v16: Kadina cage renamed "Kadina / Yorke Peninsula" (CAGE_RENAMES); EST tag after Cartons postcodes; postcode range + EST on Cartons lines in the note (then worked out live from the cage's suburbs).
+- v17: small "est." tag beside Cartons names dropped from the full note (search page keeps it); Cartons results show "Cage postcodes <range> EST".
+- v18: "Check picture" before Done on results whose cage has a sheet photo.
+- v19 (opus-reviewed, 4 fixes): required "Approved by" name for suburbs added or moved off the sheets. Lyric chose required over optional.
+- v20: search list shows each cage's own postcode (`postcodesAt`, not the merged `postcodesFor`). Before, Happy Valley under Mildura showed Local's 5159 and turned up for a 5159 search. Audit: Happy Valley is the only name meaning two places; Pinkerton Plains (Barossa + Kadina) is one place, 5400 on both is right.
+- v21 (2026-10-27, opus-reviewed, no bugs, 3 nits fixed: no `.at()`, EST aria-label, result EST test): Cartons ranges from the region maps (estimated.json `areas`) plus the tap-EST postcode box. Before, the live range only counted the 77 sure suburbs left after v15, so ranges were too narrow and Regency showed none.
+- Phone-confirmed by Lyric: v7, v10, v11, v12-v19.
+
+## Data checks
+- 2026-10-22 sheets: all 19 printed sheets (407 names) verified. Two blind re-reads matched the data, and Lyric hand-checked every name against the photos and the app. Sticker-covered names are fine; the Adelaide Hills "fold" is two taped pages with no hidden row. Don't re-verify.
+- Postcodes left out of data/postcodes.json on purpose (2026-10-24): every Mildura-sheet name (interstate; Happy Valley and Yelta only match unrelated SA places), Hamilton on Mount Gambier (Hamilton VIC), and the 55 names with no SA match (VIC/NSW towns on Mildura, Bordertown, Mount Gambier, Naracoorte; Carapateena Mine, Cliff Transport, Sundrop on Port Augusta; Lindsay Point on Renmark; region/cage names).
+- 2026-10-24 postcode cross-check (v13): all 801 assigned postcodes (643 cage + 158 LOCAL) compared with Matthew Proctor's australian_postcodes CSV and schappim/australian-postcodes (SA Delivery Areas only); 790 agreed with both. 9 removed from data/postcodes.json until Lyric checks at work. Australia Post's site says: Petwood 5252 (we had 5254, wrong); Kuitpo 5201, Kulpara 5552, Monteith 5253 (ours were right, a source was ambiguous); Mount Gambier 5290/5291, Murray Bridge 5253/5254, Port Augusta 5700/5701, Port Lincoln 5606/5607, Tailem Bend 5259/5260 (genuinely two codes). Kept O'Sullivan Beach 5166 and O'Halloran Hill 5158: schappim just lacks them, Proctor and Australia Post agree.
+- 2026-10-24 Cartons check (v15): the 6 region-map photos were matched to real coordinates using the suburb labels on each map (fit error: City 0.15 km, Port 0.3, North East 0.45, North 0.85, South 1.0; Regency has only 3 labels so it couldn't be measured), the drawn loops traced, and every Cartons suburb tested against them with SA Gov suburb boundaries (data.sa.gov.au Suburbs_geojson, CC BY), Proctor and schappim points. Sure = 90%+ of the suburb inside its loop, centre clear of the line by max(0.5 km, 2x fit error), not inside another loop, on the photo, sources agree; Riverlea Park is written on the North sign. Result: 77 sure, 194 to unsure.json (44 mostly outside their loop, e.g. Edwardstown/Brompton/Hindmarsh are west of City's South Rd line, Marden is in North East's loop; 56 straddle the line; 94 too close to call). All 9 Regency suburbs, including Wingfield, are unsure, so Regency shows 0 suburbs. Inside a loop but not added (Lyric's rule): Southwark (City), Salisbury South (North), Clarendon and Onkaparinga Heights (South).
+- 2026-10-27 map postcodes (v21): all 869 SA suburbs (postcodes 5000-5299, SA Gov boundaries) scored against the same traced loops; a suburb counts at 50%+ inside its loop and on the photo, "edge" under 90%. Left out on purpose: South's top edge 5157-5159 (the loop runs off the photo) and Beverley 5009 (on Port's line); Riverlea Park added (on the North sign). The traced loops checked against all 6 photos again and still match.
+- Scripts, traced loops (maps.json) and downloaded datasets were in session scratchpads (C:\Users\Lyric\AppData\Local\Temp\claude\...), never the repo, and may be gone.
