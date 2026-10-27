@@ -486,6 +486,9 @@ export function openManage(app) {
     document.getElementById('btn-menu').setAttribute('aria-expanded', 'false');
     app.openMap();
   });
+  // Same map, one tap from the main screen (next to Edit).
+  const headMapBtn = el('button', { className: 'btn-ghost note-edit', type: 'button', textContent: 'Map' });
+  headMapBtn.addEventListener('click', () => app.openMap());
   const exportBtn = el('button', { className: 'menu-item', type: 'button', textContent: 'Export' });
   exportBtn.addEventListener('click', exportData);
   const importBtn = el('button', { className: 'menu-item', type: 'button', textContent: 'Import' });
@@ -495,7 +498,8 @@ export function openManage(app) {
 
   menu.replaceChildren(mapBtn, exportBtn, importBtn, resetBtn, fileInput, dataMsg);
   root.replaceChildren(
-    el('div', { className: 'note-head' }, el('h2', { className: 'note-title', textContent: 'Cages' }), editBtn),
+    el('div', { className: 'note-head' }, el('h2', { className: 'note-title', textContent: 'Cages' }),
+      el('span', { className: 'note-actions' }, headMapBtn, editBtn)),
     metaLine,
     cagesBox,
     addCageBox,
