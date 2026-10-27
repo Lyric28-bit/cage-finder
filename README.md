@@ -11,6 +11,7 @@ Live at <https://lyric28-bit.github.io/cage-finder/> (the repo keeps its old nam
 - **Look-alike warning**: if another name is a letter or two off and goes to a different cage (e.g. Enfield LOCAL vs Penfield North Cartons), the result lists it so you check the label.
 - **The note**: with the search empty, the cage list shows under it like a note. Tap a cage to add, rename, recolour or delete cages and suburbs; Local is the last line. **Export / Import / Reset** are in the **⋯** menu.
 - **Sheet photos**: tap 📷 on a cage line to add a photo of its printed sheet. Results from that cage show a thumbnail; tap it (or **View photo** in the cage) for full screen and tap to zoom. Photos stay on that device only: they are never uploaded and Export doesn't include them, so each phone adds its own.
+- **Map**: **⋯ → Map** opens a street map of Adelaide you can pinch-zoom, with a suburb search that drops a pin. On Cartons results and in an opened Cartons cage, **Show on map** opens it zoomed to that suburb or cage, with the cage's region line drawn dashed. **Cage lines** shows all six Cartons lines in their colours, with roughly how close each is to the drawn map (±km). The lines are traced from the photos, so check the photo for anything near an edge. Street tiles need internet the first time; areas you've viewed are kept for offline.
 
 ## Where the data comes from
 
@@ -18,6 +19,9 @@ Live at <https://lyric28-bit.github.io/cage-finder/> (the repo keeps its old nam
 |---|---|
 | `data/cages.json` | Transcribed from the sheet photos (19 cages, 407 suburbs), plus 6 Adelaide local-region cages (City, North, North East, Port, Regency and South Cartons: 271 suburbs) estimated from the warehouse region maps. The photos stay on this PC only. |
 | `data/adelaide-suburbs.json` | SA Government suburb list ([data.sa.gov.au](https://data.sa.gov.au/data/dataset/suburb-boundaries), CC-BY 4.0), postcodes 5000-5199, minus suburbs already on a cage sheet. Happy Valley 5159 is kept on purpose: the Mildura sheet's Happy Valley is a different place. |
+| `data/suburb-points.json` | A centre point for each of 465 Adelaide metro suburbs (postcodes 5000-5199), worked out from the SA Government suburb boundaries ([data.sa.gov.au](https://data.sa.gov.au/data/dataset/suburb-boundaries), CC BY 3.0 AU). Used by the map search. |
+| `data/region-loops.json` | The Cartons region-map lines, traced from the photos and placed using the suburb names printed on each. Approximate. |
+| Map tiles | © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors, shown with [Leaflet](https://leafletjs.com) (kept in `lib/leaflet/`). |
 
 These files are only the starting point. Each device saves its own copy (in the browser's storage) the first time it runs, and every edit you make goes there. **Edits on your phone don't appear on the tablet by themselves**: use Export on one, then Import on the other.
 
@@ -70,7 +74,7 @@ No installs needed:
 powershell -ExecutionPolicy Bypass -File serve.ps1
 ```
 
-Then open <http://localhost:8080>. Matcher tests: <http://localhost:8080/tests.html> (should end with `RESULT: 23/23 passed`).
+Then open <http://localhost:8080>. Matcher tests: <http://localhost:8080/tests.html> (every line PASS and a final `RESULT: n/n passed`).
 
 The app caches itself, so after editing files: F12 → **Application → Storage → Clear site data**, then reload.
 
@@ -83,6 +87,7 @@ The app caches itself, so after editing files: F12 → **Application → Storage
 | `js/store.js` | Saved data on the device |
 | `js/manage.js` | The cage note and the ⋯ menu |
 | `js/photos.js` | Sheet photos, stored on the device only (IndexedDB) |
+| `js/map.js`, `lib/leaflet/` | Street map, suburb search, Cartons region lines |
 | `sw.js`, `manifest.webmanifest`, `icons/` | Offline + install |
 | `tests.html`, `serve.ps1` | Tests and local server |
 | `sheets/` | Original sheet photos (local only, gitignored, never push) |
