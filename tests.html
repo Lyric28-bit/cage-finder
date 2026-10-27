@@ -316,7 +316,7 @@ try {
   // ---------- Data files ----------
   out.push('\n-- Data files --');
   const D = {};
-  for (const f of ['cages', 'adelaide-suburbs', 'estimated', 'postcodes', 'unsure']) {
+  for (const f of ['cages', 'adelaide-suburbs', 'estimated', 'postcodes', 'unsure', 'suburb-points', 'region-loops']) {
     try {
       const resp = await fetch(`data/${f}.json`, { cache: 'reload' });
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
@@ -433,6 +433,48 @@ try {
       }
       check('Every cage named in unsure.json exists in cages.json', noCage.length === 0, list(noCage));
       check('Every suburb in unsure.json is on the cage it claims', notOn.length === 0, list(notOn));
+    }
+  }
+
+  // Map points (v22): one lat/lng per suburb, used by the street map.
+  if (D['suburb-points']) {
+    const rows = D['suburb-points'].suburbs;
+    check('suburb-points.json has 400+ rows', Array.isArray(rows) && rows.length >= 400, String(rows?.length));
+    if (Array.isArray(rows)) {
+      const badRow = rows.filter(r => !(Array.isArray(r) && r.length === 4 && typeof r[0] === 'string' && r[0].trim()
+        && typeof r[1] === 'string' && /^\d{4}$/.test(r[1]) && typeof r[2] === 'number' && typeof r[3] === 'number')).map(r => JSON.stringify(r));
+      check('suburb-points.json: each row is [name, 4-digit postcode, lat, lng]', badRow.length === 0, list(badRow));
+      const outside = rows.filter(r => !(r[2] >= -35.7 && r[2] <= -34.4 && r[3] >= 138.3 && r[3] <= 139.2)).map(r => r[0]);
+      check('suburb-points.json: every point is inside greater Adelaide', outside.length === 0, list(outside));
+      const dupPts = dups(rows.map(r => r[0]));
+      check('suburb-points.json: no duplicate names', dupPts.length === 0, list(dupPts));
+      const have = new Set(rows.map(r => normalise(r[0])));
+      if (D.cages && Array.isArray(D.cages.cages)) {
+        const miss = [];
+        for (const c of D.cages.cages) if (/cartons/i.test(c.name)) for (const s of c.suburbs || []) if (!have.has(normalise(s))) miss.push(`${s} (${c.name})`);
+        check('Every Cartons suburb has a map point', miss.length === 0, list(miss, 30));
+      }
+      if (D['adelaide-suburbs']) {
+        const subs = D['adelaide-suburbs'].suburbs || [];
+        const miss = subs.map(s => s?.name ?? s).filter(n => !have.has(normalise(n)));
+        check('Every adelaide-suburbs.json name has a map point', miss.length === 0, list(miss, 30));
+      }
+    }
+  }
+
+  // Region-map loops (v22): the traced Cartons lines drawn on the street map.
+  if (D['region-loops']) {
+    const loops = D['region-loops'].loops;
+    check('region-loops.json has a loops array', Array.isArray(loops));
+    if (Array.isArray(loops)) {
+      const names = new Set((D.cages?.cages || []).map(c => normalise(c.name)));
+      const noCage = loops.filter(l => !names.has(normalise(l.cage))).map(l => l.cage);
+      check('Every region loop is for a cage in cages.json', noCage.length === 0, list(noCage));
+      const bad = loops.filter(l => !(Array.isArray(l.points) && l.points.length >= 3 && l.points.every(p => p[0] >= -35.7 && p[0] <= -34.4 && p[1] >= 138.3 && p[1] <= 139.2))).map(l => l.cage);
+      check('Every region loop has 3+ points inside greater Adelaide', bad.length === 0, list(bad));
+      const est = new Set((D.estimated?.cages || []).map(normalise));
+      const noLoop = [...est].filter(k => !loops.some(l => normalise(l.cage) === k));
+      check('Every estimated cage has a region loop', noLoop.length === 0, list(noLoop));
     }
   }
 

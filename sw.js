@@ -1,6 +1,6 @@
 // Offline support: everything is cached on first load.
 // Bump VERSION whenever you deploy changes, so phones pick up the new files.
-const VERSION = 'v21';
+const VERSION = 'v22';
 const CACHE = 'cage-finder-' + VERSION;
 
 const FILES = [
@@ -13,11 +13,16 @@ const FILES = [
   'js/store.js',
   'js/manage.js',
   'js/photos.js',
+  'js/map.js',
   'data/cages.json',
   'data/adelaide-suburbs.json',
   'data/estimated.json',
   'data/postcodes.json',
   'data/unsure.json',
+  'data/suburb-points.json',
+  'data/region-loops.json',
+  'lib/leaflet/leaflet.js',
+  'lib/leaflet/leaflet.css',
   'icons/icon-192.png',
   'icons/icon-512.png',
 ];
@@ -42,9 +47,44 @@ self.addEventListener('activate', event => {
       .then(() => self.clients.claim()));
 });
 
+// Map tiles: cached only as they're viewed (OSM's tile policy forbids bulk
+// prefetching). Separate cache, not 'cage-finder-*', so activate keeps it.
+const TILES = 'cage-tiles';
+const TILE_MAX = 3000;
+
+// The tile is returned straight away; caching happens after, and a full
+// storage never blanks a tile that loaded fine. Oldest-cached go first.
+async function tileResponse(event) {
+  const cache = await caches.open(TILES);
+  const hit = await cache.match(event.request);
+  if (hit) return hit;
+  let response;
+  try {
+    response = await fetch(event.request);
+  } catch {
+    return Response.error();
+  }
+  if (response.ok) event.waitUntil(storeTile(cache, event.request, response.clone()));
+  return response;
+}
+
+async function storeTile(cache, request, response) {
+  try {
+    await cache.put(request, response);
+    const keys = await cache.keys();
+    if (keys.length > TILE_MAX) await Promise.all(keys.slice(0, 500).map(k => cache.delete(k)));
+  } catch {
+    // Storage full or blocked: the tile still showed, it just isn't kept.
+  }
+}
+
 // Cache first; fall back to the network, and to the app shell for page loads.
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
+  if (new URL(event.request.url).hostname === 'tile.openstreetmap.org') {
+    event.respondWith(tileResponse(event));
+    return;
+  }
   event.respondWith(
     caches.match(event.request, { ignoreSearch: true }).then(hit => hit || fetch(event.request).catch(() => {
       if (event.request.mode === 'navigate') return caches.match('index.html');

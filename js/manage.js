@@ -200,6 +200,11 @@ export function openManage(app) {
       view.addEventListener('click', () => app.openPhoto(photoUrl(cage.name)));
       line.append(view);
     }
+    if (app.mapArea(cage.name)) {
+      const show = el('button', { className: 'btn-secondary m-show-map', type: 'button', textContent: 'Show on map' });
+      show.addEventListener('click', () => app.openMap({ cage: cage.name }));
+      line.append(show);
+    }
     // Estimated cages: the postcodes inside the region map (same box as tapping EST).
     const range = app.mapArea(cage.name) ? app.postcodeRange(cage.name) : '';
     if (range) {
@@ -475,6 +480,12 @@ export function openManage(app) {
     await importFile(fileInput.files[0]);
     fileInput.value = '';
   });
+  const mapBtn = el('button', { className: 'menu-item', type: 'button', textContent: 'Map' });
+  mapBtn.addEventListener('click', () => {
+    menu.hidden = true;
+    document.getElementById('btn-menu').setAttribute('aria-expanded', 'false');
+    app.openMap();
+  });
   const exportBtn = el('button', { className: 'menu-item', type: 'button', textContent: 'Export' });
   exportBtn.addEventListener('click', exportData);
   const importBtn = el('button', { className: 'menu-item', type: 'button', textContent: 'Import' });
@@ -482,7 +493,7 @@ export function openManage(app) {
   const resetBtn = el('button', { className: 'menu-item danger', type: 'button', textContent: 'Reset to sheet data' });
   resetBtn.addEventListener('click', resetData);
 
-  menu.replaceChildren(exportBtn, importBtn, resetBtn, fileInput, dataMsg);
+  menu.replaceChildren(mapBtn, exportBtn, importBtn, resetBtn, fileInput, dataMsg);
   root.replaceChildren(
     el('div', { className: 'note-head' }, el('h2', { className: 'note-title', textContent: 'Cages' }), editBtn),
     metaLine,

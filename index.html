@@ -7,6 +7,7 @@
 <meta name="theme-color" content="#1C1C1E" media="(prefers-color-scheme: dark)">
 <title>Cage Notes</title>
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="lib/leaflet/leaflet.css">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -105,6 +106,20 @@
   <p id="est-codes" class="est-codes"></p>
   <p class="est-key">* on the map's line · grey = not on this cage in the app yet</p>
   <ul id="est-list" class="est-list"></ul>
+</dialog>
+
+<!-- Street map with suburb search -->
+<dialog id="dlg-map" class="map-dialog" aria-labelledby="map-title">
+  <div class="map-head">
+    <h2 id="map-title">Map</h2>
+    <input id="map-search" type="search" placeholder="Search suburb" autocomplete="off"
+           autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="go"
+           aria-label="Search suburb">
+    <button id="btn-map-close" class="btn-ghost" type="button" autofocus>Close</button>
+  </div>
+  <ul id="map-results" class="map-results"></ul>
+  <p id="map-error" class="map-error" hidden></p>
+  <div id="map-canvas"></div>
 </dialog>
 
 <script type="module" src="app.js"></script>

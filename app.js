@@ -1,6 +1,7 @@
 import { buildIndex, search, normalise, similarPlaces } from './js/match.js';
 import { loadData, saveData, addCage, addSuburbToCage, applyUnsure, applyRenames, CAGE_RENAMES, findCage, sheetUpdateAvailable, LOCAL_COLOR, POSTCODE, setPostcode, postcodeKey, LOCAL_DEST, checkApprover, setApproval, approvalOf } from './js/store.js';
 import { openManage } from './js/manage.js';
+import { openMap } from './js/map.js';
 import { initPhotos, photoUrl, renamePhoto } from './js/photos.js';
 
 const $ = id => document.getElementById(id);
@@ -34,6 +35,7 @@ export const app = {
   postcodeRange,
   openEstimate,
   mapArea,
+  openMap: opts => openMap(app, opts),
   onSheet,
   approvalText,
 };
@@ -414,6 +416,11 @@ function showResult(place, { typed = '' } = {}) {
     }
     const range = d.type === 'cage' && isEstimated(d.cage) ? postcodeRange(d.cage) : '';
     if (range) band.append(el('div', { className: 'cage-range', textContent: `Cage postcodes ${range}` }, estTag(d.cage, { tap: true })));
+    if (d.type === 'cage' && mapArea(d.cage)) {
+      const showMap = el('button', { className: 'btn-secondary result-map', type: 'button', textContent: 'Show on map' });
+      showMap.addEventListener('click', () => openMap(app, { suburb: place.name, cage: d.cage }));
+      band.append(showMap);
+    }
     bands.append(band);
   }
 
@@ -589,6 +596,7 @@ async function start() {
   window.addEventListener('popstate', e => {
     $('dlg-photo').close(); // some browsers' Back pops history without closing the dialog
     $('dlg-est').close();
+    $('dlg-map').close();
     showView(e.state?.view || 'search', { fromHistory: true, focus: false });
   });
 
