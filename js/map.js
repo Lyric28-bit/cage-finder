@@ -24,6 +24,7 @@ let lines = null; // layer group for the cage lines
 let linesBox = null; // the "Cage lines" toggle + key (whole-city view only)
 let allLines = false; // toggle state, kept while the app is open
 let focusCage = null; // the cage the map was opened from, if any
+let keyOpen = true; // the colour key under "Hide cage lines" is unfolded
 
 function loadLeaflet() {
   if (window.L) return Promise.resolve();
@@ -103,8 +104,17 @@ function renderLinesBox(app) {
   const btn = el('button', { type: 'button', className: 'map-lines-btn', textContent: allLines ? 'Hide cage lines' : 'Cage lines' });
   btn.setAttribute('aria-pressed', String(allLines));
   btn.addEventListener('click', () => { allLines = !allLines; showAllLines(app); });
-  const key = el('ul', { className: 'map-lines-key' });
+  const head = el('div', { className: 'map-lines-head' }, btn);
+  // Folds the key away so it doesn't cover the map; the lines stay.
   if (allLines) {
+    const fold = el('button', { type: 'button', className: 'map-lines-fold', textContent: keyOpen ? '–' : 'Key' });
+    fold.setAttribute('aria-expanded', String(keyOpen));
+    fold.setAttribute('aria-label', keyOpen ? 'Hide the key' : 'Show the key');
+    fold.addEventListener('click', () => { keyOpen = !keyOpen; renderLinesBox(app); });
+    head.append(fold);
+  }
+  const key = el('ul', { className: 'map-lines-key' });
+  if (allLines && keyOpen) {
     for (const cage of app.data.cages) {
       const loop = loops.get(normalise(cage.name));
       if (!loop) continue;
@@ -115,7 +125,7 @@ function renderLinesBox(app) {
     }
     if (key.childElementCount) key.append(el('li', { className: 'map-lines-note', textContent: '± = how far a line may be off the drawn map' }));
   }
-  linesBox.replaceChildren(btn, ...(key.childElementCount ? [key] : []));
+  linesBox.replaceChildren(head, ...(key.childElementCount ? [key] : []));
   linesBox.hidden = !loops.size;
 }
 
