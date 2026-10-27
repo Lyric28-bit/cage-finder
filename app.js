@@ -244,7 +244,7 @@ function compactCodes(codes) {
   const nums = [...new Set(codes.map(Number))].sort((a, b) => a - b);
   const runs = [];
   for (const n of nums) {
-    const last = runs.at(-1);
+    const last = runs[runs.length - 1];
     if (last && n === last[1] + 1) last[1] = n;
     else runs.push([n, n]);
   }
@@ -257,7 +257,7 @@ function estTag(cageName, { tap = false } = {}) {
   if (!cageName || cageName === LOCAL_DEST || !isEstimated(cageName)) return '';
   if (!tap || !mapArea(cageName)) return el('span', { className: 'est-tag', textContent: 'EST' });
   const btn = el('button', { className: 'est-tag est-btn', type: 'button', textContent: 'EST' });
-  btn.setAttribute('aria-label', `Postcodes on the ${cageName} map`);
+  btn.setAttribute('aria-label', `EST: postcodes on the ${cageName} map`);
   btn.addEventListener('click', () => openEstimate(cageName));
   return btn;
 }
