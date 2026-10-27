@@ -6,8 +6,8 @@ Working rules in short: back up (git tag + Desktop folder copy) before a big cha
 
 ## Status
 - Live: https://lyric28-bit.github.io/cage-finder/ (GitHub Pages, public repo Lyric28-bit/cage-finder, branch main).
-- 2026-10-27: live at sw.js VERSION v23 (v22 street map; v23 Regency line refit). v20-v23 not yet phone-tested; Lyric confirmed v12-v19 on his phone. Rollback for v22: tag `v9-before-map`.
-- v24 on branch `road-lines` (not pushed yet): City/North/North East/Port lines refitted to the road network, 75 suburbs back on their Cartons cages (unsure.json version 2 with a `restore` step). Backup tag `v10-before-road-lines`.
+- 2026-10-27: live at sw.js VERSION v24 (v22 street map; v23 Regency line refit; v24 road-matched lines, 75 suburbs restored, Pinkerton Plains Kadina only). v20-v24 not yet phone-tested; Lyric confirmed v12-v19 on his phone. Rollback for v22: tag `v9-before-map`.
+- v24 (pushed 2026-10-27): City/North/North East/Port lines refitted to the road network, 75 suburbs back on their Cartons cages (unsure.json version 2 with a `restore` step). Backup tag `v10-before-road-lines`.
 
 ## What it is
 Installable offline PWA for a warehouse sorter: type a suburb from a parcel sticker, get the cage. Plain HTML/CSS/JS, no build step, no backend. Called "Cage Notes"; the repo and URL keep the old name "cage-finder".
