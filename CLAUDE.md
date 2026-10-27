@@ -6,7 +6,7 @@ Working rules in short: back up (git tag + Desktop folder copy) before a big cha
 
 ## Status
 - Live: https://lyric28-bit.github.io/cage-finder/ (GitHub Pages, public repo Lyric28-bit/cage-finder, branch main).
-- 2026-10-27: live at sw.js VERSION v24 (v25 Map button next to Edit committed on branch `map-button`, not pushed) (v22 street map; v23 Regency line refit; v24 road-matched lines, 75 suburbs restored, Pinkerton Plains Kadina only). v20-v24 not yet phone-tested; Lyric confirmed v12-v19 on his phone. Rollback for v22: tag `v9-before-map`.
+- 2026-10-27: live at sw.js VERSION v25 (v25 Map button next to Edit; v22 street map; v23 Regency line refit; v24 road-matched lines, 75 suburbs restored, Pinkerton Plains Kadina only). v20-v24 not yet phone-tested; Lyric confirmed v12-v19 on his phone. Rollback for v22: tag `v9-before-map`.
 - v24 (pushed 2026-10-27): City/North/North East/Port lines refitted to the road network, 75 suburbs back on their Cartons cages (unsure.json version 2 with a `restore` step). Backup tag `v10-before-road-lines`.
 
 ## What it is
