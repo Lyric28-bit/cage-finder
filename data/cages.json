@@ -1,5 +1,5 @@
 {
-  "sheetVersion": 2,
+  "sheetVersion": 3,
   "cages": [
     {
       "name": "Adelaide Hills",
@@ -9,7 +9,7 @@
     {
       "name": "Barossa",
       "color": "#8E1B2E",
-      "suburbs": ["Angaston", "Bibaringa", "Cockatoo Valley", "Concordia", "Dutton", "Ebenezer", "Eudunda", "Evanston", "Freeling", "Gawler", "Kalbeeba", "Kapunda", "Keyneton", "Kingsford", "Lewiston", "Light Pass", "Lyndoch", "Marananga", "Moculta", "Nuriootpa", "Penrice", "Pinkerton Plains", "Port Gawler", "Rosedale", "Roseworthy", "Rowland Flat", "Sandy Creek", "Seppeltsfield", "Shea-Oak Log", "Stockwell", "Stone Well", "Tanunda", "Truro", "Two Wells", "Willaston", "Williamstown"]
+      "suburbs": ["Angaston", "Bibaringa", "Cockatoo Valley", "Concordia", "Dutton", "Ebenezer", "Eudunda", "Evanston", "Freeling", "Gawler", "Kalbeeba", "Kapunda", "Keyneton", "Kingsford", "Lewiston", "Light Pass", "Lyndoch", "Marananga", "Moculta", "Nuriootpa", "Penrice", "Port Gawler", "Rosedale", "Roseworthy", "Rowland Flat", "Sandy Creek", "Seppeltsfield", "Shea-Oak Log", "Stockwell", "Stone Well", "Tanunda", "Truro", "Two Wells", "Willaston", "Williamstown"]
     },
     {
       "name": "Berri",

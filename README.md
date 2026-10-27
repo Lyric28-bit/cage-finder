@@ -5,7 +5,7 @@ Type the suburb from a parcel sticker and get the cage it goes to. Works offline
 Live at <https://lyric28-bit.github.io/cage-finder/> (the repo keeps its old name, Cage Finder).
 
 - **Search**: type a few letters. Case, spaces and punctuation don't matter, small typos are forgiven, and `Pt`/`Mt` match `Port`/`Mount`. Cage towns (Berri, Renmark...) find their own cage.
-- **Result**: the cage name, huge, in a block of the cage colour. If a suburb is on more than one list (e.g. Pinkerton Plains: Barossa and Kadina) you get a yellow warning and every cage.
+- **Result**: the cage name, huge, in a block of the cage colour. If a suburb is on more than one list (e.g. Happy Valley: Mildura and Local) you get a yellow warning and every cage.
 - **LOCAL**: Adelaide metro suburbs that aren't on any cage sheet show as **LOCAL** with their postcode. Tap **Move to cage** once you know the real cage (you can create a new cage right there).
 - **Not found**: tap **Add to a cage**.
 - **Look-alike warning**: if another name is a letter or two off and goes to a different cage (e.g. Enfield LOCAL vs Penfield North Cartons), the result lists it so you check the label.
