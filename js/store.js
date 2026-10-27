@@ -208,12 +208,21 @@ export function applyRenames(data) {
 }
 
 // Cartons suburbs we're not 100% sure of (data/unsure.json) move to the Local
-// list, so they show "cage not set yet" until Lyric moves them in-app. Runs once
-// per list version, and only touches suburbs still on the cage the list names,
+// list, so they show "cage not set yet" until Lyric moves them in-app. Data that
+// never had the list (sheet defaults, old exports) gets the current list once.
+// Data that had an older version only gets the newer `restore` steps: suburbs
+// since found to be sure go back from Local to their cage. Nothing is re-hidden,
 // so moves made on the device stay. `shipped` is the shipped postcode list.
 export function applyUnsure(data, unsure, shipped = {}) {
   if (!unsure?.cages || !(unsure.version > (data.unsureApplied || 0))) return false;
   data.local ||= [];
+  if (data.unsureApplied > 0) {
+    for (const [version, cages] of Object.entries(unsure.restore || {})) {
+      if (Number(version) > data.unsureApplied) restoreSure(data, cages, shipped);
+    }
+    data.unsureApplied = unsure.version;
+    return true;
+  }
   for (const [cageName, names] of Object.entries(unsure.cages)) {
     const cage = findCage(data, cageName);
     if (!cage) continue;
@@ -237,6 +246,30 @@ export function applyUnsure(data, unsure, shipped = {}) {
   data.local.sort((a, b) => a.name.localeCompare(b.name));
   data.unsureApplied = unsure.version;
   return true;
+}
+
+// Moves each listed suburb that is still in Local (and on no cage) back to its
+// cage (found by its sheet name if renamed on the device). Skipped if the cage is
+// gone or the suburb was moved elsewhere. A postcode typed for it in Local goes
+// with it to the cage.
+function restoreSure(data, cages, shipped) {
+  for (const [cageName, names] of Object.entries(cages || {})) {
+    const cage = findCage(data, cageName)
+      || data.cages.find(c => c.sheetName && normalise(c.sheetName) === normalise(cageName));
+    if (!cage) continue;
+    for (const name of names) {
+      const key = normalise(name);
+      const entry = data.local.find(p => normalise(p.name) === key);
+      if (!entry || data.cages.some(c => c.suburbs.some(s => normalise(s) === key))) continue;
+      const fromKey = postcodeKey(entry.name, LOCAL_DEST), toKey = postcodeKey(entry.name, cage.name);
+      const codes = shipped[key] || [];
+      let typed = data.postcodes?.[fromKey];
+      if (typed === undefined && entry.postcode && !(codes.length === 1 && codes[0] === entry.postcode)) typed = entry.postcode;
+      if (data.postcodes) delete data.postcodes[fromKey];
+      if (typed !== undefined) (data.postcodes ||= {})[toKey] ??= typed;
+      addSuburbToCage(data, entry.name, cage.name);
+    }
+  }
 }
 
 // Postcodes and approvals follow a renamed cage.

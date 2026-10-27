@@ -304,6 +304,49 @@ try {
       const d4 = fresh(); d4.unsureApplied = unsure.version;
       const d4copy = J(d4);
       check('applyUnsure: already-applied version does nothing', applyUnsure(d4, unsure, shipped) === false && J(d4) === d4copy);
+
+      // A device that applied an older list: only the restore steps run, nothing is re-hidden.
+      const restoreSteps = Object.entries(unsure.restore || {}).filter(([v]) => Number(v) > 1);
+      if (unsure.version > 1 && restoreSteps.length) {
+        const merged = {};
+        for (const [c, ns] of Object.entries(unsure.cages)) merged[c] = [...ns];
+        for (const [, cs] of restoreSteps) for (const [c, ns] of Object.entries(cs)) merged[c] = [...(merged[c] || []), ...ns];
+        const old = fresh();
+        applyUnsure(old, { version: 1, cages: merged }, shipped);
+        const [keptCage, keptNames] = Object.entries(unsure.cages).find(([, ns]) => ns.length);
+        const movedBack = cages.cages.find(c => c.name === keptCage).suburbs.find(x => normalise(x) === normalise(keptNames[0]));
+        addSuburbToCage(old, movedBack, keptCage); // Lyric moved one back by hand
+        const [rCage, rNames] = Object.entries(restoreSteps[0][1])[0];
+        setPostcode(old, rNames[0], LOCAL_DEST, '5999');
+        const r = applyUnsure(old, unsure, shipped);
+        const notBack = [], stillLocal = [];
+        for (const [, cs] of restoreSteps) for (const [c, ns] of Object.entries(cs)) for (const n of ns) {
+          if (!hasSub(findCage(old, c), n)) notBack.push(`${n} (${c})`);
+          if (hasLocal(old, n)) stillLocal.push(n);
+        }
+        check('applyUnsure restore: every restored suburb back on its cage', r === true && notBack.length === 0, notBack.slice(0, 10).join(', '));
+        check('applyUnsure restore: restored suburbs gone from Local', stillLocal.length === 0, stillLocal.slice(0, 10).join(', '));
+        check('applyUnsure restore: a suburb moved back by hand is not re-hidden', hasSub(findCage(old, keptCage), movedBack) && !hasLocal(old, movedBack));
+        check('applyUnsure restore: typed Local postcode moves to the cage',
+          old.postcodes[postcodeKey(rNames[0], rCage)] === '5999' && !(postcodeKey(rNames[0], LOCAL_DEST) in old.postcodes));
+        check('applyUnsure restore: unsureApplied set, second call is a no-op', old.unsureApplied === unsure.version && applyUnsure(old, unsure, shipped) === false);
+        const direct = fresh(); applyUnsure(direct, unsure, shipped);
+        addSuburbToCage(direct, movedBack, keptCage);
+        const shape = x => J(x.cages.map(c => [c.name, [...c.suburbs].sort()])); // membership; adding re-sorts a cage
+        check('applyUnsure restore: cages end up the same as a fresh install', shape(old) === shape(direct));
+        const elsewhere = fresh();
+        applyUnsure(elsewhere, { version: 1, cages: merged }, shipped);
+        const other = elsewhere.cages.find(c => normalise(c.name) !== normalise(rCage));
+        addSuburbToCage(elsewhere, rNames[0], other.name); // moved to a different cage by hand
+        applyUnsure(elsewhere, unsure, shipped);
+        check('applyUnsure restore: skips a suburb moved to another cage', !hasSub(findCage(elsewhere, rCage), rNames[0]) && hasSub(other, rNames[0]));
+        const renamed = fresh();
+        applyUnsure(renamed, { version: 1, cages: merged }, shipped);
+        renameCage(renamed, findCage(renamed, rCage), 'Renamed On Phone');
+        applyUnsure(renamed, unsure, shipped);
+        check('applyUnsure restore: finds a cage renamed on the device by its sheet name',
+          rNames.every(n => hasSub(findCage(renamed, 'Renamed On Phone'), n) && !hasLocal(renamed, n)));
+      }
     }
   } finally {
     // Restore the browser's own saved data if anything touched it.
@@ -433,6 +476,17 @@ try {
       }
       check('Every cage named in unsure.json exists in cages.json', noCage.length === 0, list(noCage));
       check('Every suburb in unsure.json is on the cage it claims', notOn.length === 0, list(notOn));
+      const badStep = [], badName = [];
+      for (const [v, cs] of Object.entries(u.restore || {})) {
+        if (!(Number.isInteger(Number(v)) && Number(v) > 1 && Number(v) <= u.version)) badStep.push(v);
+        for (const [cn, names] of Object.entries(cs)) {
+          const c = D.cages.cages.find(x => normalise(x.name) === normalise(cn));
+          const listed = new Set((u.cages[cn] || []).map(normalise));
+          for (const n of names) if (!c || !c.suburbs.some(s => normalise(s) === normalise(n)) || listed.has(normalise(n))) badName.push(`${n} (${cn})`);
+        }
+      }
+      check('unsure.json restore steps are versions 2..version', badStep.length === 0, list(badStep));
+      check('Every restored suburb is on its cage in cages.json and off the unsure list', badName.length === 0, list(badName));
     }
   }
 

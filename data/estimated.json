@@ -8,7 +8,7 @@
                   "Regency Cartons",
                   "South Cartons"
               ],
-    "areasNote":  "Postcodes inside each region map\u0027s drawn loop (2026-10-27): SA Gov suburb boundaries (data.sa.gov.au, CC BY) tested against the traced loops; a suburb counts when 50%+ of it is inside the loop and on the photo; edge = under 90% inside. Left out: South\u0027s top edge (5157-5159, off the photo) and Beverley (on Port\u0027s line). Riverlea Park is written on the North sign. Shown when EST is tapped; the range on the line is lowest-highest of these. Regency re-scored 2026-10-27 (v23) against its refitted loop: Cavan 5094 added, Woodville Gardens no longer an edge.",
+    "areasNote":  "Postcodes inside each region map\u0027s drawn loop (2026-10-27): SA Gov suburb boundaries (data.sa.gov.au, CC BY) tested against the traced loops; a suburb counts when 50%+ of it is inside the loop and on the photo; edge = under 90% inside. Left out: South\u0027s top edge (5157-5159, off the photo) and Beverley (on Port\u0027s line). Riverlea Park is written on the North sign. Shown when EST is tapped; the range on the line is lowest-highest of these. Regency re-scored 2026-10-27 (v23) against its refitted loop: Cavan 5094 added, Woodville Gardens no longer an edge. City, North, North East and Port re-scored 2026-10-27 (v24) against their road-matched loops, same rule.",
     "areas":  {
                   "City Cartons":  [
                                        {
@@ -28,15 +28,6 @@
                                                        ]
                                        },
                                        {
-                                           "code":  "5007",
-                                           "suburbs":  [
-                                                           {
-                                                               "name":  "Bowden",
-                                                               "edge":  true
-                                                           }
-                                                       ]
-                                       },
-                                       {
                                            "code":  "5031",
                                            "suburbs":  [
                                                            {
@@ -48,10 +39,7 @@
                                                                "edge":  true
                                                            },
                                                            {
-                                                               "name":  "Southwark"
-                                                           },
-                                                           {
-                                                               "name":  "Thebarton",
+                                                               "name":  "Southwark",
                                                                "edge":  true
                                                            }
                                                        ]
@@ -60,7 +48,8 @@
                                            "code":  "5034",
                                            "suburbs":  [
                                                            {
-                                                               "name":  "Clarence Park"
+                                                               "name":  "Clarence Park",
+                                                               "edge":  true
                                                            },
                                                            {
                                                                "name":  "Goodwood"
@@ -79,14 +68,6 @@
                                        {
                                            "code":  "5035",
                                            "suburbs":  [
-                                                           {
-                                                               "name":  "Ashford",
-                                                               "edge":  true
-                                                           },
-                                                           {
-                                                               "name":  "Black Forest",
-                                                               "edge":  true
-                                                           },
                                                            {
                                                                "name":  "Forestville"
                                                            },
@@ -337,8 +318,7 @@
                                                                "name":  "Marryatville"
                                                            },
                                                            {
-                                                               "name":  "St Morris",
-                                                               "edge":  true
+                                                               "name":  "St Morris"
                                                            },
                                                            {
                                                                "name":  "Trinity Gardens"
@@ -352,7 +332,8 @@
                                                                "name":  "College Park"
                                                            },
                                                            {
-                                                               "name":  "Evandale"
+                                                               "name":  "Evandale",
+                                                               "edge":  true
                                                            },
                                                            {
                                                                "name":  "Hackney"
@@ -361,10 +342,20 @@
                                                                "name":  "Maylands"
                                                            },
                                                            {
-                                                               "name":  "St Peters"
+                                                               "name":  "St Peters",
+                                                               "edge":  true
                                                            },
                                                            {
                                                                "name":  "Stepney"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5070",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Payneham South",
+                                                               "edge":  true
                                                            }
                                                        ]
                                        },
@@ -378,29 +369,8 @@
                                                        ]
                                        },
                                        {
-                                           "code":  "5081",
-                                           "suburbs":  [
-                                                           {
-                                                               "name":  "Gilberton",
-                                                               "edge":  true
-                                                           },
-                                                           {
-                                                               "name":  "Medindie",
-                                                               "edge":  true
-                                                           }
-                                                       ]
-                                       },
-                                       {
                                            "code":  "5082",
                                            "suburbs":  [
-                                                           {
-                                                               "name":  "Fitzroy",
-                                                               "edge":  true
-                                                           },
-                                                           {
-                                                               "name":  "Ovingham",
-                                                               "edge":  true
-                                                           },
                                                            {
                                                                "name":  "Thorngate"
                                                            }
@@ -481,10 +451,6 @@
                                                                 "edge":  true
                                                             },
                                                             {
-                                                                "name":  "St Kilda",
-                                                                "edge":  true
-                                                            },
-                                                            {
                                                                 "name":  "Waterloo Corner"
                                                             }
                                                         ]
@@ -504,10 +470,6 @@
                                                                 "name":  "Elizabeth"
                                                             },
                                                             {
-                                                                "name":  "Elizabeth East",
-                                                                "edge":  true
-                                                            },
-                                                            {
                                                                 "name":  "Elizabeth Grove"
                                                             },
                                                             {
@@ -515,10 +477,6 @@
                                                             },
                                                             {
                                                                 "name":  "Elizabeth Vale"
-                                                            },
-                                                            {
-                                                                "name":  "Hillbank",
-                                                                "edge":  true
                                                             }
                                                         ]
                                         },
@@ -532,14 +490,11 @@
                                                                 "name":  "Edinburgh North"
                                                             },
                                                             {
-                                                                "name":  "Elizabeth Downs"
+                                                                "name":  "Elizabeth Downs",
+                                                                "edge":  true
                                                             },
                                                             {
                                                                 "name":  "Elizabeth North"
-                                                            },
-                                                            {
-                                                                "name":  "Elizabeth Park",
-                                                                "edge":  true
                                                             }
                                                         ]
                                         },
@@ -551,10 +506,6 @@
                                                             },
                                                             {
                                                                 "name":  "Blakeview"
-                                                            },
-                                                            {
-                                                                "name":  "Craigmore",
-                                                                "edge":  true
                                                             },
                                                             {
                                                                 "name":  "Smithfield"
@@ -623,6 +574,10 @@
                                                                  {
                                                                      "name":  "Payneham",
                                                                      "edge":  true
+                                                                 },
+                                                                 {
+                                                                     "name":  "Royston Park",
+                                                                     "edge":  true
                                                                  }
                                                              ]
                                              },
@@ -633,7 +588,8 @@
                                                                      "name":  "Hectorville"
                                                                  },
                                                                  {
-                                                                     "name":  "Rostrevor"
+                                                                     "name":  "Rostrevor",
+                                                                     "edge":  true
                                                                  }
                                                              ]
                                              },
@@ -663,7 +619,8 @@
                                                  "code":  "5076",
                                                  "suburbs":  [
                                                                  {
-                                                                     "name":  "Athelstone"
+                                                                     "name":  "Athelstone",
+                                                                     "edge":  true
                                                                  }
                                                              ]
                                              },
@@ -725,10 +682,6 @@
                                                                  {
                                                                      "name":  "Banksia Park",
                                                                      "edge":  true
-                                                                 },
-                                                                 {
-                                                                     "name":  "Tea Tree Gully",
-                                                                     "edge":  true
                                                                  }
                                                              ]
                                              },
@@ -761,7 +714,8 @@
                                                  "code":  "5096",
                                                  "suburbs":  [
                                                                  {
-                                                                     "name":  "Para Hills"
+                                                                     "name":  "Para Hills",
+                                                                     "edge":  true
                                                                  }
                                                              ]
                                              },
@@ -783,7 +737,8 @@
                                                  "code":  "5098",
                                                  "suburbs":  [
                                                                  {
-                                                                     "name":  "Ingle Farm"
+                                                                     "name":  "Ingle Farm",
+                                                                     "edge":  true
                                                                  },
                                                                  {
                                                                      "name":  "Walkley Heights",
@@ -910,8 +865,7 @@
                                                                "edge":  true
                                                            },
                                                            {
-                                                               "name":  "Taperoo",
-                                                               "edge":  true
+                                                               "name":  "Taperoo"
                                                            }
                                                        ]
                                        },
@@ -950,8 +904,7 @@
                                            "code":  "5020",
                                            "suburbs":  [
                                                            {
-                                                               "name":  "West Lakes Shore",
-                                                               "edge":  true
+                                                               "name":  "West Lakes Shore"
                                                            }
                                                        ]
                                        },
@@ -969,6 +922,9 @@
                                                            {
                                                                "name":  "Grange",
                                                                "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Tennyson"
                                                            }
                                                        ]
                                        },
@@ -980,8 +936,7 @@
                                                                "edge":  true
                                                            },
                                                            {
-                                                               "name":  "Seaton",
-                                                               "edge":  true
+                                                               "name":  "Seaton"
                                                            }
                                                        ]
                                        }
@@ -1037,7 +992,7 @@
                                                                   "name":  "Kilburn"
                                                               }
                                                           ]
-                                          },
+                                          },
                                           {
                                               "code":  "5094",
                                               "suburbs":  [
