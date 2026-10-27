@@ -32,6 +32,8 @@ export const app = {
   isEstimated,
   estTag,
   postcodeRange,
+  openEstimate,
+  mapArea,
   onSheet,
   approvalText,
 };
@@ -117,14 +119,18 @@ const MATCH_LIMIT = 30;
 
 // Shipped reference data (not part of the editable cage data, so updating it
 // never needs a reset): postcodes we're sure of, cages that are estimates, and
-// Cartons suburbs we're not sure of.
-const ref = { postcodes: {}, estimated: new Set(), unsure: null };
+// Cartons suburbs we're not sure of. `areas`: per estimated cage, the postcodes
+// inside its region map's drawn loop (normalised cage name -> [{ code, suburbs }]).
+const ref = { postcodes: {}, estimated: new Set(), areas: new Map(), unsure: null };
 async function loadReference() {
   const get = url => fetch(url).then(r => (r.ok ? r.json() : null)).catch(() => null);
   const [pc, est, unsure, sheet] = await Promise.all([get('data/postcodes.json'), get('data/estimated.json'),
     get('data/unsure.json'), get('data/cages.json')]);
   ref.postcodes = pc?.postcodes || {};
   ref.estimated = new Set((est?.cages || []).map(normalise));
+  ref.areas = new Map(Object.entries(est?.areas || {})
+    .filter(([, codes]) => Array.isArray(codes) && codes.length)
+    .map(([cage, codes]) => [normalise(cage), codes]));
   ref.unsure = unsure;
   // What the printed sheets say: cage -> suburbs. Suburbs taken off as not sure
   // (unsure.json) don't count, so moving one back still needs an approval.
@@ -210,21 +216,69 @@ function isEstimated(cageName) {
   return ref.estimated.has(normalise(cageName));
 }
 
-// Lowest to highest postcode of a cage's suburbs ("5000–5072"), or ''.
-// Worked out live, so moves and typed-in postcodes show straight away.
+// The region map's postcodes for an estimated cage, or null.
+function mapArea(cageName) {
+  return isEstimated(cageName) ? ref.areas.get(normalise(cageName)) || null : null;
+}
+
+// Lowest to highest postcode of a cage ("5000–5082"), or ''. Estimated cages
+// use the region map's postcodes; otherwise worked out live from the suburbs,
+// so moves and typed-in postcodes show straight away.
 function postcodeRange(cageName) {
-  const cage = findCage(app.data, cageName);
-  if (!cage) return '';
-  const codes = cage.suburbs.flatMap(s => postcodeOf(s, cage.name)).map(Number).filter(Boolean);
+  const area = mapArea(cageName);
+  let codes;
+  if (area) codes = area.map(a => Number(a.code));
+  else {
+    const cage = findCage(app.data, cageName);
+    if (!cage) return '';
+    codes = cage.suburbs.flatMap(s => postcodeOf(s, cage.name)).map(Number);
+  }
+  codes = codes.filter(Boolean);
   if (!codes.length) return '';
   const lo = Math.min(...codes), hi = Math.max(...codes);
   return lo === hi ? String(lo) : `${lo}–${hi}`;
 }
 
+// Postcodes as runs: 5000, 5006–5007, 5061–5069.
+function compactCodes(codes) {
+  const nums = [...new Set(codes.map(Number))].sort((a, b) => a - b);
+  const runs = [];
+  for (const n of nums) {
+    const last = runs.at(-1);
+    if (last && n === last[1] + 1) last[1] = n;
+    else runs.push([n, n]);
+  }
+  return runs.map(([a, b]) => (a === b ? String(a) : `${a}–${b}`)).join(', ');
+}
+
 // "EST" after a postcode on an estimated (Cartons) cage, or nothing.
-function estTag(cageName) {
-  return cageName && cageName !== LOCAL_DEST && isEstimated(cageName)
-    ? el('span', { className: 'est-tag', textContent: 'EST' }) : '';
+// `tap`: a button that opens the map's postcodes (only outside other buttons).
+function estTag(cageName, { tap = false } = {}) {
+  if (!cageName || cageName === LOCAL_DEST || !isEstimated(cageName)) return '';
+  if (!tap || !mapArea(cageName)) return el('span', { className: 'est-tag', textContent: 'EST' });
+  const btn = el('button', { className: 'est-tag est-btn', type: 'button', textContent: 'EST' });
+  btn.setAttribute('aria-label', `Postcodes on the ${cageName} map`);
+  btn.addEventListener('click', () => openEstimate(cageName));
+  return btn;
+}
+
+// Box listing every postcode inside the cage's region map, with its suburbs.
+// Suburbs not on this cage on this device are greyed; ones on the line get *.
+function openEstimate(cageName) {
+  const area = mapArea(cageName);
+  if (!area) return;
+  const cage = findCage(app.data, cageName);
+  const onCage = new Set((cage?.suburbs || []).map(normalise));
+  $('est-title').textContent = cage?.name || cageName;
+  $('est-codes').textContent = compactCodes(area.map(a => a.code));
+  $('est-list').replaceChildren(...area.map(a => el('li', {},
+    el('span', { className: 'est-code', textContent: a.code }),
+    el('span', { className: 'est-subs' }, ...a.suburbs.flatMap((s, i) => [
+      i ? ', ' : '',
+      el('span', { className: onCage.has(normalise(s.name)) ? '' : 'off', textContent: s.name + (s.edge ? '*' : '') }),
+    ])))));
+  $('est-list').scrollTop = 0;
+  $('dlg-est').showModal();
 }
 
 // Name with the typed letters marked, when they appear as typed.
@@ -337,7 +391,7 @@ function showResult(place, { typed = '' } = {}) {
     cage.style.color = textColorFor(bg);
     const band = el('div', { className: 'band' },
       el('div', { className: 'suburb', textContent: place.name }));
-    if (codes.length) band.append(el('div', { className: 'postcode', textContent: `Postcode ${codes.join(' / ')}` }, estTag(d.cage)));
+    if (codes.length) band.append(el('div', { className: 'postcode', textContent: `Postcode ${codes.join(' / ')}` }, estTag(d.cage, { tap: true })));
     band.append(cage);
     if (d.type === 'local') {
       band.append(el('div', { className: 'note-line', textContent: 'Adelaide metro · cage not set yet' }));
@@ -359,7 +413,7 @@ function showResult(place, { typed = '' } = {}) {
       band.append(thumb, hint);
     }
     const range = d.type === 'cage' && isEstimated(d.cage) ? postcodeRange(d.cage) : '';
-    if (range) band.append(el('div', { className: 'cage-range', textContent: `Cage postcodes ${range}` }, estTag(d.cage)));
+    if (range) band.append(el('div', { className: 'cage-range', textContent: `Cage postcodes ${range}` }, estTag(d.cage, { tap: true })));
     bands.append(band);
   }
 
@@ -514,6 +568,7 @@ async function start() {
     $('btn-next').focus();
   };
   $('btn-photo-close').addEventListener('click', () => { $('dlg-photo').close(); photoChecked(); });
+  $('btn-est-close').addEventListener('click', () => $('dlg-est').close());
   $('dlg-photo').addEventListener('close', photoChecked); // Esc, Back
 
   $('search').addEventListener('input', onSearchInput);
@@ -533,6 +588,7 @@ async function start() {
 
   window.addEventListener('popstate', e => {
     $('dlg-photo').close(); // some browsers' Back pops history without closing the dialog
+    $('dlg-est').close();
     showView(e.state?.view || 'search', { fromHistory: true, focus: false });
   });
 

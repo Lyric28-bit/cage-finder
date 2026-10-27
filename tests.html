@@ -397,6 +397,26 @@ try {
       const missing = ec.filter(n => !have.has(normalise(n)));
       check('Every cage in estimated.json exists in cages.json', missing.length === 0, list(missing));
     }
+    // v21: postcodes inside each region map, shown when EST is tapped.
+    const areas = D.estimated.areas;
+    check('estimated.json has an areas object', !!areas && typeof areas === 'object' && !Array.isArray(areas));
+    if (areas && Array.isArray(ec)) {
+      const noArea = ec.filter(n => !Array.isArray(areas[n]) || !areas[n].length);
+      check('Every estimated cage has map postcodes', noArea.length === 0, list(noArea));
+      const notEst = Object.keys(areas).filter(n => !ec.includes(n));
+      check('Every map-postcodes cage is in the estimated list', notEst.length === 0, list(notEst));
+      const bad = [];
+      for (const [cage, codes] of Object.entries(areas)) {
+        if (!Array.isArray(codes)) { bad.push(`${cage}: not a list`); continue; }
+        codes.forEach((a, i) => {
+          if (!/^5\d{3}$/.test(a?.code)) bad.push(`${cage}: bad code ${JSON.stringify(a?.code)}`);
+          else if (i && Number(a.code) <= Number(codes[i - 1].code)) bad.push(`${cage}: ${a.code} out of order or repeated`);
+          if (!Array.isArray(a?.suburbs) || !a.suburbs.length || !a.suburbs.every(s => typeof s?.name === 'string' && s.name.trim()))
+            bad.push(`${cage} ${a?.code}: suburbs missing or unnamed`);
+        });
+      }
+      check('Map postcodes: SA codes in order, each with named suburbs', bad.length === 0, list(bad));
+    }
   }
 
   if (D.unsure && D.cages) {

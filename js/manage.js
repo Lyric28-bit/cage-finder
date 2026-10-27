@@ -194,11 +194,20 @@ export function openManage(app) {
   // Locked view of an open cage: its suburbs and the photo, nothing to change.
   function readOnlyPanel(cage) {
     const panel = el('div', { className: 'm-panel' });
+    const line = el('div', { className: 'm-line wrap' });
     if (photoUrl(cage.name)) {
       const view = el('button', { className: 'btn-secondary', type: 'button', textContent: 'View photo' });
       view.addEventListener('click', () => app.openPhoto(photoUrl(cage.name)));
-      panel.append(el('div', { className: 'm-line' }, view));
+      line.append(view);
     }
+    // Estimated cages: the postcodes inside the region map (same box as tapping EST).
+    const range = app.mapArea(cage.name) ? app.postcodeRange(cage.name) : '';
+    if (range) {
+      const map = el('button', { className: 'btn-secondary m-map-pc', type: 'button', textContent: `Map postcodes ${range}` });
+      map.addEventListener('click', () => app.openEstimate(cage.name));
+      line.append(map);
+    }
+    if (line.childElementCount) panel.append(line);
     const list = el('ul', { className: 'm-subs' });
     for (const sub of cage.suburbs) list.append(el('li', {}, suburbCell(sub, cage), postcodeCell(sub, cage.name)));
     panel.append(list);

@@ -95,6 +95,18 @@
   <button id="btn-photo-close" class="photo-close" type="button" aria-label="Close">✕</button>
 </dialog>
 
+<!-- Postcodes on an estimated cage's region map (tap EST) -->
+<dialog id="dlg-est" class="est-dialog">
+  <div class="est-head">
+    <h2 id="est-title"></h2>
+    <button id="btn-est-close" class="btn-ghost" type="button">Close</button>
+  </div>
+  <p class="est-sub">Postcodes inside the region map. Estimated, check the map.</p>
+  <p id="est-codes" class="est-codes"></p>
+  <p class="est-key">* on the map's line · grey = not on this cage in the app yet</p>
+  <ul id="est-list" class="est-list"></ul>
+</dialog>
+
 <script type="module" src="app.js"></script>
 </body>
 </html>

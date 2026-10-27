@@ -1,4 +1,1226 @@
 {
-  "note": "Cages whose suburbs were estimated from the warehouse region maps and not yet checked. Results show 'Estimated from the region map'. Remove a cage once Lyric has verified it.",
-  "cages": ["City Cartons", "North Cartons", "North East Cartons", "Port Cartons", "Regency Cartons", "South Cartons"]
+    "note":  "Cages whose suburbs were estimated from the warehouse region maps and not yet checked. Results show \u0027Estimated from the region map\u0027. Remove a cage once Lyric has verified it.",
+    "cages":  [
+                  "City Cartons",
+                  "North Cartons",
+                  "North East Cartons",
+                  "Port Cartons",
+                  "Regency Cartons",
+                  "South Cartons"
+              ],
+    "areasNote":  "Postcodes inside each region map\u0027s drawn loop (2026-10-27): SA Gov suburb boundaries (data.sa.gov.au, CC BY) tested against the traced loops; a suburb counts when 50%+ of it is inside the loop and on the photo; edge = under 90% inside. Left out: South\u0027s top edge (5157-5159, off the photo) and Beverley (on Port\u0027s line). Riverlea Park is written on the North sign. Shown when EST is tapped; the range on the line is lowest-highest of these.",
+    "areas":  {
+                  "City Cartons":  [
+                                       {
+                                           "code":  "5000",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Adelaide"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5006",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "North Adelaide"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5007",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Bowden",
+                                                               "edge":  true
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5031",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Mile End",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Mile End South",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Southwark"
+                                                           },
+                                                           {
+                                                               "name":  "Thebarton",
+                                                               "edge":  true
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5034",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Clarence Park"
+                                                           },
+                                                           {
+                                                               "name":  "Goodwood"
+                                                           },
+                                                           {
+                                                               "name":  "Kings Park"
+                                                           },
+                                                           {
+                                                               "name":  "Millswood"
+                                                           },
+                                                           {
+                                                               "name":  "Wayville"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5035",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Ashford",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Black Forest",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Forestville"
+                                                           },
+                                                           {
+                                                               "name":  "Keswick",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Keswick Terminal"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5041",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Colonel Light Gardens"
+                                                           },
+                                                           {
+                                                               "name":  "Cumberland Park"
+                                                           },
+                                                           {
+                                                               "name":  "Daw Park"
+                                                           },
+                                                           {
+                                                               "name":  "Panorama"
+                                                           },
+                                                           {
+                                                               "name":  "Westbourne Park"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5042",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Bedford Park",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Pasadena"
+                                                           },
+                                                           {
+                                                               "name":  "St Marys",
+                                                               "edge":  true
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5050",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Eden Hills"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5051",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Blackwood",
+                                                               "edge":  true
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5052",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Glenalta"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5061",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Hyde Park"
+                                                           },
+                                                           {
+                                                               "name":  "Malvern"
+                                                           },
+                                                           {
+                                                               "name":  "Unley"
+                                                           },
+                                                           {
+                                                               "name":  "Unley Park"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5062",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Clapham"
+                                                           },
+                                                           {
+                                                               "name":  "Hawthorn"
+                                                           },
+                                                           {
+                                                               "name":  "Kingswood"
+                                                           },
+                                                           {
+                                                               "name":  "Lower Mitcham"
+                                                           },
+                                                           {
+                                                               "name":  "Lynton"
+                                                           },
+                                                           {
+                                                               "name":  "Mitcham"
+                                                           },
+                                                           {
+                                                               "name":  "Netherby"
+                                                           },
+                                                           {
+                                                               "name":  "Springfield",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Torrens Park"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5063",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Eastwood"
+                                                           },
+                                                           {
+                                                               "name":  "Frewville"
+                                                           },
+                                                           {
+                                                               "name":  "Fullarton"
+                                                           },
+                                                           {
+                                                               "name":  "Highgate"
+                                                           },
+                                                           {
+                                                               "name":  "Parkside"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5064",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Glen Osmond",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Glenunga"
+                                                           },
+                                                           {
+                                                               "name":  "Myrtle Bank"
+                                                           },
+                                                           {
+                                                               "name":  "St Georges"
+                                                           },
+                                                           {
+                                                               "name":  "Urrbrae",
+                                                               "edge":  true
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5065",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Dulwich"
+                                                           },
+                                                           {
+                                                               "name":  "Glenside"
+                                                           },
+                                                           {
+                                                               "name":  "Linden Park"
+                                                           },
+                                                           {
+                                                               "name":  "Toorak Gardens"
+                                                           },
+                                                           {
+                                                               "name":  "Tusmore"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5066",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Beaumont",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Burnside"
+                                                           },
+                                                           {
+                                                               "name":  "Erindale"
+                                                           },
+                                                           {
+                                                               "name":  "Hazelwood Park"
+                                                           },
+                                                           {
+                                                               "name":  "Stonyfell",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Wattle Park",
+                                                               "edge":  true
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5067",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Beulah Park"
+                                                           },
+                                                           {
+                                                               "name":  "Kent Town"
+                                                           },
+                                                           {
+                                                               "name":  "Norwood"
+                                                           },
+                                                           {
+                                                               "name":  "Rose Park"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5068",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Heathpool"
+                                                           },
+                                                           {
+                                                               "name":  "Kensington"
+                                                           },
+                                                           {
+                                                               "name":  "Kensington Gardens"
+                                                           },
+                                                           {
+                                                               "name":  "Kensington Park"
+                                                           },
+                                                           {
+                                                               "name":  "Leabrook"
+                                                           },
+                                                           {
+                                                               "name":  "Marryatville"
+                                                           },
+                                                           {
+                                                               "name":  "St Morris",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Trinity Gardens"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5069",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "College Park"
+                                                           },
+                                                           {
+                                                               "name":  "Evandale"
+                                                           },
+                                                           {
+                                                               "name":  "Hackney"
+                                                           },
+                                                           {
+                                                               "name":  "Maylands"
+                                                           },
+                                                           {
+                                                               "name":  "St Peters"
+                                                           },
+                                                           {
+                                                               "name":  "Stepney"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5072",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Rosslyn Park",
+                                                               "edge":  true
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5081",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Gilberton",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Medindie",
+                                                               "edge":  true
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5082",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Fitzroy",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Ovingham",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Thorngate"
+                                                           }
+                                                       ]
+                                       }
+                                   ],
+                  "North Cartons":  [
+                                        {
+                                            "code":  "5106",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Salisbury South"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5107",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Parafield Gardens",
+                                                                "edge":  true
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5108",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Paralowie"
+                                                            },
+                                                            {
+                                                                "name":  "Salisbury"
+                                                            },
+                                                            {
+                                                                "name":  "Salisbury Downs"
+                                                            },
+                                                            {
+                                                                "name":  "Salisbury North"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5109",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Brahma Lodge"
+                                                            },
+                                                            {
+                                                                "name":  "Salisbury East",
+                                                                "edge":  true
+                                                            },
+                                                            {
+                                                                "name":  "Salisbury Heights"
+                                                            },
+                                                            {
+                                                                "name":  "Salisbury Park"
+                                                            },
+                                                            {
+                                                                "name":  "Salisbury Plain"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5110",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Bolivar",
+                                                                "edge":  true
+                                                            },
+                                                            {
+                                                                "name":  "Burton"
+                                                            },
+                                                            {
+                                                                "name":  "Direk"
+                                                            },
+                                                            {
+                                                                "name":  "Globe Derby Park",
+                                                                "edge":  true
+                                                            },
+                                                            {
+                                                                "name":  "St Kilda",
+                                                                "edge":  true
+                                                            },
+                                                            {
+                                                                "name":  "Waterloo Corner"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5111",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Edinburgh"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5112",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Elizabeth"
+                                                            },
+                                                            {
+                                                                "name":  "Elizabeth East",
+                                                                "edge":  true
+                                                            },
+                                                            {
+                                                                "name":  "Elizabeth Grove"
+                                                            },
+                                                            {
+                                                                "name":  "Elizabeth South"
+                                                            },
+                                                            {
+                                                                "name":  "Elizabeth Vale"
+                                                            },
+                                                            {
+                                                                "name":  "Hillbank",
+                                                                "edge":  true
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5113",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Davoren Park"
+                                                            },
+                                                            {
+                                                                "name":  "Edinburgh North"
+                                                            },
+                                                            {
+                                                                "name":  "Elizabeth Downs"
+                                                            },
+                                                            {
+                                                                "name":  "Elizabeth North"
+                                                            },
+                                                            {
+                                                                "name":  "Elizabeth Park",
+                                                                "edge":  true
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5114",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Andrews Farm"
+                                                            },
+                                                            {
+                                                                "name":  "Blakeview"
+                                                            },
+                                                            {
+                                                                "name":  "Craigmore",
+                                                                "edge":  true
+                                                            },
+                                                            {
+                                                                "name":  "Smithfield"
+                                                            },
+                                                            {
+                                                                "name":  "Smithfield Plains"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5115",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Munno Para"
+                                                            },
+                                                            {
+                                                                "name":  "Munno Para West"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5120",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Riverlea Park"
+                                                            },
+                                                            {
+                                                                "name":  "Virginia",
+                                                                "edge":  true
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5121",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Eyre"
+                                                            },
+                                                            {
+                                                                "name":  "MacDonald Park"
+                                                            },
+                                                            {
+                                                                "name":  "Penfield"
+                                                            },
+                                                            {
+                                                                "name":  "Penfield Gardens",
+                                                                "edge":  true
+                                                            }
+                                                        ]
+                                        }
+                                    ],
+                  "North East Cartons":  [
+                                             {
+                                                 "code":  "5070",
+                                                 "suburbs":  [
+                                                                 {
+                                                                     "name":  "Felixstow"
+                                                                 },
+                                                                 {
+                                                                     "name":  "Glynde"
+                                                                 },
+                                                                 {
+                                                                     "name":  "Marden",
+                                                                     "edge":  true
+                                                                 },
+                                                                 {
+                                                                     "name":  "Payneham",
+                                                                     "edge":  true
+                                                                 }
+                                                             ]
+                                             },
+                                             {
+                                                 "code":  "5073",
+                                                 "suburbs":  [
+                                                                 {
+                                                                     "name":  "Hectorville"
+                                                                 },
+                                                                 {
+                                                                     "name":  "Rostrevor"
+                                                                 }
+                                                             ]
+                                             },
+                                             {
+                                                 "code":  "5074",
+                                                 "suburbs":  [
+                                                                 {
+                                                                     "name":  "Campbelltown"
+                                                                 },
+                                                                 {
+                                                                     "name":  "Newton"
+                                                                 }
+                                                             ]
+                                             },
+                                             {
+                                                 "code":  "5075",
+                                                 "suburbs":  [
+                                                                 {
+                                                                     "name":  "Dernancourt"
+                                                                 },
+                                                                 {
+                                                                     "name":  "Paradise"
+                                                                 }
+                                                             ]
+                                             },
+                                             {
+                                                 "code":  "5076",
+                                                 "suburbs":  [
+                                                                 {
+                                                                     "name":  "Athelstone"
+                                                                 }
+                                                             ]
+                                             },
+                                             {
+                                                 "code":  "5086",
+                                                 "suburbs":  [
+                                                                 {
+                                                                     "name":  "Gilles Plains"
+                                                                 },
+                                                                 {
+                                                                     "name":  "Hillcrest",
+                                                                     "edge":  true
+                                                                 },
+                                                                 {
+                                                                     "name":  "Oakden"
+                                                                 }
+                                                             ]
+                                             },
+                                             {
+                                                 "code":  "5087",
+                                                 "suburbs":  [
+                                                                 {
+                                                                     "name":  "Klemzig",
+                                                                     "edge":  true
+                                                                 },
+                                                                 {
+                                                                     "name":  "Windsor Gardens"
+                                                                 }
+                                                             ]
+                                             },
+                                             {
+                                                 "code":  "5088",
+                                                 "suburbs":  [
+                                                                 {
+                                                                     "name":  "Holden Hill"
+                                                                 }
+                                                             ]
+                                             },
+                                             {
+                                                 "code":  "5089",
+                                                 "suburbs":  [
+                                                                 {
+                                                                     "name":  "Highbury",
+                                                                     "edge":  true
+                                                                 }
+                                                             ]
+                                             },
+                                             {
+                                                 "code":  "5090",
+                                                 "suburbs":  [
+                                                                 {
+                                                                     "name":  "Hope Valley"
+                                                                 }
+                                                             ]
+                                             },
+                                             {
+                                                 "code":  "5091",
+                                                 "suburbs":  [
+                                                                 {
+                                                                     "name":  "Banksia Park",
+                                                                     "edge":  true
+                                                                 },
+                                                                 {
+                                                                     "name":  "Tea Tree Gully",
+                                                                     "edge":  true
+                                                                 }
+                                                             ]
+                                             },
+                                             {
+                                                 "code":  "5092",
+                                                 "suburbs":  [
+                                                                 {
+                                                                     "name":  "Modbury"
+                                                                 },
+                                                                 {
+                                                                     "name":  "Modbury Heights"
+                                                                 },
+                                                                 {
+                                                                     "name":  "Modbury North"
+                                                                 }
+                                                             ]
+                                             },
+                                             {
+                                                 "code":  "5093",
+                                                 "suburbs":  [
+                                                                 {
+                                                                     "name":  "Para Vista"
+                                                                 },
+                                                                 {
+                                                                     "name":  "Valley View"
+                                                                 }
+                                                             ]
+                                             },
+                                             {
+                                                 "code":  "5096",
+                                                 "suburbs":  [
+                                                                 {
+                                                                     "name":  "Para Hills"
+                                                                 }
+                                                             ]
+                                             },
+                                             {
+                                                 "code":  "5097",
+                                                 "suburbs":  [
+                                                                 {
+                                                                     "name":  "Redwood Park"
+                                                                 },
+                                                                 {
+                                                                     "name":  "Ridgehaven"
+                                                                 },
+                                                                 {
+                                                                     "name":  "St Agnes"
+                                                                 }
+                                                             ]
+                                             },
+                                             {
+                                                 "code":  "5098",
+                                                 "suburbs":  [
+                                                                 {
+                                                                     "name":  "Ingle Farm"
+                                                                 },
+                                                                 {
+                                                                     "name":  "Walkley Heights",
+                                                                     "edge":  true
+                                                                 }
+                                                             ]
+                                             }
+                                         ],
+                  "Port Cartons":  [
+                                       {
+                                           "code":  "5011",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "St Clair"
+                                                           },
+                                                           {
+                                                               "name":  "Woodville"
+                                                           },
+                                                           {
+                                                               "name":  "Woodville Park"
+                                                           },
+                                                           {
+                                                               "name":  "Woodville South"
+                                                           },
+                                                           {
+                                                               "name":  "Woodville West"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5012",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Athol Park",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Woodville North"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5013",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Gillman",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Ottoway"
+                                                           },
+                                                           {
+                                                               "name":  "Pennington"
+                                                           },
+                                                           {
+                                                               "name":  "Rosewater"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5014",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Albert Park"
+                                                           },
+                                                           {
+                                                               "name":  "Alberton"
+                                                           },
+                                                           {
+                                                               "name":  "Cheltenham"
+                                                           },
+                                                           {
+                                                               "name":  "Hendon"
+                                                           },
+                                                           {
+                                                               "name":  "Queenstown"
+                                                           },
+                                                           {
+                                                               "name":  "Royal Park"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5015",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Birkenhead"
+                                                           },
+                                                           {
+                                                               "name":  "Ethelton"
+                                                           },
+                                                           {
+                                                               "name":  "Glanville"
+                                                           },
+                                                           {
+                                                               "name":  "New Port"
+                                                           },
+                                                           {
+                                                               "name":  "Port Adelaide",
+                                                               "edge":  true
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5016",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Largs Bay"
+                                                           },
+                                                           {
+                                                               "name":  "Largs North",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Peterhead"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5017",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Osborne",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Taperoo",
+                                                               "edge":  true
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5018",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "North Haven"
+                                                           },
+                                                           {
+                                                               "name":  "Outer Harbor",
+                                                               "edge":  true
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5019",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Exeter"
+                                                           },
+                                                           {
+                                                               "name":  "Semaphore"
+                                                           },
+                                                           {
+                                                               "name":  "Semaphore Park",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Semaphore South",
+                                                               "edge":  true
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5020",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "West Lakes Shore",
+                                                               "edge":  true
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5021",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "West Lakes"
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5022",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Grange",
+                                                               "edge":  true
+                                                           }
+                                                       ]
+                                       },
+                                       {
+                                           "code":  "5023",
+                                           "suburbs":  [
+                                                           {
+                                                               "name":  "Findon",
+                                                               "edge":  true
+                                                           },
+                                                           {
+                                                               "name":  "Seaton",
+                                                               "edge":  true
+                                                           }
+                                                       ]
+                                       }
+                                   ],
+                  "Regency Cartons":  [
+                                          {
+                                              "code":  "5010",
+                                              "suburbs":  [
+                                                              {
+                                                                  "name":  "Angle Park"
+                                                              },
+                                                              {
+                                                                  "name":  "Ferryden Park",
+                                                                  "edge":  true
+                                                              },
+                                                              {
+                                                                  "name":  "Regency Park"
+                                                              }
+                                                          ]
+                                          },
+                                          {
+                                              "code":  "5012",
+                                              "suburbs":  [
+                                                              {
+                                                                  "name":  "Athol Park",
+                                                                  "edge":  true
+                                                              },
+                                                              {
+                                                                  "name":  "Mansfield Park"
+                                                              },
+                                                              {
+                                                                  "name":  "Woodville Gardens",
+                                                                  "edge":  true
+                                                              }
+                                                          ]
+                                          },
+                                          {
+                                              "code":  "5013",
+                                              "suburbs":  [
+                                                              {
+                                                                  "name":  "Wingfield",
+                                                                  "edge":  true
+                                                              }
+                                                          ]
+                                          },
+                                          {
+                                              "code":  "5084",
+                                              "suburbs":  [
+                                                              {
+                                                                  "name":  "Blair Athol",
+                                                                  "edge":  true
+                                                              },
+                                                              {
+                                                                  "name":  "Kilburn"
+                                                              }
+                                                          ]
+                                          }
+                                      ],
+                  "South Cartons":  [
+                                        {
+                                            "code":  "5160",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Lonsdale"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5161",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Old Reynella"
+                                                            },
+                                                            {
+                                                                "name":  "Reynella"
+                                                            },
+                                                            {
+                                                                "name":  "Reynella East"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5162",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Morphett Vale"
+                                                            },
+                                                            {
+                                                                "name":  "Woodcroft"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5163",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Hackham"
+                                                            },
+                                                            {
+                                                                "name":  "Hackham West"
+                                                            },
+                                                            {
+                                                                "name":  "Huntfield Heights"
+                                                            },
+                                                            {
+                                                                "name":  "Onkaparinga Heights"
+                                                            },
+                                                            {
+                                                                "name":  "Onkaparinga Hills"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5164",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Christie Downs"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5165",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Christies Beach"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5166",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "O\u0027Sullivan Beach"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5167",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Port Noarlunga"
+                                                            },
+                                                            {
+                                                                "name":  "Port Noarlunga South"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5168",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Noarlunga Centre"
+                                                            },
+                                                            {
+                                                                "name":  "Noarlunga Downs"
+                                                            },
+                                                            {
+                                                                "name":  "Old Noarlunga"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5169",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Moana"
+                                                            },
+                                                            {
+                                                                "name":  "Seaford"
+                                                            },
+                                                            {
+                                                                "name":  "Seaford Heights"
+                                                            },
+                                                            {
+                                                                "name":  "Seaford Meadows"
+                                                            },
+                                                            {
+                                                                "name":  "Seaford Rise"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5170",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Maslin Beach"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5171",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Blewitt Springs"
+                                                            },
+                                                            {
+                                                                "name":  "McLaren Flat"
+                                                            },
+                                                            {
+                                                                "name":  "McLaren Vale"
+                                                            },
+                                                            {
+                                                                "name":  "Tatachilla"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5172",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Whites Valley"
+                                                            },
+                                                            {
+                                                                "name":  "Willunga",
+                                                                "edge":  true
+                                                            },
+                                                            {
+                                                                "name":  "Willunga Hill",
+                                                                "edge":  true
+                                                            },
+                                                            {
+                                                                "name":  "Willunga South"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5173",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Aldinga"
+                                                            },
+                                                            {
+                                                                "name":  "Aldinga Beach"
+                                                            },
+                                                            {
+                                                                "name":  "Port Willunga"
+                                                            }
+                                                        ]
+                                        }
+                                    ]
+              }
 }

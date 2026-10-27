@@ -423,6 +423,29 @@ dialog input[type=text], dialog select {
 }
 dialog input[type=color] { display: block; width: 100%; height: 52px; margin-top: 6px; border: none; background: none; }
 .dlg-actions { display: flex; justify-content: flex-end; gap: 12px; }
+
+/* Tappable EST and the map postcodes box */
+.est-btn { font: inherit; font-size: 12px; background: none; min-height: 28px; cursor: pointer; }
+.est-dialog { padding: 16px 20px 20px; max-height: calc(100dvh - 32px); flex-direction: column; }
+.est-dialog[open] { display: flex; }
+.est-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.est-head h2 { margin: 0; font-size: 22px; }
+.est-head .btn-ghost { min-height: 44px; padding: 0 8px; }
+.est-sub, .est-key { margin: 6px 0 0; font-size: 14px; color: var(--muted); }
+.est-codes { margin: 10px 0 0; font-size: 18px; font-weight: 700; line-height: 1.4; }
+.est-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  overflow-y: auto;
+  min-height: 0;
+  border-top: 1px solid var(--border);
+}
+.est-list li { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.est-list li:last-child { border-bottom: none; }
+.est-code { flex: none; width: 3em; font-weight: 700; }
+.est-subs { flex: 1; min-width: 0; }
+.est-subs .off { color: var(--muted); }
 .error { color: var(--danger); font-weight: 600; }
 
 /* Search message + update button */
