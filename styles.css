@@ -513,3 +513,29 @@ dialog input[type=color] { display: block; width: 100%; height: 52px; margin-top
 .map-lines-dot { flex: none; width: 12px; height: 12px; border-radius: 50%; }
 .map-lines-near { margin-left: auto; padding-left: 8px; color: var(--muted, inherit); opacity: 0.8; white-space: nowrap; }
 .map-lines-key li.map-lines-note { display: block; padding-top: 6px; font-size: 12px; opacity: 0.75; }
+
+/* Line sets: switch, compare and edit drawn lines on the map */
+.map-sets, .map-edit { background: var(--field); color: var(--text); max-width: 60vw; max-height: 50vh; overflow: auto; }
+.map-sets button, .map-edit button, .map-edit select {
+  display: block; min-height: 44px; padding: 0 12px; border: none; border-bottom: 1px solid var(--border);
+  background: none; color: inherit; font: inherit; cursor: pointer; text-align: left;
+}
+.map-sets button { width: 100%; }
+.map-sets button[aria-pressed=true] { font-weight: 700; background: rgba(216, 27, 96, .15); }
+.map-sets button:disabled, .map-edit button:disabled { opacity: .4; cursor: default; }
+.map-sets-label { margin: 0; padding: 6px 12px 2px; font-size: 12px; opacity: .75; }
+.map-edit { display: flex; flex-wrap: wrap; max-width: min(90vw, 560px); overflow-x: hidden; }
+.map-edit select { max-width: 100%; text-align: left; }
+.map-edit button, .map-edit select { flex: none; border: 1px solid var(--border); border-radius: 8px; margin: 3px; text-align: center; }
+.map-edit-msg { flex: 1 1 100%; margin: 0; padding: 4px 10px 6px; font-size: 14px; }
+.map-vertex, .map-midpoint { position: relative; cursor: grab; }
+.map-vertex::after, .map-midpoint::after { content: ""; position: absolute; left: 50%; top: 50%; box-sizing: border-box; border-radius: 50%; }
+.map-vertex::after { width: 22px; height: 22px; margin: -11px 0 0 -11px; background: #fff; border: 3px solid #222; }
+.map-vertex.selected::after { background: #D81B60; }
+.map-midpoint::after { width: 16px; height: 16px; margin: -8px 0 0 -8px; background: rgba(255, 255, 255, .55); border: 2px solid rgba(34, 34, 34, .5); }
+.lines-start { border: none; margin: 0 0 14px; padding: 0; }
+.lines-start legend { font-weight: 600; padding: 0; }
+.lines-start label { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; font-weight: 400; }
+.lines-start input { width: 22px; height: 22px; }
+.lines-text { margin: 0 0 14px; font-size: 18px; overflow-wrap: anywhere; }
+@media (max-width: 600px) { .map-sets { max-width: 90vw; } }

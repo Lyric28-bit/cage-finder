@@ -122,6 +122,28 @@
   <div id="map-canvas"></div>
 </dialog>
 
+<!-- Line sets on the map: new / rename / delete (opens over the map) -->
+<dialog id="dlg-lines">
+  <form id="form-lines" method="dialog">
+    <h2 id="lines-title">New line set</h2>
+    <div id="lines-name-wrap">
+      <label>Name
+        <input id="lines-name" type="text" required maxlength="40" autocomplete="off" autocapitalize="words">
+      </label>
+    </div>
+    <fieldset id="lines-start" class="lines-start">
+      <legend>Start from</legend>
+      <label><input type="radio" name="lines-start" value="current" checked> <span id="lines-start-current">Current lines</span></label>
+      <label><input type="radio" name="lines-start" value="blank"> Blank</label>
+    </fieldset>
+    <p id="lines-text" class="lines-text" hidden></p>
+    <div class="dlg-actions">
+      <button type="button" id="btn-lines-cancel" class="btn-ghost">Cancel</button>
+      <button type="submit" id="btn-lines-ok" class="btn-primary">Save</button>
+    </div>
+  </form>
+</dialog>
+
 <script type="module" src="app.js"></script>
 </body>
 </html>

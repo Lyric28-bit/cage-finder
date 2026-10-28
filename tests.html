@@ -10,6 +10,7 @@
 <script type="module">
 import { buildIndex, search, similarPlaces, normalise } from './js/match.js';
 import { isValid, isImportable, findCage, addCage, addSuburbToCage, renameCage, removeSuburbFromCage, deleteCage, replaceData, setPostcode, postcodeKey, applyRenames, applyUnsure, CAGE_RENAMES, LOCAL_DEST, setApproval, approvalOf, checkApprover } from './js/store.js';
+import { CAPS, renameCageInSets, NAME_MAX, emptyLines, cleanSets, uniqueName, newSet, renameSet, deleteSet, mergeSets, findSet, cageParts, builtinLoops, simplifyPart, SIMPLIFY_M } from './js/lines.js';
 
 const out = [];
 let passed = 0, total = 0;
@@ -355,6 +356,100 @@ try {
     }
   }
   check('Store tests left localStorage data unchanged', localStorage.getItem(KEY) === lsBefore);
+
+  // ---------- Line sets ----------
+  // Plain state objects only; the real 'cage-lines' key is never read or written.
+  {
+    out.push('\n-- Line sets --');
+    const sq = [[-34.9, 138.6], [-34.9, 138.7], [-35, 138.7], [-35, 138.6]];
+    const J = x => JSON.stringify(x);
+    const st = emptyLines();
+    check('emptyLines shape', J(st) === J({ version: 1, active: 'builtin', compare: null, sets: [] }));
+
+    const cleaned = cleanSets([
+      { id: 'a', name: '  Pete  ', loops: { City: [sq, [[0, 0], [1, 1]]], Port: [[[95, 0], [0, 0], [1, 1]]], Bad: 'x' } },
+      { id: 'b', name: '   ', loops: {} },
+      { id: 'c', name: 5, loops: {} },
+      { id: 'd', name: 'NoLoops', loops: null },
+      { name: 'x'.repeat(60), loops: { North: [[...sq, ['a', 1]]] } },
+      null,
+    ]);
+    check('cleanSets keeps good sets and drops bad names/loops', cleaned.length === 2, cleaned.map(s => s.name).join('|'));
+    check('cleanSets trims the name', cleaned[0].name === 'Pete');
+    check('cleanSets drops short parts and cages left with none', J(Object.keys(cleaned[0].loops)) === '["City"]' && cleaned[0].loops.City.length === 1);
+    check('cleanSets drops bad points then short parts', cleaned[1].loops.North.length === 1 && cleaned[1].loops.North[0].length === 4);
+    check('cleanSets slices long names and makes an id', cleaned[1].name.length === NAME_MAX && cleaned[1].id.length > 0);
+    check('cleanSets of a non-array is []', J(cleanSets('x')) === '[]' && J(cleanSets({})) === '[]');
+
+    const src = { City: [sq.map(p => [...p])] };
+    const s1 = newSet(st, 'Pete', src);
+    src.City[0][0][0] = 1;
+    check('newSet deep-copies the loops', s1.loops.City[0][0][0] === -34.9);
+    check('newSet adds to state', st.sets.length === 1 && findSet(st, s1.id) === s1);
+    check('uniqueName gives "Pete (2)"', uniqueName(st, 'pete') === 'pete (2)' && uniqueName(st, 'Pete') === 'Pete (2)');
+    check('uniqueName treats built-in as taken', uniqueName(st, 'built-in') === 'built-in (2)');
+    check('newSet renames a clash', newSet(st, 'Pete', {}).name === 'Pete (2)');
+
+    check('renameSet trims', renameSet(st, s1.id, '  Dave ') && s1.name === 'Dave');
+    check('renameSet refuses empty', renameSet(st, s1.id, '   ') === false && s1.name === 'Dave');
+    check('renameSet to its own name is fine', renameSet(st, s1.id, 'dave') && s1.name === 'dave');
+
+    st.active = s1.id; st.compare = s1.id;
+    check('deleteSet resets active and compare', deleteSet(st, s1.id) && st.active === 'builtin' && st.compare === null && !findSet(st, s1.id));
+    check('deleteSet of a missing id is false', deleteSet(st, 'nope') === false);
+
+    const m = emptyLines();
+    newSet(m, 'Pete', {});
+    const before = m.sets[0];
+    const added = mergeSets(m, [{ id: before.id, name: 'Pete', loops: { City: [sq] } }, { name: '', loops: {} }, { name: 'Other', loops: {} }]);
+    check('mergeSets returns the number added', added === 2);
+    check('mergeSets renames clashes, fresh ids, never overwrites',
+      m.sets.length === 3 && m.sets[1].name === 'Pete (2)' && m.sets[1].id !== before.id && m.sets[0] === before && J(before.loops) === '{}');
+
+    const set = { id: 'z', name: 'Z', loops: { 'north  east': [sq] } };
+    check('cageParts matches case/spacing-insensitively', cageParts(set, 'North East').length === 1 && cageParts(set, 'City').length === 0 && cageParts(null, 'City').length === 0);
+
+    const lm = new Map([[normalise('North East'), { parts: [sq], within: [0.4] }], [normalise('Old Name'), { parts: [sq], within: [1] }]]);
+    const bl = builtinLoops(lm, [{ name: 'North East', color: '#111111', suburbs: [] }]);
+    check('builtinLoops uses live cage names', J(Object.keys(bl)) === J(['North East', normalise('Old Name')]));
+    bl['North East'][0][0][0] = 1;
+    check('builtinLoops deep-copies', lm.get(normalise('North East')).parts[0][0][0] === -34.9);
+
+    // Caps, rename and re-import (from the review)
+    const pt = i => [-34.9 - i * 1e-5, 138.6];
+    const bigPart = n => Array.from({ length: n }, (_, i) => pt(i));
+    const capped = cleanSets([{ name: 'Big', loops: { ['  ' + 'k'.repeat(120) + '  ']: Array.from({ length: 25 }, () => bigPart(5)), City: [bigPart(CAPS.points + 10)] } }]);
+    check('cleanSets trims and caps cage keys', Object.keys(capped[0].loops).every(k => k.length <= CAPS.cageKey) && Object.keys(capped[0].loops).includes('k'.repeat(CAPS.cageKey)));
+    check('cleanSets caps parts per cage', capped[0].loops['k'.repeat(CAPS.cageKey)].length === CAPS.parts);
+    check('cleanSets caps points per part', capped[0].loops.City[0].length === CAPS.points);
+    const manyCages = {};
+    for (let i = 0; i < CAPS.cages + 20; i++) manyCages['cage' + i] = [bigPart(3)];
+    check('cleanSets caps cages per set', Object.keys(cleanSets([{ name: 'M', loops: manyCages }])[0].loops).length === CAPS.cages);
+    check('cleanSets caps the number of sets', cleanSets(Array.from({ length: CAPS.sets + 5 }, (_, i) => ({ name: 'S' + i, loops: {} }))).length === CAPS.sets);
+
+    const rs = { sets: [{ id: '1', name: 'A', loops: { 'North East': [sq], Port: [sq] } }, { id: '2', name: 'B', loops: { City: [sq] } }] };
+    check('renameCageInSets moves loops to the new name', renameCageInSets(rs, 'north east', 'Northeast Cartons') && rs.sets[0].loops['Northeast Cartons'].length === 1 && !rs.sets[0].loops['North East']);
+    check('renameCageInSets reports no change', renameCageInSets(rs, 'Nowhere', 'X') === false);
+    renameCageInSets(rs, 'Port', 'northeastcartons');
+    check('renameCageInSets appends to an existing key', rs.sets[0].loops['Northeast Cartons'].length === 2 && !rs.sets[0].loops.Port);
+
+    const mg = emptyLines();
+    const pack = [{ name: 'Pete', loops: { City: [sq] } }];
+    check('mergeSets adds a new set', mergeSets(mg, pack) === 1);
+    check('mergeSets skips an identical re-import', mergeSets(mg, pack) === 0 && mg.sets.length === 1);
+    check('mergeSets skips identical regardless of name case', mergeSets(mg, [{ name: 'PETE', loops: { City: [sq] } }]) === 0);
+    check('mergeSets still adds same name with different loops', mergeSets(mg, [{ name: 'Pete', loops: { City: [sq.slice(0, 3)] } }]) === 1 && mg.sets[1].name === 'Pete (2)');
+
+    // A straight edge traced every ~10 m, then a corner: thinned to the 3 corners.
+    const dense = [];
+    for (let i = 0; i <= 100; i++) dense.push([-34.9, 138.6 + i * 0.0001]);
+    for (let i = 1; i <= 100; i++) dense.push([-34.9 - i * 0.0001, 138.61]);
+    const thin = simplifyPart(dense, SIMPLIFY_M);
+    check('simplifyPart thins straight runs, keeps corners', J(thin) === J([dense[0], dense[100], dense[200]]), J(thin));
+    const tiny = [[-34.9, 138.6], [-34.90001, 138.6], [-34.90001, 138.60001], [-34.9, 138.60001]];
+    check('simplifyPart never leaves under 3 points', simplifyPart(tiny, SIMPLIFY_M).length === 4);
+    check('simplifyPart returns a copy', simplifyPart(dense, SIMPLIFY_M)[0] !== dense[0]);
+  }
 
   // ---------- Data files ----------
   out.push('\n-- Data files --');

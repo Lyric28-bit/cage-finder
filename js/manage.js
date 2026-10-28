@@ -7,6 +7,7 @@ import {
   checkApprover, setApproval, approvalOf,
 } from './store.js';
 import { photoUrl, setPhoto, removePhoto, renamePhoto } from './photos.js';
+import { loadLines, saveLines, mergeSets, renameCageInSets } from './lines.js';
 
 const PREVIEW = 8; // suburbs shown on a closed cage line
 
@@ -246,6 +247,9 @@ export function openManage(app) {
       }
       expanded = cage.name;
       app.save();
+      // Drawn lines are keyed by cage name, so they follow the rename.
+      const lines = loadLines();
+      if (renameCageInSets(lines, oldName, cage.name)) saveLines(lines);
       await renamePhoto(oldName, cage.name).catch(() => {});
       renderAll();
     });
@@ -424,7 +428,10 @@ export function openManage(app) {
 
   async function exportData() {
     const name = `cage-finder-${new Date().toISOString().slice(0, 10)}.json`;
-    const blob = new Blob([JSON.stringify(app.data, null, 2)], { type: 'application/json' });
+    // Line sets ride along in the file but live apart from app.data.
+    const lineSets = loadLines().sets;
+    const out = lineSets.length ? { ...app.data, lineSets } : app.data;
+    const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
     // iPhone/iPad home-screen apps often ignore downloads; the share sheet
     // offers Save to Files, AirDrop, email etc. instead.
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
@@ -465,6 +472,12 @@ export function openManage(app) {
     app.migrate();
     expanded = null;
     app.save();
+    if (Array.isArray(parsed.lineSets)) {
+      const lines = loadLines();
+      if (mergeSets(lines, parsed.lineSets) && !saveLines(lines)) {
+        showDataError("Imported the cages, but couldn't save the drawn lines. Storage may be full.");
+      }
+    }
     renderAll();
   }
 

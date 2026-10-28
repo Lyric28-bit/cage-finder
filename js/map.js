@@ -2,6 +2,7 @@
 // suburb points load on first open, so the app itself stays light.
 
 import { normalise, editDistance } from './match.js';
+import { NAME_MAX, loadLines, saveLines, findSet, cageParts, newSet, renameSet, deleteSet, builtinLoops } from './lines.js';
 
 const $ = id => document.getElementById(id);
 
@@ -25,6 +26,11 @@ let linesBox = null; // the "Cage lines" toggle + key (whole-city view only)
 let allLines = false; // toggle state, kept while the app is open
 let focusCage = null; // the cage the map was opened from, if any
 let keyOpen = true; // the colour key under "Hide cage lines" is unfolded
+let lineState = null; // line sets (js/lines.js), loaded each time the map opens
+let setsBox = null; // the line set panel
+let panelOpen = false; // collapsed each time the map opens
+let linesDlg = null; // what the small #dlg-lines is doing: { app, mode, edit }
+let editing = null; // edit mode state, null when not editing
 
 function loadLeaflet() {
   if (window.L) return Promise.resolve();
@@ -92,6 +98,15 @@ function makeMap() {
     },
   });
   new LinesControl({ position: 'topright' }).addTo(map);
+  const SetsControl = L.Control.extend({
+    onAdd() {
+      setsBox = el('div', { className: 'map-sets leaflet-bar' });
+      L.DomEvent.disableClickPropagation(setsBox);
+      L.DomEvent.disableScrollPropagation(setsBox);
+      return setsBox;
+    },
+  });
+  new SetsControl({ position: 'bottomleft' }).addTo(map);
 }
 
 function cageColor(app, cageName) {
@@ -99,13 +114,41 @@ function cageColor(app, cageName) {
   return app.data.cages.find(c => normalise(c.name) === key)?.color || '#888888';
 }
 
-// Faint dashed outline of each of a cage's region-map loops, in the cage's colour.
+function activeName() {
+  return lineState.active === 'builtin' ? 'Built-in' : findSet(lineState, lineState.active)?.name || 'Built-in';
+}
+
+function setName(id) {
+  return id === 'builtin' ? 'Built-in' : findSet(lineState, id)?.name || '';
+}
+
+// A cage's parts in the built-in lines or in a drawn set.
+function partsFor(setId, cageName) {
+  if (setId === 'builtin') return loops.get(normalise(cageName))?.parts || [];
+  return cageParts(findSet(lineState, setId), cageName);
+}
+
+function hasAnyLines() {
+  return loops.size > 0 || lineState.sets.some(s => Object.keys(s.loops).length);
+}
+
+function compareId() {
+  return lineState.compare && lineState.compare !== lineState.active ? lineState.compare : null;
+}
+
+// The active set's loops: dashed for the built-in lines, solid for a drawn set.
+// A compared set goes over the top, thin and dashed, with no fill.
 function drawLoop(app, cageName) {
-  const loop = loops.get(normalise(cageName));
-  if (!loop) return;
   const color = cageColor(app, cageName);
-  for (const points of loop.parts) {
-    L.polygon(points, { color, weight: 3, opacity: 0.85, dashArray: '8 6', fillColor: color, fillOpacity: 0.07, interactive: false })
+  const builtin = lineState.active === 'builtin';
+  for (const points of partsFor(lineState.active, cageName)) {
+    L.polygon(points, { color, weight: 3, opacity: 0.85, dashArray: builtin ? '8 6' : null, fillColor: color, fillOpacity: 0.07, interactive: false })
+      .addTo(lines);
+  }
+  const other = compareId();
+  if (!other) return;
+  for (const points of partsFor(other, cageName)) {
+    L.polygon(points, { color, weight: 2, opacity: 0.7, dashArray: '4 6', fill: false, interactive: false })
       .addTo(lines);
   }
 }
@@ -132,26 +175,402 @@ function renderLinesBox(app) {
   }
   const key = el('ul', { className: 'map-lines-key' });
   if (allLines && keyOpen) {
+    const builtin = lineState.active === 'builtin';
+    const other = compareId();
     for (const cage of app.data.cages) {
-      const loop = loops.get(normalise(cage.name));
-      if (!loop) continue;
+      const loop = builtin ? loops.get(normalise(cage.name)) : null;
+      if (!loop && !partsFor(lineState.active, cage.name).length && !(other && partsFor(other, cage.name).length)) continue;
       const dot = el('span', { className: 'map-lines-dot' });
       dot.style.background = cage.color;
-      const near = el('span', { className: 'map-lines-near', textContent: withinText(loop) });
-      key.append(el('li', {}, dot, cage.name, near));
+      const row = el('li', {}, dot, cage.name);
+      if (loop) row.append(el('span', { className: 'map-lines-near', textContent: withinText(loop) }));
+      key.append(row);
     }
-    if (key.childElementCount) key.append(el('li', { className: 'map-lines-note', textContent: '± = how far a line may be off the drawn map' }));
+    if (key.childElementCount) {
+      if (builtin) key.append(el('li', { className: 'map-lines-note', textContent: '± = how far a line may be off the drawn map' }));
+      else key.append(el('li', { className: 'map-lines-note', textContent: `Drawn lines: ${activeName()}` + (other ? `, compared with ${setName(other)}` : '') }));
+      if (builtin && other) key.append(el('li', { className: 'map-lines-note', textContent: `Compared with ${setName(other)}` }));
+    }
   }
   linesBox.replaceChildren(head, ...(key.childElementCount ? [key] : []));
-  linesBox.hidden = !loops.size;
+  linesBox.hidden = !hasAnyLines();
 }
 
 // Toggle off: just the cage the map was opened from (none on the whole city).
 function showAllLines(app) {
   lines.clearLayers();
-  if (allLines) for (const cage of app.data.cages) drawLoop(app, cage.name);
+  if (editing) drawFaintLines(app);
+  else if (allLines) for (const cage of app.data.cages) drawLoop(app, cage.name);
   else if (focusCage) drawLoop(app, focusCage);
   renderLinesBox(app);
+  renderSetsPanel(app);
+  if (editing) renderHandles();
+}
+
+// ---------- line sets panel ----------
+
+function saveState() {
+  if (saveLines(lineState)) return true;
+  showError("Couldn't save. Storage may be full.");
+  return false;
+}
+
+function pickActive(app, id) {
+  lineState.active = id;
+  if (lineState.compare === id) lineState.compare = null;
+  saveState();
+  showAllLines(app);
+}
+
+function pickCompare(app, id) {
+  lineState.compare = id;
+  saveState();
+  showAllLines(app);
+}
+
+function setButton(text, pressed, onClick, disabled = false) {
+  const b = el('button', { type: 'button', textContent: text, disabled });
+  if (pressed !== null) b.setAttribute('aria-pressed', String(pressed));
+  b.addEventListener('click', onClick);
+  return b;
+}
+
+function renderSetsPanel(app) {
+  if (!setsBox) return;
+  setsBox.hidden = !!editing; // the edit toolbar takes its place
+  if (editing) return;
+  const head = setButton(`Lines: ${activeName()} ${panelOpen ? '▴' : '▾'}`, null, () => { panelOpen = !panelOpen; renderSetsPanel(app); });
+  head.setAttribute('aria-expanded', String(panelOpen));
+  if (!panelOpen) { setsBox.replaceChildren(head); return; }
+  const builtin = lineState.active === 'builtin';
+  const kids = [head, setButton('Built-in', builtin, () => pickActive(app, 'builtin'))];
+  for (const s of lineState.sets) kids.push(setButton(s.name, lineState.active === s.id, () => pickActive(app, s.id)));
+  kids.push(
+    setButton('New set', null, () => openLinesDialog(app, 'new')),
+    setButton('Edit lines', null, () => {
+      if (builtin) openLinesDialog(app, 'new', { name: 'My lines', edit: true });
+      else startEdit(app);
+    }),
+    setButton('Rename', null, () => openLinesDialog(app, 'rename'), builtin),
+    setButton('Delete', null, () => openLinesDialog(app, 'delete'), builtin),
+    el('p', { className: 'map-sets-label', textContent: 'Compare with' }),
+    setButton('None', lineState.compare === null, () => pickCompare(app, null)),
+  );
+  if (!builtin) kids.push(setButton('Built-in', lineState.compare === 'builtin', () => pickCompare(app, 'builtin')));
+  for (const s of lineState.sets) {
+    if (s.id !== lineState.active) kids.push(setButton(s.name, lineState.compare === s.id, () => pickCompare(app, s.id)));
+  }
+  setsBox.replaceChildren(...kids);
+}
+
+// New / rename / delete in the small dialog over the map.
+function openLinesDialog(app, mode, opts = {}) {
+  linesDlg = { app, mode, edit: !!opts.edit };
+  const set = findSet(lineState, lineState.active);
+  const input = $('lines-name');
+  const titles = { new: 'New line set', rename: 'Rename line set', delete: 'Delete line set' };
+  $('lines-title').textContent = titles[mode];
+  $('lines-name-wrap').hidden = mode === 'delete';
+  input.required = mode !== 'delete';
+  input.value = mode === 'rename' ? set.name : opts.name || '';
+  $('lines-start').hidden = mode !== 'new';
+  $('lines-start-current').textContent = `Current lines (${activeName()})`;
+  document.querySelector('input[name="lines-start"][value="current"]').checked = true;
+  $('lines-text').hidden = mode !== 'delete';
+  $('lines-text').textContent = mode === 'delete' ? `Delete "${set.name}"? This can't be undone.` : '';
+  $('btn-lines-ok').textContent = mode === 'delete' ? 'Delete' : 'Save';
+  $('dlg-lines').showModal();
+  if (mode !== 'delete') input.select();
+}
+
+function submitLinesDialog() {
+  if (!$('dlg-map').open) return;
+  const { app, mode, edit } = linesDlg;
+  const name = $('lines-name').value.trim().slice(0, NAME_MAX).trim();
+  if (mode !== 'delete' && !name) return;
+  $('dlg-lines').close();
+  let noBuiltin = false;
+  if (mode === 'new') {
+    const blank = document.querySelector('input[name="lines-start"]:checked')?.value === 'blank';
+    const cur = findSet(lineState, lineState.active);
+    const start = blank ? {} : cur ? cur.loops : builtinLoops(loops, app.data.cages);
+    noBuiltin = !blank && !cur && !loops.size;
+    lineState.active = newSet(lineState, name, start).id;
+  } else if (mode === 'rename') {
+    renameSet(lineState, lineState.active, name);
+  } else {
+    deleteSet(lineState, lineState.active);
+  }
+  const saved = saveState();
+  showAllLines(app);
+  if (saved && noBuiltin) showError("Built-in lines didn't load, so this set starts blank.");
+  if (mode === 'new' && edit) startEdit(app);
+}
+
+// ---------- editing a drawn set ----------
+
+const r6 = n => Math.round(n * 1e6) / 1e6;
+const UNDO_MAX = 50;
+const NEED3 = 'A loop needs at least 3 points. Use Delete loop instead.';
+const HINT = 'Drag a point to move it. Drag or tap a faint dot to add a point.';
+
+function editSet() { return findSet(lineState, editing.setId); }
+
+// The editing cage's parts, as stored (mutated in place).
+function editParts() { return cageParts(editSet(), editing.cage); }
+
+function editKey() {
+  const key = normalise(editing.cage);
+  return Object.keys(editSet().loops).find(k => normalise(k) === key) || editing.cage;
+}
+
+function setMsg(text) {
+  editing.ui.msg.textContent = text;
+}
+
+// Draws every other cage's loops faint while editing.
+function drawFaintLines(app) {
+  for (const cage of app.data.cages) {
+    if (normalise(cage.name) === normalise(editing.cage)) continue;
+    const color = cageColor(app, cage.name);
+    for (const points of cageParts(editSet(), cage.name)) {
+      L.polygon(points, { color, weight: 2, opacity: 0.45, fill: false, interactive: false }).addTo(lines);
+    }
+  }
+}
+
+function pushUndo() {
+  editing.undo.push(JSON.parse(JSON.stringify(editSet().loops)));
+  if (editing.undo.length > UNDO_MAX) editing.undo.shift();
+}
+
+// Saves after every change.
+function commit() {
+  if (saveLines(lineState)) return true;
+  setMsg("Couldn't save. Storage may be full.");
+  return false;
+}
+
+function updateToolbar() {
+  const { ui, adding, sel } = editing;
+  ui.undo.disabled = adding ? !adding.length : !editing.undo.length;
+  ui.add.textContent = adding ? 'Cancel loop' : 'New loop';
+  ui.remove.disabled = !sel || !!adding;
+  ui.del.disabled = !!adding || !editParts().length;
+}
+
+function refreshHandles() {
+  if (!editing) return;
+  renderHandles();
+  updateToolbar();
+}
+
+function vertexIcon(selected) {
+  return L.divIcon({ className: 'map-vertex' + (selected ? ' selected' : ''), iconSize: [40, 40] });
+}
+
+// A tap on a touch screen often moves a few pixels, which Leaflet counts as a drag.
+const TAP_PX = 10;
+
+function pxApart(a, b) {
+  return map.latLngToContainerPoint(a).distanceTo(map.latLngToContainerPoint(b));
+}
+
+function renderHandles() {
+  const g = editing.group;
+  g.clearLayers();
+  const color = cageColor(editing.app, editing.cage);
+  editParts().forEach((part, pi) => {
+    const poly = L.polygon(part, { color, weight: 3, opacity: 0.95, fillColor: color, fillOpacity: 0.1, interactive: false }).addTo(g);
+    if (editing.adding) return; // no handles while drawing, so taps reach the map
+    const select = vi => { editing.sel = { pi, vi }; refreshHandles(); };
+    part.forEach((pt, vi) => {
+      const selected = editing.sel?.pi === pi && editing.sel?.vi === vi;
+      const m = L.marker(pt, { icon: vertexIcon(selected), draggable: true, keyboard: false, zIndexOffset: 100 }).addTo(g);
+      m.on('click', () => select(vi));
+      m.on('drag', () => {
+        const ll = part.map(p => [p[0], p[1]]);
+        const at = m.getLatLng();
+        ll[vi] = [at.lat, at.lng];
+        poly.setLatLngs(ll);
+      });
+      m.on('dragend', () => {
+        const at = m.getLatLng();
+        if (pxApart(pt, at) < TAP_PX) { setTimeout(() => editing && select(vi), 0); return; } // a tap: select, don't move
+        pushUndo();
+        part[vi] = [r6(at.lat), r6(at.lng)];
+        commit();
+        setTimeout(refreshHandles, 0); // not while Leaflet is still finishing the drag
+      });
+    });
+    part.forEach((pt, vi) => {
+      const next = part[(vi + 1) % part.length];
+      const middle = [(pt[0] + next[0]) / 2, (pt[1] + next[1]) / 2];
+      const mid = L.marker(middle, {
+        icon: L.divIcon({ className: 'map-midpoint', iconSize: [36, 36] }), draggable: true, keyboard: false,
+      }).addTo(g);
+      let done = false;
+      const insert = () => {
+        if (done) return;
+        done = true;
+        const at = pxApart(middle, mid.getLatLng()) < TAP_PX ? L.latLng(middle) : mid.getLatLng();
+        pushUndo();
+        part.splice(vi + 1, 0, [r6(at.lat), r6(at.lng)]);
+        editing.sel = { pi, vi: vi + 1 };
+        commit();
+        setTimeout(refreshHandles, 0);
+      };
+      mid.on('click', insert);
+      mid.on('dragend', insert);
+      mid.on('drag', () => {
+        const ll = part.map(p => [p[0], p[1]]);
+        const at = mid.getLatLng();
+        ll.splice(vi + 1, 0, [at.lat, at.lng]);
+        poly.setLatLngs(ll);
+      });
+    });
+  });
+  if (editing.adding) renderAdding(color);
+}
+
+// The loop being drawn: an open line and a dot per point; the first one closes it.
+function renderAdding(color) {
+  const pts = editing.adding;
+  if (pts.length > 1) L.polyline(pts, { color, weight: 3, interactive: false }).addTo(editing.group);
+  pts.forEach((pt, i) => {
+    const m = L.marker(pt, { icon: vertexIcon(false), interactive: i === 0, keyboard: false }).addTo(editing.group);
+    if (i === 0) m.on('click', closeLoop);
+  });
+}
+
+function closeLoop() {
+  if (editing.adding.length < 3) { setMsg('Add at least 3 points before closing the loop.'); return; }
+  pushUndo();
+  (editSet().loops[editKey()] ||= []).push(editing.adding);
+  editing.adding = null;
+  editing.sel = null;
+  commit();
+  setMsg(HINT);
+  refreshHandles();
+}
+
+function onMapClick(e) {
+  if (!editing) return;
+  if (editing.adding) {
+    // A tap on a point already in the new loop (other than the first, which closes it) isn't a new point.
+    if (editing.adding.some((p, i) => i > 0 && map.latLngToContainerPoint(p).distanceTo(e.containerPoint) < 12)) return;
+    editing.adding.push([r6(e.latlng.lat), r6(e.latlng.lng)]);
+    refreshHandles();
+  } else if (editing.sel) {
+    editing.sel = null;
+    refreshHandles();
+  }
+}
+
+function cancelAdding() {
+  if (!editing?.adding) return;
+  editing.adding = null;
+  setMsg(HINT);
+}
+
+function pickEditCage(name) {
+  const wasAdding = !!editing.adding;
+  cancelAdding();
+  editing.cage = name;
+  editing.sel = null;
+  const parts = editParts();
+  if (parts.length) map.fitBounds(L.latLngBounds(parts.flat()), { padding: [40, 40] });
+  showAllLines(editing.app);
+  updateToolbar();
+  if (wasAdding) setMsg('Loop cancelled.');
+}
+
+function editButton(text, onClick) {
+  const b = el('button', { type: 'button', textContent: text });
+  b.addEventListener('click', onClick);
+  return b;
+}
+
+function startEdit(app) {
+  const set = findSet(lineState, lineState.active);
+  if (!set || !app.data.cages.length) return;
+  panelOpen = false;
+  const names = app.data.cages.map(c => c.name);
+  const focus = focusCage && names.find(n => normalise(n) === normalise(focusCage));
+  const cage = focus || names.find(n => cageParts(set, n).length) || names[0];
+  const ui = {
+    select: el('select', {}, ...names.map(n => el('option', { value: n, textContent: n, selected: n === cage }))),
+    msg: el('p', { className: 'map-edit-msg', textContent: HINT }),
+  };
+  ui.select.setAttribute('aria-label', 'Cage to edit');
+  ui.select.addEventListener('change', () => pickEditCage(ui.select.value));
+  ui.undo = editButton('Undo', () => {
+    if (editing.adding) { editing.adding.pop(); refreshHandles(); return; } // drawing: step back one point
+    const snap = editing.undo.pop();
+    if (!snap) return;
+    cancelAdding();
+    editSet().loops = snap;
+    editing.sel = null;
+    commit();
+    refreshHandles();
+  });
+  ui.add = editButton('New loop', () => {
+    if (editing.adding) { cancelAdding(); refreshHandles(); return; }
+    editing.adding = [];
+    editing.sel = null;
+    setMsg('Tap the map to add points. Tap the first point to finish.');
+    refreshHandles();
+  });
+  ui.remove = editButton('Remove point', () => {
+    const { pi, vi } = editing.sel;
+    const part = editParts()[pi];
+    if (part.length <= 3) { setMsg(NEED3); return; }
+    pushUndo();
+    part.splice(vi, 1);
+    editing.sel = null;
+    commit();
+    refreshHandles();
+  });
+  ui.del = editButton('Delete loop', () => {
+    const parts = editParts();
+    const pi = editing.sel ? editing.sel.pi : parts.length === 1 ? 0 : -1;
+    if (pi < 0) { setMsg('Tap a point on the loop you want to delete first.'); return; }
+    pushUndo();
+    parts.splice(pi, 1);
+    if (!parts.length) delete editSet().loops[editKey()];
+    editing.sel = null;
+    commit();
+    refreshHandles();
+  });
+  ui.done = editButton('Done', () => endEdit());
+  editing = { app, setId: set.id, cage, sel: null, adding: null, undo: [], ui, group: L.layerGroup().addTo(map), control: null };
+  const EditControl = L.Control.extend({
+    onAdd() {
+      const box = el('div', { className: 'map-edit leaflet-bar' }, ui.select, ui.undo, ui.add, ui.remove, ui.del, ui.done, ui.msg);
+      L.DomEvent.disableClickPropagation(box);
+      L.DomEvent.disableScrollPropagation(box);
+      return box;
+    },
+  });
+  editing.control = new EditControl({ position: 'bottomleft' }).addTo(map);
+  map.doubleClickZoom.disable(); // quick taps while placing points would zoom
+  map.on('click', onMapClick);
+  const parts = cageParts(set, cage);
+  if (parts.length) map.fitBounds(L.latLngBounds(parts.flat()), { padding: [40, 40] });
+  showAllLines(app);
+  updateToolbar();
+}
+
+// Also runs when the map dialog closes any way (Escape, Back, Close).
+function endEdit() {
+  if (!editing) return;
+  const app = editing.app;
+  map.off('click', onMapClick);
+  map.doubleClickZoom.enable();
+  editing.group.remove();
+  editing.control.remove();
+  editing = null;
+  showAllLines(app);
 }
 
 function clearPin() {
@@ -233,6 +652,9 @@ function wire() {
     if (first) choose(first);
   });
   $('btn-map-close').addEventListener('click', () => $('dlg-map').close());
+  $('dlg-map').addEventListener('close', () => { $('dlg-lines').close(); endEdit(); });
+  $('form-lines').addEventListener('submit', e => { e.preventDefault(); submitLinesDialog(); });
+  $('btn-lines-cancel').addEventListener('click', () => $('dlg-lines').close());
 }
 
 // opts: {} = whole city; { cage } = that cage's area; { suburb } = pin it
@@ -251,14 +673,17 @@ export async function openMap(app, { suburb, cage } = {}) {
     showError("Map couldn't load. Check your connection.");
     return;
   }
+  lineState = loadLines();
+  panelOpen = false;
   if (!map) makeMap();
   map.invalidateSize();
   clearPin();
   focusCage = cage || null;
   const loop = cage && loops.get(normalise(cage));
+  const fit = (cage && partsFor(lineState.active, cage).length ? partsFor(lineState.active, cage) : loop?.parts) || [];
   const p = suburb && byKey.get(normalise(suburb));
   if (p) pinSuburb(p);
-  else if (loop) map.fitBounds(L.latLngBounds(loop.parts.flat()), { padding: [20, 20] });
+  else if (fit.length) map.fitBounds(L.latLngBounds(fit.flat()), { padding: [20, 20] });
   else if (cage) fitPoints(cagePoints(app, cage));
   else fitPoints(points);
   showAllLines(app);

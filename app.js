@@ -603,6 +603,7 @@ async function start() {
     $('dlg-photo').close(); // some browsers' Back pops history without closing the dialog
     $('dlg-est').close();
     $('dlg-map').close();
+    $('dlg-lines').close();
     showView(e.state?.view || 'search', { fromHistory: true, focus: false });
   });
 
