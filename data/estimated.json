@@ -8,7 +8,7 @@
                   "Regency Cartons",
                   "South Cartons"
               ],
-    "areasNote":  "Postcodes inside each region map\u0027s drawn loop (2026-10-27): SA Gov suburb boundaries (data.sa.gov.au, CC BY) tested against the traced loops; a suburb counts when 50%+ of it is inside the loop and on the photo; edge = under 90% inside. Left out: South\u0027s top edge (5157-5159, off the photo) and Beverley (on Port\u0027s line). Riverlea Park is written on the North sign. Shown when EST is tapped; the range on the line is lowest-highest of these. Regency re-scored 2026-10-27 (v23) against its refitted loop: Cavan 5094 added, Woodville Gardens no longer an edge. City, North, North East and Port re-scored 2026-10-27 (v24) against their road-matched loops, same rule.",
+    "areasNote":  "Postcodes inside each region map\u0027s drawn loop (2026-10-27): SA Gov suburb boundaries (data.sa.gov.au, CC BY) tested against the traced loops; a suburb counts when 50%+ of it is inside the loop and on the photo; edge = under 90% inside. Left out: South\u0027s top edge (5157-5159, off the photo) and Beverley (on Port\u0027s line). Riverlea Park is written on the North sign. Shown when EST is tapped; the range on the line is lowest-highest of these. Regency re-scored 2026-10-27 (v23) against its refitted loop: Cavan 5094 added, Woodville Gardens no longer an edge. City, North, North East and Port re-scored 2026-10-27 (v24) against their road-matched loops, same rule. South Cartons has two region maps: 5022-5048 added 2026-10-28 from the second (west) map, same rule.",
     "areas":  {
                   "City Cartons":  [
                                        {
@@ -1004,6 +1004,244 @@
                                           }
                                       ],
                   "South Cartons":  [
+                                        {
+                                            "code":  "5022",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Grange",
+                                                                "edge":  true
+                                                            },
+                                                            {
+                                                                "name":  "Henley Beach"
+                                                            },
+                                                            {
+                                                                "name":  "Henley Beach South"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5024",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Fulham"
+                                                            },
+                                                            {
+                                                                "name":  "Fulham Gardens"
+                                                            },
+                                                            {
+                                                                "name":  "West Beach"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5025",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Flinders Park",
+                                                                "edge":  true
+                                                            },
+                                                            {
+                                                                "name":  "Kidman Park"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5031",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Torrensville"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5032",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Brooklyn Park"
+                                                            },
+                                                            {
+                                                                "name":  "Lockleys"
+                                                            },
+                                                            {
+                                                                "name":  "Underdale"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5033",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Cowandilla"
+                                                            },
+                                                            {
+                                                                "name":  "Hilton"
+                                                            },
+                                                            {
+                                                                "name":  "Marleston"
+                                                            },
+                                                            {
+                                                                "name":  "Richmond"
+                                                            },
+                                                            {
+                                                                "name":  "West Richmond"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5037",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Glandore"
+                                                            },
+                                                            {
+                                                                "name":  "Kurralta Park"
+                                                            },
+                                                            {
+                                                                "name":  "Netley"
+                                                            },
+                                                            {
+                                                                "name":  "North Plympton"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5038",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Camden Park"
+                                                            },
+                                                            {
+                                                                "name":  "Plympton"
+                                                            },
+                                                            {
+                                                                "name":  "Plympton Park"
+                                                            },
+                                                            {
+                                                                "name":  "South Plympton"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5039",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Edwardstown"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5040",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Novar Gardens"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5042",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Clovelly Park"
+                                                            },
+                                                            {
+                                                                "name":  "Tonsley"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5043",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Ascot Park"
+                                                            },
+                                                            {
+                                                                "name":  "Marion"
+                                                            },
+                                                            {
+                                                                "name":  "Mitchell Park"
+                                                            },
+                                                            {
+                                                                "name":  "Morphettville"
+                                                            },
+                                                            {
+                                                                "name":  "Park Holme"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5044",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Glengowrie"
+                                                            },
+                                                            {
+                                                                "name":  "Somerton Park"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5045",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Glenelg"
+                                                            },
+                                                            {
+                                                                "name":  "Glenelg East"
+                                                            },
+                                                            {
+                                                                "name":  "Glenelg North"
+                                                            },
+                                                            {
+                                                                "name":  "Glenelg South"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5046",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Oaklands Park"
+                                                            },
+                                                            {
+                                                                "name":  "Warradale"
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5047",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Seacombe Gardens",
+                                                                "edge":  true
+                                                            },
+                                                            {
+                                                                "name":  "Sturt",
+                                                                "edge":  true
+                                                            }
+                                                        ]
+                                        },
+                                        {
+                                            "code":  "5048",
+                                            "suburbs":  [
+                                                            {
+                                                                "name":  "Brighton"
+                                                            },
+                                                            {
+                                                                "name":  "Dover Gardens",
+                                                                "edge":  true
+                                                            },
+                                                            {
+                                                                "name":  "Hove"
+                                                            },
+                                                            {
+                                                                "name":  "North Brighton"
+                                                            },
+                                                            {
+                                                                "name":  "South Brighton",
+                                                                "edge":  true
+                                                            }
+                                                        ]
+                                        },
                                         {
                                             "code":  "5160",
                                             "suburbs":  [

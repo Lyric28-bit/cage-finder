@@ -46,7 +46,7 @@ try {
   // Multi-destination and local
   r = top('Pinkerton Plains'); check('"Pinkerton Plains" -> Kadina / Yorke Peninsula only (Pete, 2026-10-27)', cagesOf(r) === 'Kadina / Yorke Peninsula', describe(r));
   r = top('Happy Valley');   check('"Happy Valley" -> Mildura + LOCAL', cagesOf(r) === 'LOCAL+Mildura', describe(r));
-  r = top('Glenelg');        check('"Glenelg" -> LOCAL', r?.name === 'Glenelg' && cagesOf(r) === 'LOCAL', describe(r));
+  r = top('Seacliff');       check('"Seacliff" -> LOCAL', r?.name === 'Seacliff' && cagesOf(r) === 'LOCAL', describe(r));
   r = top('Gawler');         check('"Gawler" -> Barossa only (not LOCAL)', cagesOf(r) === 'Barossa', describe(r));
   r = top('Berri');          check('"Berri" (cage town) -> Berri', cagesOf(r) === 'Berri', describe(r));
   r = top('Mt Gambier');     check('"Mt Gambier" (cage town) -> Mount Gambier', cagesOf(r) === 'Mount Gambier', describe(r));
@@ -64,7 +64,7 @@ try {
   r = sim('Paringi');        check('"Paringi" warns about Paringa', r.includes('Paringa'), r.join(', '));
   r = sim('Newton');         check('"Newton" warns about New Town', r.includes('New Town'), r.join(', '));
   r = sim('Myponga');        check('"Myponga" warns about Mypolonga', r.includes('Mypolonga'), r.join(', '));
-  r = sim('Marino');         check('"Marino" no warning for Marion (both LOCAL)', !r.includes('Marion'), r.join(', ') || '(none)');
+  r = sim('Marino');         check('"Marino" (LOCAL) warns about Marion (South Cartons since v26)', r.includes('Marion'), r.join(', ') || '(none)');
   r = sim('Hove');           check('"Hove" no warning for Robe (too short)', !r.includes('Robe'), r.join(', ') || '(none)');
   // ---------- Store ----------
   // Pure-function tests on deep copies of the shipped data. Nothing here calls

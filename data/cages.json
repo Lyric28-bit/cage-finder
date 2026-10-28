@@ -109,7 +109,7 @@
     {
       "name": "South Cartons",
       "color": "#00695C",
-      "suburbs": ["Christie Downs", "Christies Beach", "Hackham", "Hackham West", "Huntfield Heights", "Lonsdale", "McLaren Flat", "Morphett Vale", "Noarlunga Centre", "Noarlunga Downs", "Old Noarlunga", "Old Reynella", "Onkaparinga Hills", "O'Sullivan Beach", "Port Noarlunga", "Port Noarlunga South", "Port Willunga", "Reynella", "Reynella East", "Seaford Heights", "Seaford Meadows", "Seaford Rise", "Sellicks Hill", "Tatachilla", "Willunga Hill", "Willunga South", "Woodcroft"]
+      "suburbs": ["Ascot Park", "Brighton", "Brooklyn Park", "Camden Park", "Christie Downs", "Christies Beach", "Cowandilla", "Fulham", "Fulham Gardens", "Glenelg", "Glenelg East", "Glenelg North", "Glenelg South", "Glengowrie", "Hackham", "Hackham West", "Henley Beach", "Henley Beach South", "Hove", "Huntfield Heights", "Kidman Park", "Lockleys", "Lonsdale", "Marion", "Marleston", "McLaren Flat", "Mitchell Park", "Morphett Vale", "Morphettville", "Netley", "Noarlunga Centre", "Noarlunga Downs", "North Brighton", "North Plympton", "Novar Gardens", "Oaklands Park", "Old Noarlunga", "Old Reynella", "Onkaparinga Hills", "O'Sullivan Beach", "Park Holme", "Plympton", "Plympton Park", "Port Noarlunga", "Port Noarlunga South", "Port Willunga", "Reynella", "Reynella East", "Richmond", "Seaford Heights", "Seaford Meadows", "Seaford Rise", "Sellicks Hill", "Somerton Park", "South Plympton", "Tatachilla", "Torrensville", "Underdale", "Warradale", "West Beach", "West Richmond", "Willunga Hill", "Willunga South", "Woodcroft"]
     },
     {
       "name": "Victor Harbor",

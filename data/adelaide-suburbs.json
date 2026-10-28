@@ -10,10 +10,6 @@
                         "postcode":  "5009"
                     },
                     {
-                        "name":  "Ascot Park",
-                        "postcode":  "5043"
-                    },
-                    {
                         "name":  "Basket Range",
                         "postcode":  "5138"
                     },
@@ -34,16 +30,8 @@
                         "postcode":  "5153"
                     },
                     {
-                        "name":  "Brighton",
-                        "postcode":  "5048"
-                    },
-                    {
                         "name":  "Broadview",
                         "postcode":  "5083"
-                    },
-                    {
-                        "name":  "Brooklyn Park",
-                        "postcode":  "5032"
                     },
                     {
                         "name":  "Buchfelde",
@@ -52,10 +40,6 @@
                     {
                         "name":  "Bull Creek",
                         "postcode":  "5157"
-                    },
-                    {
-                        "name":  "Camden Park",
-                        "postcode":  "5038"
                     },
                     {
                         "name":  "Carey Gully",
@@ -108,10 +92,6 @@
                     {
                         "name":  "Coromandel Valley",
                         "postcode":  "5051"
-                    },
-                    {
-                        "name":  "Cowandilla",
-                        "postcode":  "5033"
                     },
                     {
                         "name":  "Crafers West",
@@ -190,14 +170,6 @@
                         "postcode":  "5139"
                     },
                     {
-                        "name":  "Fulham",
-                        "postcode":  "5024"
-                    },
-                    {
-                        "name":  "Fulham Gardens",
-                        "postcode":  "5024"
-                    },
-                    {
                         "name":  "Garden Island",
                         "postcode":  "5015"
                     },
@@ -234,26 +206,6 @@
                         "postcode":  "5037"
                     },
                     {
-                        "name":  "Glenelg",
-                        "postcode":  "5045"
-                    },
-                    {
-                        "name":  "Glenelg East",
-                        "postcode":  "5045"
-                    },
-                    {
-                        "name":  "Glenelg North",
-                        "postcode":  "5045"
-                    },
-                    {
-                        "name":  "Glenelg South",
-                        "postcode":  "5045"
-                    },
-                    {
-                        "name":  "Glengowrie",
-                        "postcode":  "5044"
-                    },
-                    {
                         "name":  "Gould Creek",
                         "postcode":  "5114"
                     },
@@ -276,14 +228,6 @@
                     {
                         "name":  "Heathfield",
                         "postcode":  "5153"
-                    },
-                    {
-                        "name":  "Henley Beach",
-                        "postcode":  "5022"
-                    },
-                    {
-                        "name":  "Henley Beach South",
-                        "postcode":  "5022"
                     },
                     {
                         "name":  "Hewett",
@@ -310,10 +254,6 @@
                         "postcode":  "5131"
                     },
                     {
-                        "name":  "Hove",
-                        "postcode":  "5048"
-                    },
-                    {
                         "name":  "Humbug Scrub",
                         "postcode":  "5114"
                     },
@@ -336,10 +276,6 @@
                     {
                         "name":  "Kangaroo Flat",
                         "postcode":  "5118"
-                    },
-                    {
-                        "name":  "Kidman Park",
-                        "postcode":  "5025"
                     },
                     {
                         "name":  "Kilkenny",
@@ -370,10 +306,6 @@
                         "postcode":  "5085"
                     },
                     {
-                        "name":  "Lockleys",
-                        "postcode":  "5032"
-                    },
-                    {
                         "name":  "Longwood",
                         "postcode":  "5153"
                     },
@@ -390,14 +322,6 @@
                         "postcode":  "5049"
                     },
                     {
-                        "name":  "Marion",
-                        "postcode":  "5043"
-                    },
-                    {
-                        "name":  "Marleston",
-                        "postcode":  "5033"
-                    },
-                    {
                         "name":  "Mawson Lakes",
                         "postcode":  "5095"
                     },
@@ -410,16 +334,8 @@
                         "postcode":  "5031"
                     },
                     {
-                        "name":  "Mitchell Park",
-                        "postcode":  "5043"
-                    },
-                    {
                         "name":  "Montarra",
                         "postcode":  "5172"
-                    },
-                    {
-                        "name":  "Morphettville",
-                        "postcode":  "5043"
                     },
                     {
                         "name":  "Mount George",
@@ -430,32 +346,12 @@
                         "postcode":  "5083"
                     },
                     {
-                        "name":  "Netley",
-                        "postcode":  "5037"
-                    },
-                    {
-                        "name":  "North Brighton",
-                        "postcode":  "5048"
-                    },
-                    {
-                        "name":  "North Plympton",
-                        "postcode":  "5037"
-                    },
-                    {
                         "name":  "Northfield",
                         "postcode":  "5085"
                     },
                     {
                         "name":  "Northgate",
                         "postcode":  "5085"
-                    },
-                    {
-                        "name":  "Novar Gardens",
-                        "postcode":  "5040"
-                    },
-                    {
-                        "name":  "Oaklands Park",
-                        "postcode":  "5046"
                     },
                     {
                         "name":  "O\u0027Halloran Hill",
@@ -478,18 +374,6 @@
                         "postcode":  "5106"
                     },
                     {
-                        "name":  "Park Holme",
-                        "postcode":  "5043"
-                    },
-                    {
-                        "name":  "Plympton",
-                        "postcode":  "5038"
-                    },
-                    {
-                        "name":  "Plympton Park",
-                        "postcode":  "5038"
-                    },
-                    {
                         "name":  "Pooraka",
                         "postcode":  "5095"
                     },
@@ -504,10 +388,6 @@
                     {
                         "name":  "Renown Park",
                         "postcode":  "5008"
-                    },
-                    {
-                        "name":  "Richmond",
-                        "postcode":  "5033"
                     },
                     {
                         "name":  "Ridleyton",
@@ -554,16 +434,8 @@
                         "postcode":  "5158"
                     },
                     {
-                        "name":  "Somerton Park",
-                        "postcode":  "5044"
-                    },
-                    {
                         "name":  "South Brighton",
                         "postcode":  "5048"
-                    },
-                    {
-                        "name":  "South Plympton",
-                        "postcode":  "5038"
                     },
                     {
                         "name":  "Sturt",
@@ -578,20 +450,12 @@
                         "postcode":  "5015"
                     },
                     {
-                        "name":  "Torrensville",
-                        "postcode":  "5031"
-                    },
-                    {
                         "name":  "Trott Park",
                         "postcode":  "5158"
                     },
                     {
                         "name":  "Uleybury",
                         "postcode":  "5114"
-                    },
-                    {
-                        "name":  "Underdale",
-                        "postcode":  "5032"
                     },
                     {
                         "name":  "Upper Hermitage",
@@ -606,16 +470,8 @@
                         "postcode":  "5118"
                     },
                     {
-                        "name":  "Warradale",
-                        "postcode":  "5046"
-                    },
-                    {
                         "name":  "Welland",
                         "postcode":  "5007"
-                    },
-                    {
-                        "name":  "West Beach",
-                        "postcode":  "5024"
                     },
                     {
                         "name":  "West Croydon",
@@ -624,10 +480,6 @@
                     {
                         "name":  "West Hindmarsh",
                         "postcode":  "5007"
-                    },
-                    {
-                        "name":  "West Richmond",
-                        "postcode":  "5033"
                     },
                     {
                         "name":  "Yattalunga",

@@ -1,5 +1,5 @@
 {
-    "source":  "SA Government suburb boundaries (data.sa.gov.au, CC-BY 4.0, updated 2022-03-17). Only sheet names matching exactly one SA locality. Left out on purpose: every Mildura-sheet name (interstate towns; Happy Valley and Yelta only match unrelated SA places) and Hamilton on the Mount Gambier sheet (Hamilton VIC, not SA 5373). 2026-10-24 cross-check against Matthew Proctor australian_postcodes and schappim australian-postcodes (Delivery Areas): removed until Lyric checks at work: Kuitpo, Kulpara, Monteith, Mount Gambier, Murray Bridge, Petwood, Port Augusta, Port Lincoln, Tailem Bend. Postcodes typed into the app override these.",
+    "source":  "SA Government suburb boundaries (data.sa.gov.au, CC-BY 4.0, updated 2022-03-17). Only sheet names matching exactly one SA locality. Left out on purpose: every Mildura-sheet name (interstate towns; Happy Valley and Yelta only match unrelated SA places) and Hamilton on the Mount Gambier sheet (Hamilton VIC, not SA 5373). 2026-10-24 cross-check against Matthew Proctor australian_postcodes and schappim australian-postcodes (Delivery Areas): removed until Lyric checks at work: Kuitpo, Kulpara, Monteith, Mount Gambier, Murray Bridge, Petwood, Port Augusta, Port Lincoln, Tailem Bend. Postcodes typed into the app override these. 2026-10-28: added the 37 suburbs that joined South Cartons from its second region map, with the postcode they already had on the Local list (SA Gov).",
     "postcodes":  {
                       "adelaide":  [
                                        "5000"
@@ -42,6 +42,9 @@
                                   ],
                       "arthurton":  [
                                         "5572"
+                                    ],
+                      "ascotpark":  [
+                                        "5043"
                                     ],
                       "ashbourne":  [
                                         "5157"
@@ -172,12 +175,18 @@
                       "bridgewater":  [
                                           "5155"
                                       ],
+                      "brighton":  [
+                                       "5048"
+                                   ],
                       "brinkley":  [
                                        "5253"
                                    ],
                       "brompton":  [
                                        "5007"
                                    ],
+                      "brooklynpark":  [
+                                           "5032"
+                                       ],
                       "brownhillcreek":  [
                                              "5062"
                                          ],
@@ -217,6 +226,9 @@
                       "calomba":  [
                                       "5501"
                                   ],
+                      "camdenpark":  [
+                                         "5038"
+                                     ],
                       "campbelltown":  [
                                            "5074"
                                        ],
@@ -303,6 +315,9 @@
                                     ],
                       "coonawarra":  [
                                          "5263"
+                                     ],
+                      "cowandilla":  [
+                                         "5033"
                                      ],
                       "cowell":  [
                                      "5602"
@@ -496,6 +511,12 @@
                       "frewville":  [
                                         "5063"
                                     ],
+                      "fulham":  [
+                                     "5024"
+                                 ],
+                      "fulhamgardens":  [
+                                            "5024"
+                                        ],
                       "fullarton":  [
                                         "5063"
                                     ],
@@ -529,6 +550,21 @@
                       "glencoe":  [
                                       "5291"
                                   ],
+                      "glenelg":  [
+                                      "5045"
+                                  ],
+                      "glenelgeast":  [
+                                          "5045"
+                                      ],
+                      "glenelgnorth":  [
+                                           "5045"
+                                       ],
+                      "glenelgsouth":  [
+                                           "5045"
+                                       ],
+                      "glengowrie":  [
+                                         "5044"
+                                     ],
                       "glenosmond":  [
                                          "5064"
                                      ],
@@ -628,6 +664,12 @@
                       "hendon":  [
                                      "5014"
                                  ],
+                      "henleybeach":  [
+                                          "5022"
+                                      ],
+                      "henleybeachsouth":  [
+                                               "5022"
+                                           ],
                       "highbury":  [
                                        "5089"
                                    ],
@@ -658,6 +700,9 @@
                       "hornsdale":  [
                                         "5491"
                                     ],
+                      "hove":  [
+                                   "5048"
+                               ],
                       "huntfieldheights":  [
                                                "5163"
                                            ],
@@ -733,6 +778,9 @@
                       "keyneton":  [
                                        "5353"
                                    ],
+                      "kidmanpark":  [
+                                         "5025"
+                                     ],
                       "kielpa":  [
                                      "5642"
                                  ],
@@ -817,6 +865,9 @@
                       "lock":  [
                                    "5633"
                                ],
+                      "lockleys":  [
+                                       "5032"
+                                   ],
                       "lonsdale":  [
                                        "5160"
                                    ],
@@ -892,8 +943,14 @@
                       "marden":  [
                                      "5070"
                                  ],
+                      "marion":  [
+                                     "5043"
+                                 ],
                       "marionbay":  [
                                         "5575"
+                                    ],
+                      "marleston":  [
+                                        "5033"
                                     ],
                       "marryatville":  [
                                            "5068"
@@ -964,6 +1021,9 @@
                       "mitcham":  [
                                       "5062"
                                   ],
+                      "mitchellpark":  [
+                                           "5043"
+                                       ],
                       "moana":  [
                                     "5169"
                                 ],
@@ -1006,6 +1066,9 @@
                       "morphettvale":  [
                                            "5162"
                                        ],
+                      "morphettville":  [
+                                            "5043"
+                                        ],
                       "mountbarker":  [
                                           "5251"
                                       ],
@@ -1090,6 +1153,9 @@
                       "netherby":  [
                                        "5062"
                                    ],
+                      "netley":  [
+                                     "5037"
+                                 ],
                       "newport":  [
                                       "5015"
                                   ],
@@ -1117,9 +1183,15 @@
                       "northbeach":  [
                                          "5556"
                                      ],
+                      "northbrighton":  [
+                                            "5048"
+                                        ],
                       "northhaven":  [
                                          "5018"
                                      ],
+                      "northplympton":  [
+                                            "5037"
+                                        ],
                       "northshields":  [
                                            "5607"
                                        ],
@@ -1129,6 +1201,9 @@
                       "norwood":  [
                                       "5067"
                                   ],
+                      "novargardens":  [
+                                           "5040"
+                                       ],
                       "nuriootpa":  [
                                         "5355"
                                     ],
@@ -1138,6 +1213,9 @@
                       "oakden":  [
                                      "5086"
                                  ],
+                      "oaklandspark":  [
+                                           "5046"
+                                       ],
                       "obflat":  [
                                      "5291"
                                  ],
@@ -1213,6 +1291,9 @@
                       "paringa":  [
                                       "5340"
                                   ],
+                      "parkholme":  [
+                                        "5043"
+                                    ],
                       "parkside":  [
                                        "5063"
                                    ],
@@ -1261,6 +1342,12 @@
                       "pinkertonplains":  [
                                               "5400"
                                           ],
+                      "plympton":  [
+                                       "5038"
+                                   ],
+                      "plymptonpark":  [
+                                           "5038"
+                                       ],
                       "pointturton":  [
                                           "5575"
                                       ],
@@ -1363,6 +1450,9 @@
                       "reynellaeast":  [
                                            "5161"
                                        ],
+                      "richmond":  [
+                                       "5033"
+                                   ],
                       "ridgehaven":  [
                                          "5097"
                                      ],
@@ -1495,9 +1585,15 @@
                       "solomontown":  [
                                           "5540"
                                       ],
+                      "somertonpark":  [
+                                           "5044"
+                                       ],
                       "southend":  [
                                        "5280"
                                    ],
+                      "southplympton":  [
+                                            "5038"
+                                        ],
                       "spalding":  [
                                        "5454"
                                    ],
@@ -1639,6 +1735,9 @@
                       "torrenspark":  [
                                           "5062"
                                       ],
+                      "torrensville":  [
+                                           "5031"
+                                       ],
                       "totness":  [
                                       "5250"
                                   ],
@@ -1660,6 +1759,9 @@
                       "twowells":  [
                                        "5501"
                                    ],
+                      "underdale":  [
+                                        "5032"
+                                    ],
                       "unley":  [
                                     "5061"
                                 ],
@@ -1723,6 +1825,9 @@
                       "warooka":  [
                                       "5577"
                                   ],
+                      "warradale":  [
+                                        "5046"
+                                    ],
                       "wasleys":  [
                                       "5400"
                                   ],
@@ -1747,6 +1852,9 @@
                       "wellington":  [
                                          "5259"
                                      ],
+                      "westbeach":  [
+                                        "5024"
+                                    ],
                       "westbournepark":  [
                                              "5041"
                                          ],
@@ -1759,6 +1867,9 @@
                       "westlakesshore":  [
                                              "5020"
                                          ],
+                      "westrichmond":  [
+                                           "5033"
+                                       ],
                       "whitesands":  [
                                          "5253"
                                      ],

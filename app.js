@@ -235,10 +235,16 @@ function postcodeRange(cageName) {
     if (!cage) return '';
     codes = cage.suburbs.flatMap(s => postcodeOf(s, cage.name)).map(Number);
   }
-  codes = codes.filter(Boolean);
+  codes = [...new Set(codes.filter(Boolean))].sort((a, b) => a - b);
   if (!codes.length) return '';
-  const lo = Math.min(...codes), hi = Math.max(...codes);
-  return lo === hi ? String(lo) : `${lo}–${hi}`;
+  // A jump of over 100 means a second region map (South Cartons: 5022–5048, 5160–5173),
+  // not a gap inside one map (Regency's 5023 to 5094 stays one range).
+  const runs = [[codes[0], codes[0]]];
+  for (const n of codes.slice(1)) {
+    if (n - runs[runs.length - 1][1] > 100) runs.push([n, n]);
+    else runs[runs.length - 1][1] = n;
+  }
+  return runs.map(([lo, hi]) => (lo === hi ? String(lo) : `${lo}–${hi}`)).join(', ');
 }
 
 // Postcodes as runs: 5000, 5006–5007, 5061–5069.

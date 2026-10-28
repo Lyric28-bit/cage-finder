@@ -1,7 +1,7 @@
 {
-    "version":  2,
+    "version":  3,
     "source":  "2026-10-24 check of the 6 Cartons cages against the region map photos, using SA Gov suburb boundaries (data.sa.gov.au, CC BY) plus Matthew Proctor australian_postcodes and schappim australian-postcodes locations. Listed suburbs were not 100% inside their loop (straddle the line, outside it, too close to call, off the photo, or sources disagree), so the app moves them to Local (cage not set yet) once per version. Lyric moves them in-app after checking at work.",
-    "restoreNote":  "Version 2 (2026-10-27): these were re-checked against the road-matched region lines (v24) and are clearly inside their cage. A device that already applied an older list moves each one still in Local back to its cage, once; nothing is re-hidden.",
+    "restoreNote":  "Version 2 (2026-10-27): these were re-checked against the road-matched region lines (v24) and are clearly inside their cage. A device that already applied an older list moves each one still in Local back to its cage, once; nothing is re-hidden. Version 3 (2026-10-28): a second South Cartons region map (Grange to Brighton, east to South Rd) was scanned; these 37 Local suburbs are clearly inside it (same rule) and join South Cartons.",
     "restore":  {
                     "2":  {
                               "City Cartons":  [
@@ -90,6 +90,47 @@
                                                     "Tatachilla",
                                                     "Willunga South",
                                                     "Woodcroft"
+                                                ]
+                          },
+                    "3":  {
+                              "South Cartons":  [
+                                                    "Ascot Park",
+                                                    "Brighton",
+                                                    "Brooklyn Park",
+                                                    "Camden Park",
+                                                    "Cowandilla",
+                                                    "Fulham",
+                                                    "Fulham Gardens",
+                                                    "Glenelg",
+                                                    "Glenelg East",
+                                                    "Glenelg North",
+                                                    "Glenelg South",
+                                                    "Glengowrie",
+                                                    "Henley Beach",
+                                                    "Henley Beach South",
+                                                    "Hove",
+                                                    "Kidman Park",
+                                                    "Lockleys",
+                                                    "Marion",
+                                                    "Marleston",
+                                                    "Mitchell Park",
+                                                    "Morphettville",
+                                                    "Netley",
+                                                    "North Brighton",
+                                                    "North Plympton",
+                                                    "Novar Gardens",
+                                                    "Oaklands Park",
+                                                    "Park Holme",
+                                                    "Plympton",
+                                                    "Plympton Park",
+                                                    "Richmond",
+                                                    "Somerton Park",
+                                                    "South Plympton",
+                                                    "Torrensville",
+                                                    "Underdale",
+                                                    "Warradale",
+                                                    "West Beach",
+                                                    "West Richmond"
                                                 ]
                           }
                 },

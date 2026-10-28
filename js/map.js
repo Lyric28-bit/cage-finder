@@ -52,7 +52,16 @@ function loadPoints() {
 function loadLoops() {
   loopsP ||= fetch('data/region-loops.json')
     .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(j => { loops = new Map(j.loops.map(l => [normalise(l.cage), { points: l.points, within: l.within }])); })
+    .then(j => {
+      // A cage can have more than one region map (South Cartons has two): one entry per map.
+      loops = new Map();
+      for (const l of j.loops) {
+        const key = normalise(l.cage);
+        if (!loops.has(key)) loops.set(key, { parts: [], within: [] });
+        loops.get(key).parts.push(l.points);
+        loops.get(key).within.push(l.within);
+      }
+    })
     .catch(() => { loopsP = null; });
   return loopsP;
 }
@@ -90,13 +99,21 @@ function cageColor(app, cageName) {
   return app.data.cages.find(c => normalise(c.name) === key)?.color || '#888888';
 }
 
-// Faint dashed outline of a cage's region-map loop, in the cage's colour.
+// Faint dashed outline of each of a cage's region-map loops, in the cage's colour.
 function drawLoop(app, cageName) {
   const loop = loops.get(normalise(cageName));
-  if (!loop) return null;
+  if (!loop) return;
   const color = cageColor(app, cageName);
-  return L.polygon(loop.points, { color, weight: 3, opacity: 0.85, dashArray: '8 6', fillColor: color, fillOpacity: 0.07, interactive: false })
-    .addTo(lines);
+  for (const points of loop.parts) {
+    L.polygon(points, { color, weight: 3, opacity: 0.85, dashArray: '8 6', fillColor: color, fillOpacity: 0.07, interactive: false })
+      .addTo(lines);
+  }
+}
+
+// "±0.3 km", or "±0.3/1.1 km" for a cage with two maps of different accuracy.
+function withinText(loop) {
+  if (loop.within.some(w => !w)) return '± ?';
+  return `±${[...new Set(loop.within)].sort((a, b) => a - b).join('/')} km`;
 }
 
 // "Cage lines" button, and a colour key while all the lines are on.
@@ -120,7 +137,7 @@ function renderLinesBox(app) {
       if (!loop) continue;
       const dot = el('span', { className: 'map-lines-dot' });
       dot.style.background = cage.color;
-      const near = el('span', { className: 'map-lines-near', textContent: loop.within ? `±${loop.within} km` : '± ?' });
+      const near = el('span', { className: 'map-lines-near', textContent: withinText(loop) });
       key.append(el('li', {}, dot, cage.name, near));
     }
     if (key.childElementCount) key.append(el('li', { className: 'map-lines-note', textContent: '± = how far a line may be off the drawn map' }));
@@ -241,7 +258,7 @@ export async function openMap(app, { suburb, cage } = {}) {
   const loop = cage && loops.get(normalise(cage));
   const p = suburb && byKey.get(normalise(suburb));
   if (p) pinSuburb(p);
-  else if (loop) map.fitBounds(L.latLngBounds(loop.points), { padding: [20, 20] });
+  else if (loop) map.fitBounds(L.latLngBounds(loop.parts.flat()), { padding: [20, 20] });
   else if (cage) fitPoints(cagePoints(app, cage));
   else fitPoints(points);
   showAllLines(app);
