@@ -27,6 +27,8 @@ export const app = {
   },
   // What a fresh device has after migrate: share links only carry the differences from it.
   async shareBaseline() {
+    // Without these the baseline would differ from other devices' and every link would look mismatched.
+    if (!ref.unsure || !ref.sheet || !Object.keys(ref.postcodes).length) throw new Error('baseline');
     const base = {};
     replaceData(base, await loadDefaults());
     applyRenames(base);
@@ -625,6 +627,8 @@ async function start() {
   showView('search');
 
   await checkShareHash(app);
+  // A share link opened while the app is already open only changes the hash.
+  window.addEventListener('hashchange', () => checkShareHash(app));
 
   if (await sheetUpdateAvailable(app.data)) {
     showMessage('New sheet data is available. ⋯ → Reset to sheet data to use it (this clears your edits, so Export first).');

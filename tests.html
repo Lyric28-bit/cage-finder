@@ -11,7 +11,7 @@
 import { buildIndex, search, similarPlaces, normalise } from './js/match.js';
 import { isValid, isImportable, findCage, addCage, addSuburbToCage, renameCage, removeSuburbFromCage, deleteCage, replaceData, setPostcode, postcodeKey, applyRenames, applyUnsure, CAGE_RENAMES, LOCAL_DEST, setApproval, approvalOf, checkApprover } from './js/store.js';
 import { CAPS, renameCageInSets, NAME_MAX, emptyLines, cleanSets, uniqueName, newSet, renameSet, deleteSet, mergeSets, findSet, cageParts, builtinLoops, simplifyPart, SIMPLIFY_M } from './js/lines.js';
-import { packShare, unpackShare, encodeShare, decodeShare, fingerprint, payloadOf, shareSupported } from './js/share.js';
+import { packShare, unpackShare, encodeShare, decodeShare, fingerprint, payloadsOf, shareSupported } from './js/share.js';
 import { MAP_FILE, mapStatus, cachedMapBlob, getBasePref, setBasePref, downloadMessage, progressText } from './js/offline-map.js';
 
 const out = [];
@@ -751,7 +751,16 @@ try {
     try { unpackShare({ h: fingerprint(base), c: [{ n: 'X', c: 'red', s: [] }] }, base); } catch (e) { bad = e.message; }
     check('Share: bad cage colour is refused', bad === 'bad');
     check('Share: payload found in a full URL, a bare hash or on its own',
-      payloadOf(' https://x.io/cage-finder/#share=1.abc ') === '1.abc' && payloadOf('#share=1.abc') === '1.abc' && payloadOf('1.abc') === '1.abc');
+      payloadsOf(' https://x.io/cage-finder/#share=1.abc ')[0] === '1.abc' && payloadsOf('#share=1.abc')[0] === '1.abc' && payloadsOf('1.abc').join() === '1.abc');
+    check('Share: pasted text gives both readings (to first space, and spaces dropped)',
+      payloadsOf('here https://x.io/#share=1.ab thanks!').join() === '1.ab,1.abthanks' && payloadsOf('#share=1.ab\ncd-_\r\nef').includes('1.abcd-_ef'));
+    enc = await encodeShare(plain, base, sets);
+    const tryAll = async ps => { for (const p of ps) { try { return await decodeShare(p, makeBase()); } catch { /* next */ } } return null; };
+    check('Share: hard-wrapped link decodes', (await tryAll(payloadsOf('https://x.io/#share=' + enc.slice(0, 50) + '\n' + enc.slice(50))))?.lineSets.length === 1);
+    check('Share: link with words after decodes', (await tryAll(payloadsOf('see https://x.io/#share=' + enc + ' cheers')))?.lineSets.length === 1);
+    const mine = { ...emptyLines(), sets: structuredClone(sets) };
+    got = await roundTrip(plain, sets);
+    check('Share: a line set sent back to its owner is not added again', mergeSets(mine, got.lineSets) === 0 && mine.sets.length === 1);
   }
 } catch (e) {
   out.push('ERROR ' + e.stack);

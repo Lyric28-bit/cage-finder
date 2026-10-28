@@ -6,7 +6,7 @@
 // rides along, so a device with different sheet data refuses rather than guesses.
 // The part after # never reaches the server. Photos are never included.
 
-import { isImportable, replaceData } from './store.js';
+import { isImportable, replaceData, sheetUpdateAvailable } from './store.js';
 import { cleanSets, loadLines, saveLines, mergeSets } from './lines.js';
 
 export const HASH_KEY = '#share=';
@@ -211,10 +211,14 @@ export async function decodeShare(text, base) {
 }
 
 // The payload from a pasted link, a bare "#share=..." or the payload itself.
-export function payloadOf(text) {
-  const t = String(text).trim();
+// People add words after a link, and email can hard-wrap a long one, so there
+// are two readings to try: up to the first space, and with all spaces dropped.
+export function payloadsOf(text) {
+  let t = String(text).trim();
   const i = t.indexOf(HASH_KEY);
-  return i >= 0 ? t.slice(i + HASH_KEY.length) : t;
+  if (i >= 0) t = t.slice(i + HASH_KEY.length);
+  const lead = s => /^\d+\.[A-Za-z0-9_-]+/.exec(s)?.[0] || s;
+  return [...new Set([lead(t.split(/\s/)[0]), lead(t.replace(/\s+/g, ''))])];
 }
 
 // ---------- dialog ----------
@@ -229,6 +233,14 @@ const MESSAGES = {
 
 let mode = 'send';
 let pending = null; // decoded link waiting for Replace
+// An opened link is kept for this tab until Replace or Cancel, so "update the
+// app" on a version mismatch (which reloads the page) can still use it.
+const OPENED = 'cage-share-opened';
+let keepOpened = false;
+
+const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent)
+  || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isHomeScreenApp = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 
 function setUp(app) {
   const dlg = $('dlg-share');
@@ -237,7 +249,10 @@ function setUp(app) {
   $('btn-share-cancel').addEventListener('click', () => dlg.close());
   $('btn-share-copy').addEventListener('click', () => copyLink());
   $('btn-share-ok').addEventListener('click', () => onOk(app));
-  dlg.addEventListener('close', () => { pending = null; });
+  dlg.addEventListener('close', () => {
+    pending = null;
+    if (!keepOpened) sessionStorage.removeItem(OPENED);
+  });
   return dlg;
 }
 
@@ -284,7 +299,7 @@ async function onOk(app) {
       if (err.name !== 'AbortError') copyLink();
     }
   } else if (mode === 'paste') {
-    await receive(app, payloadOf($('share-link').value));
+    await receive(app, payloadsOf($('share-link').value));
   } else if (mode === 'receive' && pending) {
     apply(app, pending);
   }
@@ -325,29 +340,48 @@ export function openPasteLink(app) {
   show(app, { title: 'Open share link', text: 'Paste a Cage Notes share link.', link: '', editable: true, ok: 'Open', cancel: 'Cancel' });
 }
 
-// Startup: the app was opened from a share link.
+// Start, or a link opened while the app was already open (hashchange).
 export async function checkShareHash(app) {
-  if (!location.hash.startsWith(HASH_KEY)) return;
-  const payload = location.hash.slice(HASH_KEY.length);
-  // Take it off the address bar so a reload or bookmark doesn't offer it again.
-  history.replaceState(history.state, '', location.pathname + location.search);
+  let payload;
+  if (location.hash.startsWith(HASH_KEY)) {
+    payload = location.hash.slice(HASH_KEY.length);
+    try { sessionStorage.setItem(OPENED, payload); } catch { /* storage blocked */ }
+    // Take it off the address bar so a bookmark doesn't offer it again.
+    history.replaceState(history.state, '', location.pathname + location.search);
+  } else {
+    // One retry only (the reload after updating), so a link that still doesn't fit won't nag forever.
+    try { payload = sessionStorage.getItem(OPENED); sessionStorage.removeItem(OPENED); } catch { /* storage blocked */ }
+  }
+  if (!payload) return;
   mode = 'receive';
-  await receive(app, payload);
+  await receive(app, [payload]);
 }
 
-async function receive(app, payload) {
+async function receive(app, payloads) {
   const title = 'Shared cages';
+  keepOpened = false;
   if (!shareSupported()) {
     mode = 'receive';
     show(app, { title, text: '' });
     showError('unsupported');
     return;
   }
-  let shared;
+  let shared, payload;
   try {
-    shared = await decodeShare(payload, await app.shareBaseline());
+    const base = await app.shareBaseline();
+    for (const [i, p] of payloads.entries()) {
+      try {
+        shared = await decodeShare(p, base);
+        payload = p;
+        break;
+      } catch (err) {
+        if (i === payloads.length - 1) throw err;
+      }
+    }
   } catch (err) {
     const key = err.message in MESSAGES ? err.message : 'baseline'; // anything else: fetching the sheet data failed
+    // Worth trying again after an update or with a connection; a damaged link isn't.
+    keepOpened = mode !== 'paste' && key !== 'bad';
     if (mode !== 'paste') show(app, { title, text: '' });
     showError(key);
     return;
@@ -358,15 +392,20 @@ async function receive(app, payload) {
   const nSubs = shared.data.cages.reduce((n, c) => n + c.suburbs.length, 0);
   const nSets = shared.lineSets.length;
   const sets = nSets ? ` Its ${nSets} drawn line set${nSets === 1 ? '' : 's'} will be added to yours.` : '';
+  // iPhone/iPad: Safari and the home-screen app keep separate data.
+  const safari = mode !== 'paste' && isIOS() && !isHomeScreenApp();
   show(app, {
     title,
-    text: `This link has ${nCages} cages with ${nSubs} suburbs. Replace all cages and suburbs on this device with it?${sets} Photos stay as they are.`,
+    text: `This link has ${nCages} cages with ${nSubs} suburbs. Replace all cages and suburbs on this device with it?${sets} Photos stay as they are.`
+      + (safari ? ' On iPhone/iPad this only changes Safari\'s copy. For the home-screen app: Copy, open the app, ⋯ → Open share link.' : ''),
+    link: safari ? location.origin + location.pathname + HASH_KEY + payload : undefined,
+    copy: safari,
     ok: 'Replace',
     cancel: 'Cancel',
   });
 }
 
-function apply(app, shared) {
+async function apply(app, shared) {
   replaceData(app.data, shared.data);
   app.migrate();
   app.save();
@@ -375,7 +414,9 @@ function apply(app, shared) {
     const lines = loadLines();
     if (mergeSets(lines, shared.lineSets) && !saveLines(lines)) msg = "Loaded the shared cages, but couldn't save the drawn lines. Storage may be full.";
   }
+  keepOpened = false;
   $('dlg-share').close();
   app.showNote();
+  if (await sheetUpdateAvailable(app.data)) msg += ' New sheet data is available. ⋯ → Reset to sheet data to use it (this clears your edits, so Export first).';
   app.showMessage(msg);
 }

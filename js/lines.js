@@ -110,13 +110,16 @@ export function deleteSet(state, id) {
   return true;
 }
 
+const roundedLoops = loops => JSON.stringify(loops, (k, v) => (typeof v === 'number' ? Math.round(v * 1e5) : v));
+
 // Adds cleaned copies with fresh ids; never overwrites. Returns how many were added.
 export function mergeSets(state, incoming) {
   const good = cleanSets(incoming);
   let added = 0;
   for (const s of good) {
     // Re-importing your own backup shouldn't duplicate a set.
-    const same = state.sets.some(x => x.name.toLowerCase() === s.name.toLowerCase() && JSON.stringify(x.loops) === JSON.stringify(s.loops));
+    // Compared at ~1 m so a set sent back by share link (rounded) still counts as the same.
+    const same = state.sets.some(x => x.name.toLowerCase() === s.name.toLowerCase() && roundedLoops(x.loops) === roundedLoops(s.loops));
     if (same) continue;
     state.sets.push({ id: newId(), name: uniqueName(state, s.name), loops: s.loops });
     added++;
