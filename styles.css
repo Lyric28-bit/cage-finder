@@ -196,6 +196,8 @@ button { font: inherit; cursor: pointer; }
 .m-head .grow { flex: 1; font-weight: 600; overflow-wrap: anywhere; }
 .count { color: var(--muted); font-size: 16px; }
 .m-range { white-space: nowrap; }
+.m-range-split { white-space: normal; width: min-content; text-align: right; }
+.m-run { white-space: nowrap; }
 .m-swatch { width: 14px; height: 14px; border-radius: 50%; flex: none; }
 .m-swatch.empty { border: 2px solid var(--muted); }
 .m-preview {

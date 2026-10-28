@@ -243,6 +243,9 @@ export function applyUnsure(data, unsure, shipped = {}) {
       }
     }
   }
+  // Data from before a restore step added suburbs to cages.json (an old export,
+  // a phone that never applied a list) gets those suburbs too.
+  for (const cages of Object.values(unsure.restore || {})) restoreSure(data, cages, shipped);
   data.local.sort((a, b) => a.name.localeCompare(b.name));
   data.unsureApplied = unsure.version;
   return true;

@@ -17,6 +17,14 @@ function el(tag, props = {}, ...children) {
   return node;
 }
 
+// Postcode range on a cage line. A cage with two region maps ("5022–5048, 5160–5173")
+// wraps after the comma rather than squeezing the cage name; EST stays with the last range.
+function rangeTag(range, est) {
+  const runs = range.split(', ');
+  const parts = runs.map((r, i) => el('span', { className: 'm-run' }, r, i === runs.length - 1 ? est : ','));
+  return el('span', { className: 'count m-range' + (runs.length > 1 ? ' m-range-split' : '') }, ...parts.flatMap((p, i) => (i ? [' ', p] : [p])));
+}
+
 function preview(names) {
   const shown = names.slice(0, PREVIEW).join(', ');
   return names.length > PREVIEW ? shown + ', …' : shown || 'No suburbs yet';
@@ -94,7 +102,7 @@ export function openManage(app) {
       el('span', { className: 'm-head' },
         swatch,
         name,
-        range ? el('span', { className: 'count m-range', textContent: range }, app.estTag(key)) : '',
+        range ? rangeTag(range, app.estTag(key)) : '',
         el('span', { className: 'count', textContent: String(count) })),
       el('span', { className: 'm-preview', textContent: previewText, hidden: open }));
     row.setAttribute('aria-expanded', String(open));
