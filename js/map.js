@@ -1,7 +1,12 @@
-// Street map (Leaflet + OpenStreetMap tiles) with suburb search. Leaflet and the
-// suburb points load on first open, so the app itself stays light.
+// Street map (Leaflet) with suburb search. Uses the downloaded offline Adelaide
+// map (vector tiles + our own suburb labels) when there is one, else OpenStreetMap
+// tiles. Leaflet and the suburb points load on first open, so the app stays light.
 
 import { normalise, editDistance } from './match.js';
+import {
+  MAP_MB, mapStatus, cachedMapBlob, downloadMap, loadVectorLibs, getBasePref, setBasePref,
+  downloadMessage, progressText, onMapDownload, isDownloading, deleteMap, cacheSupported,
+} from './offline-map.js';
 import { NAME_MAX, loadLines, saveLines, findSet, cageParts, newSet, renameSet, deleteSet, builtinLoops } from './lines.js';
 
 const $ = id => document.getElementById(id);
@@ -31,6 +36,20 @@ let setsBox = null; // the line set panel
 let panelOpen = false; // collapsed each time the map opens
 let linesDlg = null; // what the small #dlg-lines is doing: { app, mode, edit }
 let editing = null; // edit mode state, null when not editing
+let osmLayer = null; // online fallback tiles
+let vectorLayer = null; // the offline map, once made
+let labels = null; // layer group of suburb names (offline map only)
+let mapBox = null; // the offline map status control
+let dl = null; // download progress text while downloading, else null
+let dlEl = null; // the progress line in mapBox, updated in place
+let dlPaint = 0; // when it was last updated (ms)
+let dlFailed = null; // why the last download failed, else null
+let buildP = null; // the vector layer being built, so it's only built once
+let buildFailed = false; // a saved map exists but couldn't be loaded
+let osmErrors = 0; // OSM tile errors this open
+let autoFallback = false; // OSM kept failing this open, so the offline map is showing
+let noMapErr = false; // the "no connection and no offline map" error is showing
+const LABEL_ZOOM = 13;
 
 function loadLeaflet() {
   if (window.L) return Promise.resolve();
@@ -84,12 +103,22 @@ function makeMap() {
     [Math.min(...lats) - pad, Math.min(...lngs) - pad],
     [Math.max(...lats) + pad, Math.max(...lngs) + pad]);
   map = L.map($('map-canvas'), { minZoom: 9, maxBounds: bounds, maxBoundsViscosity: 1 });
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  osmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     crossOrigin: true,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  }).addTo(map);
+  });
+  osmLayer.on('tileerror', onOsmError);
+  makeLabels();
   lines = L.layerGroup().addTo(map);
+  const MapControl = L.Control.extend({
+    onAdd() {
+      mapBox = el('div', { className: 'map-offline leaflet-bar' });
+      L.DomEvent.disableClickPropagation(mapBox);
+      return mapBox;
+    },
+  });
+  new MapControl({ position: 'topleft' }).addTo(map);
   const LinesControl = L.Control.extend({
     onAdd() {
       linesBox = el('div', { className: 'map-lines leaflet-bar' });
@@ -107,6 +136,174 @@ function makeMap() {
     },
   });
   new SetsControl({ position: 'bottomleft' }).addTo(map);
+}
+
+// ---------- offline base map ----------
+
+// Suburb names, built once. The offline style has no metro suburb names of its own.
+function makeLabels() {
+  map.createPane('labels');
+  map.getPane('labels').style.zIndex = 450;
+  map.getPane('labels').style.pointerEvents = 'none';
+  labels = L.layerGroup();
+  for (const p of points) {
+    const icon = L.divIcon({ className: 'map-suburb', html: el('span', { textContent: p.name }), iconSize: null });
+    L.marker([p.lat, p.lng], { pane: 'labels', interactive: false, keyboard: false, icon }).addTo(labels);
+  }
+  map.on('zoomend', syncLabels);
+}
+
+function syncLabels() {
+  const show = !!vectorLayer && map.hasLayer(vectorLayer) && map.getZoom() >= LABEL_ZOOM;
+  if (show) labels.addTo(map);
+  else labels.remove();
+}
+
+// Offline map if it's the saved choice, if the browser knows it's offline, or if OSM kept failing.
+function wantVector() {
+  if (!vectorLayer) return false;
+  return autoFallback || getBasePref() === 'offline' || navigator.onLine === false;
+}
+
+function showBase(useVector) {
+  if (useVector) {
+    vectorLayer.addTo(map);
+    vectorLayer.bringToBack();
+    osmLayer.remove();
+    if (noMapErr) { noMapErr = false; showError(''); }
+  } else {
+    osmLayer.addTo(map);
+    osmLayer.bringToBack();
+  }
+  syncLabels();
+}
+
+// Wifi without internet: OSM tiles fail while navigator.onLine is still true.
+// Tiles already in the service worker's cache load fine, so only new ones count.
+function onOsmError() {
+  if (!osmLayer || !map.hasLayer(osmLayer)) return;
+  osmErrors++;
+  if (vectorLayer) {
+    if (osmErrors >= 3 && !autoFallback) {
+      autoFallback = true;
+      showBase(true);
+      renderMapBox();
+    }
+  } else if (osmErrors === 1 && !buildFailed && !dl && !isDownloading()) {
+    noMapErr = true;
+    showError('No connection and no offline map on this device yet. Connect to wifi and tap Download offline map.');
+  }
+}
+
+async function makeVectorLayer() {
+  const blob = await cachedMapBlob();
+  if (!blob) return null;
+  await loadVectorLibs();
+  const source = new pmtiles.PMTiles(new pmtiles.FileSource(new File([blob], 'adelaide.pmtiles')));
+  await source.getHeader(); // a corrupt file throws here
+  return protomapsL.leafletLayer({
+    url: source, flavor: 'light', lang: 'en', maxDataZoom: 14, maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="https://protomaps.com">Protomaps</a>',
+  });
+}
+
+// Builds the chosen base map. The vector layer is built once, even if this runs twice at the same time.
+async function useBestBase() {
+  try {
+    vectorLayer ||= await (buildP ||= makeVectorLayer().finally(() => { buildP = null; }));
+    buildFailed = false;
+  } catch (err) {
+    buildFailed = true;
+    console.warn('Offline map failed, using online tiles', err);
+  }
+  showBase(wantVector());
+  await renderMapBox();
+}
+
+function pickBase(v) {
+  setBasePref(v);
+  autoFallback = false;
+  osmErrors = 0;
+  showBase(wantVector());
+  renderMapBox();
+}
+
+function baseSwitch() {
+  const useVector = wantVector();
+  const button = (text, on, value) => {
+    const b = el('button', { type: 'button', textContent: text });
+    b.setAttribute('aria-pressed', String(on));
+    b.addEventListener('click', () => pickBase(value));
+    return b;
+  };
+  return el('div', { className: 'map-base' }, button('Online', !useVector, 'online'), button('Offline', useVector, 'offline'));
+}
+
+function mapText(text) {
+  return el('span', { className: 'map-offline-text', textContent: text });
+}
+
+function downloadButton(label, again) {
+  const btn = el('button', { type: 'button', textContent: label });
+  btn.addEventListener('click', () => startDownload(btn, again));
+  return btn;
+}
+
+// The progress line is updated in place while downloading, not rebuilt.
+function paintDownload() {
+  dlEl = mapText(dl || progressText(0, 0));
+  mapBox.replaceChildren(dlEl);
+}
+
+async function renderMapBox() {
+  if (!mapBox) return;
+  const status = await mapStatus();
+  if (dl || isDownloading()) { paintDownload(); return; }
+  const kids = [];
+  if (!cacheSupported()) {
+    kids.push(mapText('Offline map not supported in this browser'));
+  } else {
+    if (dlFailed) kids.push(mapText(downloadMessage(dlFailed)));
+    if (vectorLayer) {
+      kids.push(baseSwitch());
+      if (autoFallback) kids.push(mapText('No connection, showing offline map'));
+      if (status === 'old') kids.push(downloadButton(`Update offline map (${MAP_MB} MB)`, false));
+    } else if (status === 'ready') {
+      kids.push(mapText("Offline map couldn't load"), downloadButton('Download again', true));
+    } else {
+      kids.push(downloadButton(`${status === 'old' ? 'Update' : 'Download'} offline map (${MAP_MB} MB)`, false));
+    }
+  }
+  mapBox.replaceChildren(...kids);
+}
+
+async function startDownload(btn, again) {
+  if (dl || isDownloading()) return;
+  btn.disabled = true;
+  dl = progressText(0, 0);
+  dlFailed = null;
+  noMapErr = false;
+  showError('');
+  paintDownload();
+  if (again) await deleteMap();
+  downloadMap(); // progress and the result come through onDownload
+}
+
+// A download can start from the map or from the menu, so both are heard here.
+async function onDownload(ev) {
+  if (ev.state === 'progress') {
+    dl = progressText(ev.received, ev.total);
+    const now = Date.now();
+    if (!mapBox) return;
+    if (!dlEl?.isConnected) paintDownload();
+    else if (now - dlPaint >= 250) { dlEl.textContent = dl; dlPaint = now; }
+    return;
+  }
+  dl = null;
+  dlEl = null;
+  dlFailed = ev.ok ? null : ev.reason;
+  if (ev.ok) { vectorLayer?.remove(); vectorLayer = null; } // rebuild from the new file
+  if (map) await useBestBase();
 }
 
 function cageColor(app, cageName) {
@@ -643,6 +840,7 @@ let wired = false;
 function wire() {
   if (wired) return;
   wired = true;
+  onMapDownload(onDownload);
   const input = $('map-search');
   input.addEventListener('input', () => renderResults(findSuburbs(input.value)));
   input.addEventListener('keydown', e => {
@@ -665,6 +863,9 @@ export async function openMap(app, { suburb, cage } = {}) {
   $('map-search').value = '';
   renderResults([]);
   showError('');
+  osmErrors = 0;
+  autoFallback = false;
+  noMapErr = false;
   $('map-title').textContent = cage || 'Map';
   if (!dlg.open) dlg.showModal();
   try {
@@ -687,4 +888,5 @@ export async function openMap(app, { suburb, cage } = {}) {
   else if (cage) fitPoints(cagePoints(app, cage));
   else fitPoints(points);
   showAllLines(app);
+  await useBestBase();
 }

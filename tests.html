@@ -11,6 +11,7 @@
 import { buildIndex, search, similarPlaces, normalise } from './js/match.js';
 import { isValid, isImportable, findCage, addCage, addSuburbToCage, renameCage, removeSuburbFromCage, deleteCage, replaceData, setPostcode, postcodeKey, applyRenames, applyUnsure, CAGE_RENAMES, LOCAL_DEST, setApproval, approvalOf, checkApprover } from './js/store.js';
 import { CAPS, renameCageInSets, NAME_MAX, emptyLines, cleanSets, uniqueName, newSet, renameSet, deleteSet, mergeSets, findSet, cageParts, builtinLoops, simplifyPart, SIMPLIFY_M } from './js/lines.js';
+import { MAP_FILE, mapStatus, cachedMapBlob, getBasePref, setBasePref, downloadMessage, progressText } from './js/offline-map.js';
 
 const out = [];
 let passed = 0, total = 0;
@@ -625,6 +626,51 @@ try {
       const noLoop = [...est].filter(k => !loops.some(l => normalise(l.cage) === k));
       check('Every estimated cage has a region loop', noLoop.length === 0, list(noLoop));
     }
+  }
+
+  // Offline map (v28): status and blob lookups against the real Cache API.
+  {
+    const cache = await caches.open('cage-map');
+    const saved = [];
+    for (const k of await cache.keys()) saved.push([k, await cache.match(k)]);
+    const wipe = async () => { for (const k of await cache.keys()) await cache.delete(k); };
+    try {
+      await wipe();
+      check('Offline map: empty cache -> none', await mapStatus() === 'none' && await cachedMapBlob() === null);
+      await cache.put('map/adelaide-old.pmtiles', new Response('older'));
+      const old = await cachedMapBlob();
+      check('Offline map: only an older file -> old, and its blob is used', await mapStatus() === 'old' && old?.size === 5);
+      await cache.put(MAP_FILE, new Response('current!'));
+      const cur = await cachedMapBlob();
+      check('Offline map: current file -> ready, and its blob is preferred', await mapStatus() === 'ready' && cur?.size === 8);
+    } finally {
+      await wipe();
+      for (const [k, r] of saved) await cache.put(k, r);
+    }
+  }
+
+  // Offline map base preference and messages.
+  {
+    const KEY = 'cage-map-base';
+    const before = localStorage.getItem(KEY);
+    try {
+      localStorage.removeItem(KEY);
+      check('Base pref: defaults to online', getBasePref() === 'online');
+      setBasePref('offline');
+      check('Base pref: offline round-trips', getBasePref() === 'offline' && localStorage.getItem(KEY) === 'offline');
+      setBasePref('online');
+      check('Base pref: online round-trips', getBasePref() === 'online');
+      localStorage.setItem(KEY, 'banana');
+      check('Base pref: a bad stored value reads as online', getBasePref() === 'online');
+    } finally {
+      if (before === null) localStorage.removeItem(KEY); else localStorage.setItem(KEY, before);
+    }
+    check('Download message: offline', downloadMessage('offline') === 'Download failed. Check wifi and try again.');
+    check('Download message: server', downloadMessage('server') === 'Download failed (server). Try again later.');
+    check('Download message: storage', downloadMessage('storage') === 'Not enough storage on this device for the offline map.');
+    check('Progress text: percentage capped at 99, MB when the total is unknown or wrong',
+      progressText(50, 100) === 'Downloading map… 50%' && progressText(100, 100) === 'Downloading map… 99%'
+      && progressText(6.2 * 1048576, 0) === 'Downloading map… 6.2 MB' && progressText(200, 100).endsWith('MB'));
   }
 
 } catch (e) {

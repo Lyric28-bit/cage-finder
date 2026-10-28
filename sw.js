@@ -1,6 +1,6 @@
 // Offline support: everything is cached on first load.
 // Bump VERSION whenever you deploy changes, so phones pick up the new files.
-const VERSION = 'v27';
+const VERSION = 'v28';
 const CACHE = 'cage-finder-' + VERSION;
 
 const FILES = [
@@ -15,6 +15,7 @@ const FILES = [
   'js/photos.js',
   'js/map.js',
   'js/lines.js',
+  'js/offline-map.js',
   'data/cages.json',
   'data/adelaide-suburbs.json',
   'data/estimated.json',
@@ -24,6 +25,8 @@ const FILES = [
   'data/region-loops.json',
   'lib/leaflet/leaflet.js',
   'lib/leaflet/leaflet.css',
+  'lib/pmtiles/pmtiles.js',
+  'lib/protomaps-leaflet/protomaps-leaflet.js',
   'icons/icon-192.png',
   'icons/icon-512.png',
 ];
@@ -80,6 +83,8 @@ async function storeTile(cache, request, response) {
 }
 
 // Cache first; fall back to the network, and to the app shell for page loads.
+// The offline map (map/*.pmtiles) isn't listed above: it's downloaded by the page
+// into its own 'cage-map' cache, which activate never deletes.
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   if (new URL(event.request.url).hostname === 'tile.openstreetmap.org') {

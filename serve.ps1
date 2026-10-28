@@ -29,7 +29,7 @@ try {
       $res.Headers.Add('Cache-Control', 'no-store')
       $bytes = [IO.File]::ReadAllBytes($file)
       $res.ContentLength64 = $bytes.Length
-      $res.OutputStream.Write($bytes, 0, $bytes.Length)
+      if ($ctx.Request.HttpMethod -ne 'HEAD') { try { $res.OutputStream.Write($bytes, 0, $bytes.Length) } catch {} }
     } else {
       $res.StatusCode = 404
     }

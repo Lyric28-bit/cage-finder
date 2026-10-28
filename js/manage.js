@@ -8,8 +8,10 @@ import {
 } from './store.js';
 import { photoUrl, setPhoto, removePhoto, renamePhoto } from './photos.js';
 import { loadLines, saveLines, mergeSets, renameCageInSets } from './lines.js';
+import { MAP_MB, mapStatus, downloadMap, onMapDownload, isDownloading, downloadMessage, progressText, cacheSupported } from './offline-map.js';
 
 const PREVIEW = 8; // suburbs shown on a closed cage line
+let offlineUnsub = null; // stops the menu button listening to downloads when the menu is rebuilt
 
 function el(tag, props = {}, ...children) {
   const node = document.createElement(tag);
@@ -517,7 +519,52 @@ export function openManage(app) {
   const resetBtn = el('button', { className: 'menu-item danger', type: 'button', textContent: 'Reset to sheet data' });
   resetBtn.addEventListener('click', resetData);
 
-  menu.replaceChildren(mapBtn, exportBtn, importBtn, resetBtn, fileInput, dataMsg);
+  // The offline map download: also shows one started from the map, and the result.
+  const offlineBtn = el('button', { className: 'menu-item', type: 'button', textContent: 'Offline map', disabled: true });
+  const sizeText = `(${MAP_MB} MB)`;
+  let offlineStatus = 'none';
+  let offlineMsg = ''; // result of the last download, shown until the next status check
+  const renderOffline = async () => {
+    if (!cacheSupported()) {
+      offlineBtn.textContent = 'Offline map not supported in this browser';
+      offlineBtn.disabled = true;
+      return;
+    }
+    if (isDownloading()) {
+      offlineBtn.textContent = progressText(0, 0);
+      offlineBtn.disabled = true;
+      return;
+    }
+    offlineStatus = await mapStatus();
+    if (isDownloading()) return;
+    const ready = offlineStatus === 'ready';
+    offlineBtn.textContent = offlineMsg || (ready ? 'Offline map: downloaded' : `${offlineStatus === 'old' ? 'Update' : 'Download'} offline map ${sizeText}`);
+    offlineBtn.disabled = ready;
+  };
+  let shown = 0; // when the progress text was last updated (ms)
+  offlineUnsub?.();
+  offlineUnsub = onMapDownload(ev => {
+    if (!offlineBtn.isConnected) return;
+    if (ev.state === 'progress') {
+      const now = Date.now();
+      if (now - shown < 250 && ev.received) return;
+      shown = now;
+      offlineBtn.textContent = progressText(ev.received, ev.total);
+      offlineBtn.disabled = true;
+      return;
+    }
+    offlineMsg = ev.ok ? '' : `${downloadMessage(ev.reason)} Tap to retry.`;
+    renderOffline();
+  });
+  offlineBtn.addEventListener('click', () => {
+    offlineMsg = '';
+    offlineBtn.disabled = true;
+    offlineBtn.textContent = progressText(0, 0);
+    downloadMap();
+  });
+  renderOffline();
+
+  menu.replaceChildren(mapBtn, offlineBtn, exportBtn, importBtn, resetBtn, fileInput, dataMsg);
   root.replaceChildren(
     el('div', { className: 'note-head' }, el('h2', { className: 'note-title', textContent: 'Cages' }),
       el('span', { className: 'note-actions' }, headMapBtn, editBtn)),
