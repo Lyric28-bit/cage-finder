@@ -49,7 +49,10 @@ let buildFailed = false; // a saved map exists but couldn't be loaded
 let osmErrors = 0; // OSM tile errors this open
 let autoFallback = false; // OSM kept failing this open, so the offline map is showing
 let noMapErr = false; // the "no connection and no offline map" error is showing
-const LABEL_ZOOM = 13;
+const LABEL_ZOOM = 11;
+const LABEL_CHAR_PX = 8.5; // rough width of one uppercase 12px letter, for overlap checks
+const LABEL_H = 16;
+const labelMarkers = []; // { marker, w }: every suburb name, placed by placeLabels()
 
 function loadLeaflet() {
   if (window.L) return Promise.resolve();
@@ -147,15 +150,32 @@ function makeLabels() {
   map.getPane('labels').style.pointerEvents = 'none';
   labels = L.layerGroup();
   for (const p of points) {
+    if (p.key === 'adelaide') continue; // the offline map already labels the city
     const icon = L.divIcon({ className: 'map-suburb', html: el('span', { textContent: p.name }), iconSize: null });
-    L.marker([p.lat, p.lng], { pane: 'labels', interactive: false, keyboard: false, icon }).addTo(labels);
+    const marker = L.marker([p.lat, p.lng], { pane: 'labels', interactive: false, keyboard: false, icon });
+    labelMarkers.push({ marker, w: p.name.length * LABEL_CHAR_PX + 6 });
   }
   map.on('zoomend', syncLabels);
 }
 
+// Like the online map, a name that would overlap one already placed is left out,
+// so zoomed out shows a spread of names and zooming in fills the gaps.
+// Layer points only shift when the zoom changes, so panning needs no redo.
+function placeLabels() {
+  labels.clearLayers();
+  const placed = [];
+  for (const { marker, w } of labelMarkers) {
+    const pt = map.latLngToLayerPoint(marker.getLatLng());
+    const box = [pt.x - w / 2, pt.y - LABEL_H / 2, pt.x + w / 2, pt.y + LABEL_H / 2];
+    if (placed.some(b => b[0] < box[2] && box[0] < b[2] && b[1] < box[3] && box[1] < b[3])) continue;
+    placed.push(box);
+    labels.addLayer(marker);
+  }
+}
+
 function syncLabels() {
   const show = !!vectorLayer && map.hasLayer(vectorLayer) && map.getZoom() >= LABEL_ZOOM;
-  if (show) labels.addTo(map);
+  if (show) { placeLabels(); labels.addTo(map); }
   else labels.remove();
 }
 
@@ -172,6 +192,7 @@ function showBase(useVector) {
     osmLayer.remove();
     if (noMapErr) { noMapErr = false; showError(''); }
   } else {
+    vectorLayer?.remove();
     osmLayer.addTo(map);
     osmLayer.bringToBack();
   }
@@ -807,6 +828,7 @@ function findSuburbs(query, limit = 8) {
   if (!q) return [];
   const prefix = [], word = [], inside = [];
   for (const p of points) {
+    if (p.key === 'adelaide') continue; // the offline map already labels the city
     if (p.key.startsWith(q)) prefix.push(p);
     else if (p.name.toLowerCase().split(/[^a-z']+/).some(w => normalise(w).startsWith(q))) word.push(p);
     else if (p.key.includes(q)) inside.push(p);
