@@ -516,6 +516,16 @@ export function openManage(app) {
   exportBtn.addEventListener('click', exportData);
   const importBtn = el('button', { className: 'menu-item', type: 'button', textContent: 'Import' });
   importBtn.addEventListener('click', () => fileInput.click());
+  // Share link / paste one: same close-the-menu-then-open as Map.
+  const menuAction = fn => () => {
+    menu.hidden = true;
+    document.getElementById('btn-menu').setAttribute('aria-expanded', 'false');
+    fn();
+  };
+  const shareBtn = el('button', { className: 'menu-item', type: 'button', textContent: 'Share link' });
+  shareBtn.addEventListener('click', menuAction(() => app.openShare()));
+  const pasteBtn = el('button', { className: 'menu-item', type: 'button', textContent: 'Open share link' });
+  pasteBtn.addEventListener('click', menuAction(() => app.openPasteLink()));
   const resetBtn = el('button', { className: 'menu-item danger', type: 'button', textContent: 'Reset to sheet data' });
   resetBtn.addEventListener('click', resetData);
 
@@ -564,7 +574,7 @@ export function openManage(app) {
   });
   renderOffline();
 
-  menu.replaceChildren(mapBtn, offlineBtn, exportBtn, importBtn, resetBtn, fileInput, dataMsg);
+  menu.replaceChildren(mapBtn, offlineBtn, shareBtn, pasteBtn, exportBtn, importBtn, resetBtn, fileInput, dataMsg);
   root.replaceChildren(
     el('div', { className: 'note-head' }, el('h2', { className: 'note-title', textContent: 'Cages' }),
       el('span', { className: 'note-actions' }, headMapBtn, editBtn)),

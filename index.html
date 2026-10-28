@@ -144,6 +144,21 @@
   </form>
 </dialog>
 
+<!-- Share link: send this device's cages, open a pasted link, or confirm one that was opened -->
+<dialog id="dlg-share">
+  <form id="form-share" method="dialog">
+    <h2 id="share-title">Share link</h2>
+    <p id="share-text" class="lines-text"></p>
+    <textarea id="share-link" class="share-link" rows="4" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Share link" hidden></textarea>
+    <p id="share-error" class="share-error" hidden></p>
+    <div class="dlg-actions">
+      <button type="button" id="btn-share-cancel" class="btn-ghost">Close</button>
+      <button type="button" id="btn-share-copy" class="btn-ghost">Copy</button>
+      <button type="button" id="btn-share-ok" class="btn-primary">Share</button>
+    </div>
+  </form>
+</dialog>
+
 <script type="module" src="app.js"></script>
 </body>
 </html>

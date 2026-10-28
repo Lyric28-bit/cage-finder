@@ -11,6 +11,7 @@
 import { buildIndex, search, similarPlaces, normalise } from './js/match.js';
 import { isValid, isImportable, findCage, addCage, addSuburbToCage, renameCage, removeSuburbFromCage, deleteCage, replaceData, setPostcode, postcodeKey, applyRenames, applyUnsure, CAGE_RENAMES, LOCAL_DEST, setApproval, approvalOf, checkApprover } from './js/store.js';
 import { CAPS, renameCageInSets, NAME_MAX, emptyLines, cleanSets, uniqueName, newSet, renameSet, deleteSet, mergeSets, findSet, cageParts, builtinLoops, simplifyPart, SIMPLIFY_M } from './js/lines.js';
+import { packShare, unpackShare, encodeShare, decodeShare, fingerprint, payloadOf, shareSupported } from './js/share.js';
 import { MAP_FILE, mapStatus, cachedMapBlob, getBasePref, setBasePref, downloadMessage, progressText } from './js/offline-map.js';
 
 const out = [];
@@ -673,6 +674,85 @@ try {
       && progressText(6.2 * 1048576, 0) === 'Downloading map… 6.2 MB' && progressText(200, 100).endsWith('MB'));
   }
 
+
+  // ---------- Share link (js/share.js) ----------
+  {
+    const unsure = await (await fetch('data/unsure.json')).json();
+    const shipped = (await (await fetch('data/postcodes.json')).json()).postcodes;
+    const defaults = { version: 1, sheetVersion: cages.sheetVersion || 1, cages: cages.cages, local: adelaide.suburbs };
+    // Same as app.shareBaseline (linkSheetNames is a no-op on fresh sheet data).
+    const makeBase = () => {
+      const b = {};
+      replaceData(b, structuredClone(defaults));
+      applyRenames(b);
+      applyUnsure(b, unsure, shipped);
+      return b;
+    };
+    const base = makeBase();
+    const cleaned = d => { const c = {}; replaceData(c, structuredClone(d)); return JSON.stringify(c); };
+    const roundTrip = async (d, sets = []) => decodeShare(await encodeShare(d, base, sets), makeBase());
+
+    check('Share: browser has CompressionStream', shareSupported());
+    const plain = makeBase();
+    check('Share: unchanged data packs to just the fingerprint', JSON.stringify(Object.keys(packShare(plain, base))) === '["h"]');
+    let enc = await encodeShare(plain, base, []);
+    check('Share: unchanged data link is tiny', enc.length < 40, enc.length + ' chars');
+    let got = await roundTrip(plain);
+    check('Share: unchanged data round-trips', JSON.stringify(got.data) === cleaned(plain) && got.lineSets.length === 0);
+
+    // A spread of edits, as made in the app.
+    const ed = makeBase();
+    const [c0, c1, c2] = ed.cages;
+    const moved = c0.suburbs[1], c2name = c2.name;
+    removeSuburbFromCage(ed, c0, moved);
+    addSuburbToCage(ed, moved, c1.name);
+    setApproval(ed, moved, c1.name, 'Pete');
+    renameCage(ed, c2, c2.name + ' Two');
+    c1.color = '#123456';
+    deleteCage(ed, ed.cages[3]);
+    addCage(ed, 'Test Cage', '#00AA00');
+    addSuburbToCage(ed, 'Nowhere Flat', 'Test Cage');
+    const gone = ed.local.splice(5, 1)[0];
+    ed.local.push({ name: 'Madeup Park', postcode: '5999' });
+    setPostcode(ed, 'Nowhere Flat', 'Test Cage', '5998');
+    ed.sheetVersion = 2;
+    enc = await encodeShare(ed, base, []);
+    check('Share: a dozen edits make a short link', enc.length < 600, enc.length + ' chars');
+    got = await roundTrip(ed);
+    check('Share: edits round-trip exactly', JSON.stringify(got.data) === cleaned(ed));
+    check('Share: renamed cage keeps its sheet name', findCage(got.data, c2name + ' Two')?.sheetName === c2name);
+    check('Share: removed local entry stays removed', !got.data.local.some(p => p.name === gone.name));
+    check('Share: older sheetVersion carried over', got.data.sheetVersion === 2);
+
+    // Line sets: points come back within ~1 m.
+    const ring = n => Array.from({ length: n }, (_, i) => [-34.9 + 0.05 * Math.sin(i / n * 6.283), 138.6 + 0.05 * Math.cos(i / n * 6.283)]);
+    const sets = [{ id: 'x', name: 'Pete', loops: { 'City Cartons': [ring(120)], 'North Cartons': [ring(80), ring(40)] } }];
+    enc = await encodeShare(plain, base, sets);
+    got = await roundTrip(plain, sets);
+    const pts = got.lineSets[0]?.loops['City Cartons']?.[0] || [];
+    const worst = Math.max(...pts.map((p, i) => Math.max(Math.abs(p[0] - sets[0].loops['City Cartons'][0][i][0]), Math.abs(p[1] - sets[0].loops['City Cartons'][0][i][1]))));
+    check('Share: line set round-trips (name, parts, points within 1e-5)',
+      got.lineSets.length === 1 && got.lineSets[0].name === 'Pete' && got.lineSets[0].loops['North Cartons']?.length === 2
+      && pts.length === 120 && worst <= 0.5e-5 + 1e-12, `worst ${worst}, ${enc.length} chars for 240 points`);
+
+    // Damaged or mismatched links.
+    const fails = async (text, b) => { try { await decodeShare(text, b || makeBase()); return 'ok'; } catch (e) { return e.message; } };
+    enc = await encodeShare(ed, base, []);
+    const other = makeBase();
+    other.cages[0].suburbs.push('Extra');
+    check('Share: different sheet data is refused as mismatch', await fails(enc, other) === 'mismatch');
+    check('Share: cut-short link is refused as bad', await fails(enc.slice(0, Math.floor(enc.length * 0.7))) === 'bad');
+    check('Share: garbage is refused as bad', await fails('1.$$$') === 'bad' && await fails('hello') === 'bad' && await fails('1.AAAA') === 'bad');
+    check('Share: unknown format version is mismatch', await fails('2.' + enc.slice(2)) === 'mismatch');
+    let bad = 'ok';
+    try { unpackShare({ h: fingerprint(base), c: [[0, 9999]] }, base); } catch (e) { bad = e.message; }
+    check('Share: out-of-range run is refused', bad === 'bad');
+    bad = 'ok';
+    try { unpackShare({ h: fingerprint(base), c: [{ n: 'X', c: 'red', s: [] }] }, base); } catch (e) { bad = e.message; }
+    check('Share: bad cage colour is refused', bad === 'bad');
+    check('Share: payload found in a full URL, a bare hash or on its own',
+      payloadOf(' https://x.io/cage-finder/#share=1.abc ') === '1.abc' && payloadOf('#share=1.abc') === '1.abc' && payloadOf('1.abc') === '1.abc');
+  }
 } catch (e) {
   out.push('ERROR ' + e.stack);
 }

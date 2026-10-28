@@ -1,8 +1,9 @@
 import { buildIndex, search, normalise, similarPlaces } from './js/match.js';
-import { loadData, saveData, addCage, addSuburbToCage, applyUnsure, applyRenames, CAGE_RENAMES, findCage, sheetUpdateAvailable, LOCAL_COLOR, POSTCODE, setPostcode, postcodeKey, LOCAL_DEST, checkApprover, setApproval, approvalOf } from './js/store.js';
+import { loadData, loadDefaults, replaceData, saveData, addCage, addSuburbToCage, applyUnsure, applyRenames, CAGE_RENAMES, findCage, sheetUpdateAvailable, LOCAL_COLOR, POSTCODE, setPostcode, postcodeKey, LOCAL_DEST, checkApprover, setApproval, approvalOf } from './js/store.js';
 import { openManage } from './js/manage.js';
 import { openMap } from './js/map.js';
 import { initPhotos, photoUrl, renamePhoto } from './js/photos.js';
+import { openShare, openPasteLink, checkShareHash } from './js/share.js';
 
 const $ = id => document.getElementById(id);
 
@@ -22,8 +23,20 @@ export const app = {
   migrate() {
     const renamed = applyRenames(this.data);
     const unsure = applyUnsure(this.data, ref.unsure, ref.postcodes);
-    return linkSheetNames() || unsure || renamed;
+    return linkSheetNames(this.data) || unsure || renamed;
   },
+  // What a fresh device has after migrate: share links only carry the differences from it.
+  async shareBaseline() {
+    const base = {};
+    replaceData(base, await loadDefaults());
+    applyRenames(base);
+    applyUnsure(base, ref.unsure, ref.postcodes);
+    linkSheetNames(base);
+    return base;
+  },
+  openShare: () => openShare(app),
+  openPasteLink: () => openPasteLink(app),
+  showNote,
   showView,
   showResult,
   showMessage,
@@ -146,11 +159,11 @@ async function loadReference() {
 // Cages renamed before v19 have no sheetName, so all their sheet suburbs would
 // look added by hand. Link each to the unclaimed sheet cage it shares most
 // suburbs with, if that's over half of them. Runs every start; only fills gaps.
-function linkSheetNames() {
+function linkSheetNames(data) {
   if (!ref.sheet) return false;
   let changed = false;
-  const taken = new Set(app.data.cages.flatMap(c => [normalise(c.name), normalise(c.sheetName || '')]));
-  for (const cage of app.data.cages) {
+  const taken = new Set(data.cages.flatMap(c => [normalise(c.name), normalise(c.sheetName || '')]));
+  for (const cage of data.cages) {
     if (cage.sheetName || ref.sheet.has(normalise(cage.name)) || !cage.suburbs.length) continue;
     const subs = cage.suburbs.map(normalise);
     let best = null, bestN = 0;
@@ -604,11 +617,14 @@ async function start() {
     $('dlg-est').close();
     $('dlg-map').close();
     $('dlg-lines').close();
+    $('dlg-share').close();
     showView(e.state?.view || 'search', { fromHistory: true, focus: false });
   });
 
   showNote();
   showView('search');
+
+  await checkShareHash(app);
 
   if (await sheetUpdateAvailable(app.data)) {
     showMessage('New sheet data is available. ⋯ → Reset to sheet data to use it (this clears your edits, so Export first).');
