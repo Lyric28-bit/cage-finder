@@ -327,9 +327,30 @@ async function onDownload(ev) {
   if (map) await useBestBase();
 }
 
+// A drawn region that isn't a cage gets a steady colour from its name.
+const REGION_COLOURS = ['#6D4C41', '#00897B', '#5E35B1', '#F4511E', '#3949AB', '#7CB342', '#C2185B', '#00ACC1'];
+
 function cageColor(app, cageName) {
   const key = normalise(cageName);
-  return app.data.cages.find(c => normalise(c.name) === key)?.color || '#888888';
+  const cage = app.data.cages.find(c => normalise(c.name) === key);
+  if (cage) return cage.color;
+  let h = 0;
+  for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return REGION_COLOURS[h % REGION_COLOURS.length];
+}
+
+// What the lines are drawn for: the Cartons cages, then anything else with a line
+// in the shown sets (a new region, or an older drawing of another cage). extra = names to add.
+function regionNames(app, extra = []) {
+  const names = app.data.cages.filter(c => /cartons/i.test(c.name)).map(c => c.name);
+  const seen = new Set(names.map(normalise));
+  const add = n => { const k = normalise(n); if (!seen.has(k)) { seen.add(k); names.push(n); } };
+  for (const id of [lineState.active, compareId()]) {
+    if (id === 'builtin') { for (const c of app.data.cages) if (loops.has(normalise(c.name))) add(c.name); }
+    else if (id) for (const k of Object.keys(findSet(lineState, id)?.loops || {})) add(k);
+  }
+  extra.forEach(add);
+  return names;
 }
 
 function activeName() {
@@ -395,12 +416,12 @@ function renderLinesBox(app) {
   if (allLines && keyOpen) {
     const builtin = lineState.active === 'builtin';
     const other = compareId();
-    for (const cage of app.data.cages) {
-      const loop = builtin ? loops.get(normalise(cage.name)) : null;
-      if (!loop && !partsFor(lineState.active, cage.name).length && !(other && partsFor(other, cage.name).length)) continue;
+    for (const name of regionNames(app)) {
+      const loop = builtin ? loops.get(normalise(name)) : null;
+      if (!loop && !partsFor(lineState.active, name).length && !(other && partsFor(other, name).length)) continue;
       const dot = el('span', { className: 'map-lines-dot' });
-      dot.style.background = cage.color;
-      const row = el('li', {}, dot, cage.name);
+      dot.style.background = cageColor(app, name);
+      const row = el('li', {}, dot, name);
       if (loop) row.append(el('span', { className: 'map-lines-near', textContent: withinText(loop) }));
       key.append(row);
     }
@@ -418,7 +439,7 @@ function renderLinesBox(app) {
 function showAllLines(app) {
   lines.clearLayers();
   if (editing) drawFaintLines(app);
-  else if (allLines) for (const cage of app.data.cages) drawLoop(app, cage.name);
+  else if (allLines) for (const name of regionNames(app)) drawLoop(app, name);
   else if (focusCage) drawLoop(app, focusCage);
   renderLinesBox(app);
   renderSetsPanel(app);
@@ -481,12 +502,12 @@ function renderSetsPanel(app) {
   setsBox.replaceChildren(...kids);
 }
 
-// New / rename / delete in the small dialog over the map.
+// New / rename / delete a set, or name a new region while editing, in the small dialog over the map.
 function openLinesDialog(app, mode, opts = {}) {
   linesDlg = { app, mode, edit: !!opts.edit };
   const set = findSet(lineState, lineState.active);
   const input = $('lines-name');
-  const titles = { new: 'New line set', rename: 'Rename line set', delete: 'Delete line set' };
+  const titles = { new: 'New line set', rename: 'Rename line set', delete: 'Delete line set', region: 'New region' };
   $('lines-title').textContent = titles[mode];
   $('lines-name-wrap').hidden = mode === 'delete';
   input.required = mode !== 'delete';
@@ -507,6 +528,15 @@ function submitLinesDialog() {
   const name = $('lines-name').value.trim().slice(0, NAME_MAX).trim();
   if (mode !== 'delete' && !name) return;
   $('dlg-lines').close();
+  if (mode === 'region') {
+    if (!editing) return;
+    // An existing name just switches to it; a new one goes straight into drawing its loop.
+    const existing = regionNames(app, [editing.cage]).find(n => normalise(n) === normalise(name));
+    pickEditCage(existing || name);
+    fillRegionSelect();
+    if (!editParts().length) editing.ui.add.click();
+    return;
+  }
   let noBuiltin = false;
   if (mode === 'new') {
     const blank = document.querySelector('input[name="lines-start"]:checked')?.value === 'blank';
@@ -531,6 +561,16 @@ const r6 = n => Math.round(n * 1e6) / 1e6;
 const UNDO_MAX = 50;
 const NEED3 = 'A loop needs at least 3 points. Use Delete loop instead.';
 const HINT = 'Drag a point to move it. Drag or tap a faint dot to add a point.';
+const NEW_REGION = '+new-region'; // the "+ New region…" option's value
+
+// The Cartons cages, regions drawn in this set, the one being edited, then "+ New region…".
+// A new region stays listed only while it's being edited until it has a loop.
+function fillRegionSelect() {
+  const { ui, app, cage } = editing;
+  ui.select.replaceChildren(...regionNames(app, [cage]).map(n => el('option', { value: n, textContent: n })),
+    el('option', { value: NEW_REGION, textContent: '+ New region…' }));
+  ui.select.value = cage;
+}
 
 function editSet() { return findSet(lineState, editing.setId); }
 
@@ -548,10 +588,10 @@ function setMsg(text) {
 
 // Draws every other cage's loops faint while editing.
 function drawFaintLines(app) {
-  for (const cage of app.data.cages) {
-    if (normalise(cage.name) === normalise(editing.cage)) continue;
-    const color = cageColor(app, cage.name);
-    for (const points of cageParts(editSet(), cage.name)) {
+  for (const name of regionNames(app)) {
+    if (normalise(name) === normalise(editing.cage)) continue;
+    const color = cageColor(app, name);
+    for (const points of cageParts(editSet(), name)) {
       L.polygon(points, { color, weight: 2, opacity: 0.45, fill: false, interactive: false }).addTo(lines);
     }
   }
@@ -713,15 +753,19 @@ function startEdit(app) {
   const set = findSet(lineState, lineState.active);
   if (!set || !app.data.cages.length) return;
   panelOpen = false;
-  const names = app.data.cages.map(c => c.name);
+  const names = regionNames(app);
   const focus = focusCage && names.find(n => normalise(n) === normalise(focusCage));
   const cage = focus || names.find(n => cageParts(set, n).length) || names[0];
   const ui = {
-    select: el('select', {}, ...names.map(n => el('option', { value: n, textContent: n, selected: n === cage }))),
+    select: el('select'),
     msg: el('p', { className: 'map-edit-msg', textContent: HINT }),
   };
-  ui.select.setAttribute('aria-label', 'Cage to edit');
-  ui.select.addEventListener('change', () => pickEditCage(ui.select.value));
+  ui.select.setAttribute('aria-label', 'Region to edit');
+  ui.select.addEventListener('change', () => {
+    if (ui.select.value !== NEW_REGION) { pickEditCage(ui.select.value); return; }
+    ui.select.value = editing.cage; // stays put until a name is saved
+    openLinesDialog(app, 'region');
+  });
   ui.undo = editButton('Undo', () => {
     if (editing.adding) { editing.adding.pop(); refreshHandles(); return; } // drawing: step back one point
     const snap = editing.undo.pop();
@@ -762,6 +806,7 @@ function startEdit(app) {
   });
   ui.done = editButton('Done', () => endEdit());
   editing = { app, setId: set.id, cage, sel: null, adding: null, undo: [], ui, group: L.layerGroup().addTo(map), control: null };
+  fillRegionSelect();
   const EditControl = L.Control.extend({
     onAdd() {
       const box = el('div', { className: 'map-edit leaflet-bar' }, ui.select, ui.undo, ui.add, ui.remove, ui.del, ui.done, ui.msg);
