@@ -23,9 +23,13 @@ Live at <https://lyric28-bit.github.io/cage-finder/> (the repo keeps its old nam
 | `data/region-loops.json` | The Cartons region-map lines, traced from the photos and placed using the suburb names printed on each. Approximate. |
 | Map tiles | © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors, shown with [Leaflet](https://leafletjs.com) (kept in `lib/leaflet/`). |
 
-These files are only the starting point. Each device saves its own copy (in the browser's storage) the first time it runs, and every edit you make goes there. **Edits on your phone don't appear on the tablet by themselves**: use Export on one, then Import on the other.
+These files are only the starting point. Each device saves its own copy (in the browser's storage) the first time it runs, and every edit you make goes there. **Edits on your phone don't appear on the tablet by themselves**: use **⋯ → Share link** (or Export then Import).
 
 ## Moving data between phone and tablet
+
+**Quickest: share link.** On the device with the changes, **⋯ → Share link**, then Share or Copy. It carries your cages, suburbs, postcodes, approvals and drawn line sets (not photos), usually under 2 KB. Open it on the other device and tap **Replace** (this replaces that device's cages; line sets are added). On iPhone/iPad a tapped link opens in Safari, which keeps separate data from the home-screen app: copy the link, open the app, **⋯ → Open share link** and paste it. Both devices need the same app version (tap "New version ready" if it shows).
+
+Or with a file:
 
 1. On the device with the changes: **⋯ → Export**. A file like `cage-finder-2026-10-16.json` is saved (Downloads on Android, Files app on iPhone).
 2. Get the file to the other device (email it to yourself, Google Drive, USB, etc.).
